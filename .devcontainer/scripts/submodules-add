@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+#
+# description:  Add New Git Repo with Native SFCC Cartridges
+#               This script only needs to be run once when a git repo is setup for the first
+#               time or whenever you need to spin up a build for continuous integration
+# author:       Peter Schmalfeldt <me@peterschmalfeldt.com>
+
+# SFCC GitHub Remote Origin
+SFCC=git@github.com:SalesforceCommerceCloud
+
+##################################################
+# INITIALIZE PROJECT FOR SUBMODULES              #
+##################################################
+
+# Create local Constants
+CWD=$PWD
+DIR=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+START=`date +%s`
+
+# Folder for SalesforceCommerceCloud NPM Packages
+BASE='dependencies'
+
+# Import Common Functions and Constants
+source $DIR/common
+
+# Make Project Directory if it did not already exist
+mkdir -p $CWD/$BASE
+
+# Start Output
+make_header 'ADDING GIT SUBMODULES'
+
+##################################################
+# REQUIRED SFRA SUBMODULES                       #
+##################################################
+
+output 'Storefront Reference Architecture ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name storefront-reference-architecture --force $SFCC/storefront-reference-architecture.git $BASE/storefront-reference-architecture
+
+output 'SFRA Webpack Builder ( Release: v3.3.0 )'
+git submodule add --branch release/v3.3.0 --name sfra-webpack-builder --force $SFCC/sfra-webpack-builder.git $BASE/sfra-webpack-builder
+
+##################################################
+# SFRA PLUGIN SUBMODULES                         #
+##################################################
+
+output 'SFRA Plugin - ApplePay ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name plugin-applepay --force $SFCC/plugin-applepay.git $BASE/plugin-applepay
+
+output 'SFRA Plugin - Cartridge Merge ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name plugin_cartridge_merge --force $SFCC/plugin_cartridge_merge.git $BASE/plugin_cartridge_merge
+
+output 'SFRA Plugin - DataDownload ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name plugin_datadownload --force $SFCC/plugin_datadownload.git $BASE/plugin_datadownload
+
+output 'SFRA Plugin - Gift Registry ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name plugin_giftregistry --force $SFCC/plugin_giftregistry.git $BASE/plugin_giftregistry
+
+output 'SFRA Plugin - Buy Online Pickup In Store ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name plugin_instorepickup --force $SFCC/plugin_instorepickup.git $BASE/plugin_instorepickup
+
+output 'SFRA Plugin - Product Comparison ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name plugin_productcompare --force $SFCC/plugin_productcompare.git $BASE/plugin_productcompare
+
+output 'SFRA Plugin - Site Map ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name plugin_sitemap --force $SFCC/plugin_sitemap.git $BASE/plugin_sitemap
+
+output 'SFRA Plugin - Wishlists ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name plugin_wishlists --force $SFCC/plugin_wishlists.git $BASE/plugin_wishlists
+
+##################################################
+# SFRA LIBRARY SUBMODULES                        #
+##################################################
+
+output 'SFRA Library - Product List ( Release: v6.3.0 )'
+git submodule add --branch release/v6.3.0 --name lib_productlist --force $SFCC/lib_productlist.git $BASE/lib_productlist
+
+##################################################
+# SFRA TOOL SUBMODULES                           #
+##################################################
+
+output 'SFRA Tool - B2C Tools ( Release: v0.14.1 )'
+git submodule add --branch main --name b2c-tools --force $SFCC/b2c-tools.git $BASE/b2c-tools
+
+##################################################
+# INSTALLATION COMPLETE                          #
+##################################################
+
+END=`date +%s`
+
+RUNTIME=$((END-START))
+HOURS=$((RUNTIME / 3600))
+MINUTES=$(( (RUNTIME % 3600) / 60 ))
+SECONDS=$(( (RUNTIME % 3600) % 60 ))
+
+success "SUBMODULES ADDED: $(printf '%02d' $HOURS):$(printf '%02d' $MINUTES):$(printf '%02d' $SECONDS)"
+
+notify 'Submodules Added' "Total Runtime: $(printf '%02d' $HOURS):$(printf '%02d' $MINUTES):$(printf '%02d' $SECONDS)"

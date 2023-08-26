@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#
+# lifecycle:    postStartCommand
+# description:  A command to run each time the container is successfully started.
+# author:       Peter Schmalfeldt <me@peterschmalfeldt.com>
+
+# Create local Constants
+CWD=$PWD
+
+# Import Common Functions and Constants
+source $CWD/.devcontainer/scripts/common
+
+# Debug Container State
+output 'Container Started'

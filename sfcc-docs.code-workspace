@@ -1,0 +1,41 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+        "window.title": "${SFCC DevOps}${separator}${SFCC Docs}${separator}${activeEditorShort}",
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+        "editor.formatOnSave": true,
+		"cSpell.words": [
+            "bashhistory",
+            "callout",
+            "clsx",
+            "commandhistory",
+            "compareapi",
+            "devcontainer",
+            "esbenp",
+            "flexsearch",
+            "frontmatter",
+            "headlessui",
+            "heroicons",
+            "jobstep",
+            "jobstepapi",
+            "Lexend",
+            "markdoc",
+            "pipelet",
+            "pipeletapi",
+            "Pipelets",
+            "Schmalfeldt",
+            "scriptapi",
+            "sfcc",
+            "sfccdevops",
+            "sfccdocs",
+            "sindresorhus",
+            "styleguide",
+            "tailwindcss"
+        ],
+        "vs-code-prettier-eslint.prettierLast": true
+	}
+}

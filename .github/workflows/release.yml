@@ -1,0 +1,19 @@
+name: Release
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: staging
+    strategy:
+      matrix:
+        node-version:
+          - 18.x
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '${{ matrix.node-version }}'
+          cache: npm

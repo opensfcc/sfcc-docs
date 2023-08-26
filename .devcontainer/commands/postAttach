@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#
+# lifecycle:    postAttachCommand
+# description:  A command to run each time a tool has successfully attached to the container.
+# author:       Peter Schmalfeldt <me@peterschmalfeldt.com>
+
+# Create local Constants
+CWD=$PWD
+
+# Import Common Functions and Constants
+source $CWD/.devcontainer/scripts/common
+
+# Debug Container State
+output 'Container Attached'

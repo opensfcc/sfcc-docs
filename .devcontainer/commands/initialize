@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# lifecycle:    initializeCommand
+# description:  A command run on the host machine before the container is created.
+#               The command is run wherever the source code is located on the host.
+#               For cloud services, this is in the cloud.
+# author:       Peter Schmalfeldt <me@peterschmalfeldt.com>
+
+# Create local Constants
+CWD=$PWD
+
+# Import Common Functions and Constants
+source $CWD/.devcontainer/scripts/common
+
+# Debug Container State
+output 'Initializing Container'

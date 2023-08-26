@@ -1,0 +1,29 @@
+{
+    "recommendations": [
+        // Vue.js Extensions
+        "Vue.volar",                                // Vue Language Features (Volar)
+
+        // Tailwind CSS Extensions
+        "bourhaouta.tailwindshades",                // Tailwind Shades
+        "bradlc.vscode-tailwindcss",                // Tailwind CSS IntelliSense
+        "heybourn.headwind",                        // Headwind
+        "stivo.tailwind-fold",                      // Tailwind Fold
+
+        // Microsoft Live Share Extensions
+        "MS-vsliveshare.vsliveshare",               // Live Share
+
+        // Helpful Development Team Extensions
+        "aaron-bond.better-comments",               // Better Comments
+        "alefragnani.Bookmarks",                    // Bookmarks
+        "codezombiech.gitignore",                   // gitignore
+        "eamodio.gitlens",                          // GitLens — Git supercharged
+        "EditorConfig.EditorConfig",                // EditorConfig for VS Code
+        "HookyQR.JSDocTagComplete",                 // Complete JSDoc Tags
+        "mhutchie.git-graph",                       // Git Graph
+        "mikestead.dotenv",                         // DotENV
+        "rafamel.subtle-brackets",                  // Subtle Match Brackets
+        "streetsidesoftware.code-spell-checker",    // Code Spell Checker
+        "Tyriar.sort-lines",                        // Sort lines
+        "wmaurer.change-case"                       // Change Case
+    ]
+}

@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#
+# description:  Common Functions and Constants used in different scripts
+# author:       Peter Schmalfeldt <me@peterschmalfeldt.com>
+
+# Formatted Confirmation Prompt
+function confirm {
+    echo -ne "\n\033[38;5;220m⚠ $1\033[0m"
+}
+
+# Formatted Error Output from Within Script
+function error {
+    TEXT=$( echo $1 | tr '\n' ' ')
+    echo -e "\n\033[38;5;196m❌ $TEXT\033[0m\n"
+}
+
+# Make Header Outout for Starting Script
+function make_header {
+    TEXT=$( echo $1 | tr '\n' ' ')
+    echo -e "\n\033[48;5;22m  $TEXT  \033[0m\n"
+}
+
+# Formatted Notice Output from Within Script
+function notice {
+    TEXT=$( echo $1 | tr '\n' ' ')
+    echo -e "\033[38;5;220m→ $TEXT\033[0m\n"
+}
+
+# Formatted Output from Within Script
+function output {
+    TEXT=$( echo $1 | tr '\n' ' ')
+    echo -e "\n\033[7m › \033[27m $TEXT\n"
+}
+
+function log {
+    TEXT=$( echo $1 | tr '\n' ' ')
+    echo -e "› $TEXT"
+}
+
+# Formatted Success Output from Within Script
+function success {
+    TEXT=$( echo $1 | tr '\n' ' ')
+    echo -e "\n\033[38;5;34m✅ $TEXT\033[0m\n"
+}
+
+function notify {
+    TITLE=$( echo $1 | tr '\n' ' ')
+    TEXT=$( echo $2 | tr '\n' ' ')
+
+    if test -f '/usr/bin/osascript'; then
+        # Use macOS Native Notifications
+        osascript -e "display notification \"$TEXT\" with title \"$TITLE\" sound name \"Crystal\""
+    else
+        # Ring Terminal Bell
+        tput bel
+    fi
+}

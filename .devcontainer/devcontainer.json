@@ -1,0 +1,185 @@
+{
+  // Name of VS Code Remote Container
+  "name": "${containerWorkspaceFolderBasename}",
+
+  // Docker User on Container ( leave as "node" )
+  "remoteUser": "node",
+
+  // Docker Build Settings
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "VARIANT": "18-bullseye"
+    }
+  },
+
+  "remoteEnv": {
+    "CONTAINER_BASE": "${containerWorkspaceFolder}",
+    "CONTAINER_NAME": "${containerWorkspaceFolderBasename}",
+    "COMPANY_NAME": "SFCC DevOps",
+    "PROJECT_NAME": "SFCC Docs"
+  },
+
+  // Argument to pass to Docker Build's Run Command
+  "runArgs": [
+    // Environmental Variables ( uncomment and create file if your team needs private env variables )
+    // "--env-file", ".devcontainer/devcontainer.env",
+
+    // Name of Docker Container
+    "--name",
+    "${containerWorkspaceFolderBasename}"
+  ],
+
+  // Handle Port Forwarding for VS Code Container to Local Machine Ports
+  "portsAttributes": {
+    // Add support for Prophet Debugger
+    "60606": {
+      "label": "Prophet Debugger Remote",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // Virtual Mounted Volumes to make Containers perform better
+  "mounts": [
+    // Add Support for Bash History
+    "source=${containerWorkspaceFolderBasename}-bashhistory,target=/commandhistory,type=volume",
+
+    // Mount a Copy of Git Config to Container to Inherit Local Global Settings
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached"
+  ],
+
+  // A command to run on the host machine before the container is created
+  "initializeCommand": [".devcontainer/commands/initialize"],
+
+  // Command that executes inside the container immediately after it has started for the first time
+  "onCreateCommand": [".devcontainer/commands/onCreate"],
+
+  // Command that executes inside the container after onCreateCommand whenever new content is available in the source tree during the creation process
+  "updateContentCommand": [".devcontainer/commands/updateContent"],
+
+  // Command that executes inside the container after updateContentCommand and once the dev container has been assigned to a user for the first time
+  "postCreateCommand": [".devcontainer/commands/postCreate"],
+
+  // A command to run each time the container is successfully started
+  "postStartCommand": [".devcontainer/commands/postStart"],
+
+  // A command to run each time a tool has successfully attached to the container
+  "postAttachCommand": [".devcontainer/commands/postAttach"],
+
+  // VS Code Container Settings
+  "settings": {
+    // Window Settings
+    "window.title": "${containerEnv:COMPANY_NAME}${separator}${containerEnv:PROJECT_NAME}${separator}${activeEditorShort}",
+
+    // Editor Settings
+    "editor.fontLigatures": true,
+    "editor.insertSpaces": true,
+    "editor.lightbulb.enabled": false,
+    "editor.quickSuggestionsDelay": 150,
+    "editor.snippetSuggestions": "top",
+    "editor.tabSize": 4,
+    "editor.trimAutoWhitespace": true,
+
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "files.autoSave": "onFocusChange",
+    "vs-code-prettier-eslint.prettierLast": "false",
+
+    // DIFF Editor Settings
+    "diffEditor.ignoreTrimWhitespace": true,
+
+    // Controls the limit of git submodules detected.
+    "git.detectSubmodulesLimit": 100,
+
+    // Terminal Settings
+    "terminal.integrated.profiles.linux": {
+      "zsh": {
+        "path": "/usr/bin/zsh"
+      }
+    },
+    "terminal.integrated.enableBell": true,
+    "terminal.integrated.shell.linux": "zsh",
+
+    // File System Settings
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true, // This is needed to prevent line ending warnings on GitHub
+    "files.exclude": {
+      "**/.DS_Store": true,
+      "**/.git": true,
+      "**/.hg": true,
+      "**/.svn": true,
+      "**/*.git": true,
+      "**/CVS": true,
+      "**/Thumbs.db": true
+    },
+
+    // Files to Exclude from Search results
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/package-lock.json": true,
+      "cartridge/static/*/css": true,
+      "cartridge/static/*/js": true,
+      "node_modules": true
+    },
+
+    // Disable Recommended Extension Prompts
+    "extensions.ignoreRecommendations": true,
+
+    // Prophet Debugger Extension Settings
+    "extension.prophet.clean.on.start": false,
+    "extension.prophet.htmlhint.enabled": true,
+    "extension.prophet.ignore.list": ["node_modules", "\\.git", "\\.zip$"],
+    "extension.prophet.script.server.disable.diagnostics": false,
+    "extension.prophet.upload.enabled": true,
+
+    // Live Share Extension Settings
+    "liveshare.alwaysFollowHost": true,
+    "liveshare.anonymousGuestApproval": "reject",
+    "liveshare.audio.startCallOnShare": true,
+    "liveshare.diagnosticLogging": true,
+    "liveshare.diagnosticLoggingLevel": "Debug",
+    "liveshare.diagnosticMode": true,
+    "liveshare.guestApprovalRequired": true,
+    "liveshare.launcherClient": "visualStudioCode",
+    "liveshare.presence": true,
+    "liveshare.publishWorkspaceInfo": true,
+    "liveshare.shareExternalFiles": false,
+
+    // Spell Checker Words to Ignore
+    "cSpell.words": []
+  },
+
+  // VS Code Extensions to Install on Container Build
+  "extensions": [
+    // Vue.js Extensions
+    "Vue.volar", // Vue Language Features (Volar)
+
+    // Tailwind CSS Extensions
+    "bourhaouta.tailwindshades", // Tailwind Shades
+    "bradlc.vscode-tailwindcss", // Tailwind CSS IntelliSense
+    "heybourn.headwind", // Headwind
+    "stivo.tailwind-fold", // Tailwind Fold
+
+    // Microsoft Live Share Extensions
+    "MS-vsliveshare.vsliveshare-audio", // Live Share Audio
+    "MS-vsliveshare.vsliveshare", // Live Share
+
+    // Helpful Development Team Extensions
+    "aaron-bond.better-comments", // Better Comments
+    "alefragnani.Bookmarks", // Bookmarks
+    "codezombiech.gitignore", // gitignore
+    "eamodio.gitlens", // GitLens — Git supercharged
+    "EditorConfig.EditorConfig", // EditorConfig for VS Code
+    "HookyQR.JSDocTagComplete", // Complete JSDoc Tags
+    "mhutchie.git-graph", // Git Graph
+    "mikestead.dotenv", // DotENV
+    "rafamel.subtle-brackets", // Subtle Match Brackets
+    "streetsidesoftware.code-spell-checker", // Code Spell Checker
+    "Tyriar.sort-lines", // Sort lines
+    "wmaurer.change-case" // Change Case
+  ]
+}
