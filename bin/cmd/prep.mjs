@@ -15,6 +15,8 @@ import { DOCS_FOLDER, PREP_FOLDER, VERSIONS_FOLDER } from '../config.mjs'
 const debug = Debug('sfcc-docs:prep')
 
 export default async (cli) => {
+  debug('CMD: prep', cli.version)
+
   // Make sure we have a version
   if (!cli.version) {
     debug(chalk.red.bold(`✖ ERROR: Please specify a version`))

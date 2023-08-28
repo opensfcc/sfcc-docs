@@ -33,7 +33,7 @@ output 'Update Anchor Tags in HTML'
 for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs update-links --version `basename "$f"`; done
 
 output 'Convert HTML to Markdown'
-for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs markdown --version `basename "$f"`; done
+for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs convert --version `basename "$f"`; done
 
 output 'Build navigation for version'
 for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs build-nav --version `basename "$f"`; done
