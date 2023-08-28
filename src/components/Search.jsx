@@ -1,15 +1,7 @@
 import { createAutocomplete } from '@algolia/autocomplete-core'
 import { createLocalStorageRecentSearchesPlugin } from '@algolia/autocomplete-plugin-recent-searches'
 import { Dialog } from '@headlessui/react'
-import {
-  forwardRef,
-  Fragment,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  useMemo,
-} from 'react'
+import { forwardRef, Fragment, useEffect, useId, useRef, useState, useMemo } from 'react'
 import { useRouter } from 'next/router'
 
 import clsx from 'clsx'
@@ -94,21 +86,9 @@ function LoadingIcon(props) {
   return (
     <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}>
       <circle cx="10" cy="10" r="5.5" strokeLinejoin="round" />
-      <path
-        stroke={`url(#${id})`}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15.5 10a5.5 5.5 0 1 0-5.5 5.5"
-      />
+      <path stroke={`url(#${id})`} strokeLinecap="round" strokeLinejoin="round" d="M15.5 10a5.5 5.5 0 1 0-5.5 5.5" />
       <defs>
-        <linearGradient
-          id={id}
-          x1="13"
-          x2="9.5"
-          y1="9"
-          y2="15"
-          gradientUnits="userSpaceOnUse"
-        >
+        <linearGradient id={id} x1="13" x2="9.5" y1="9" y2="15" gradientUnits="userSpaceOnUse">
           <stop stopColor="currentColor" />
           <stop offset="1" stopColor="currentColor" stopOpacity="0" />
         </linearGradient>
@@ -128,13 +108,7 @@ function HighlightQuery({ text, query }) {
   )
 }
 
-function SearchResult({
-  result,
-  autocomplete,
-  collection,
-  query,
-  recentResult = false,
-}) {
+function SearchResult({ result, autocomplete, collection, query, recentResult = false }) {
   let id = useId()
   let router = useRouter()
 
@@ -187,13 +161,7 @@ function SearchResult({
           {hierarchy.map((item, itemIndex, items) => (
             <Fragment key={itemIndex}>
               <HighlightQuery text={item} query={query} />
-              <span
-                className={
-                  itemIndex === items.length - 1
-                    ? 'sr-only'
-                    : 'mx-2 text-slate-300 dark:text-slate-700'
-                }
-              >
+              <span className={itemIndex === items.length - 1 ? 'sr-only' : 'mx-2 text-slate-300 dark:text-slate-700'}>
                 /
               </span>
               {recentResult === true && result.url && (
@@ -206,12 +174,7 @@ function SearchResult({
                     onRemove(result.id)
                   }}
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    role="presentation"
-                    className="pointer-events-none"
-                  >
+                  <svg viewBox="0 0 24 24" fill="currentColor" role="presentation" className="pointer-events-none">
                     <path d="M18 7v13c0 0.276-0.111 0.525-0.293 0.707s-0.431 0.293-0.707 0.293h-10c-0.276 0-0.525-0.111-0.707-0.293s-0.293-0.431-0.293-0.707v-13zM17 5v-1c0-0.828-0.337-1.58-0.879-2.121s-1.293-0.879-2.121-0.879h-4c-0.828 0-1.58 0.337-2.121 0.879s-0.879 1.293-0.879 2.121v1h-4c-0.552 0-1 0.448-1 1s0.448 1 1 1h1v13c0 0.828 0.337 1.58 0.879 2.121s1.293 0.879 2.121 0.879h10c0.828 0 1.58-0.337 2.121-0.879s0.879-1.293 0.879-2.121v-13h1c0.552 0 1-0.448 1-1s-0.448-1-1-1zM9 5v-1c0-0.276 0.111-0.525 0.293-0.707s0.431-0.293 0.707-0.293h4c0.276 0 0.525 0.111 0.707 0.293s0.293 0.431 0.293 0.707v1zM9 11v6c0 0.552 0.448 1 1 1s1-0.448 1-1v-6c0-0.552-0.448-1-1-1s-1 0.448-1 1zM13 11v6c0 0.552 0.448 1 1 1s1-0.448 1-1v-6c0-0.552-0.448-1-1-1s-1 0.448-1 1z" />
                   </svg>
                 </button>
@@ -224,19 +187,12 @@ function SearchResult({
   )
 }
 
-function SearchResults({
-  autocomplete,
-  query,
-  collection,
-  recentResult = false,
-}) {
+function SearchResults({ autocomplete, query, collection, recentResult = false }) {
   if (collection.items.length === 0) {
     return (
       <p className="px-4 py-8 text-center text-sm text-slate-700 dark:text-slate-400">
         No results for &ldquo;
-        <span className="break-words text-slate-900 dark:text-white">
-          {query}
-        </span>
+        <span className="break-words text-slate-900 dark:text-white">{query}</span>
         &rdquo;
       </p>
     )
@@ -258,10 +214,7 @@ function SearchResults({
   )
 }
 
-const SearchInput = forwardRef(function SearchInput(
-  { autocomplete, autocompleteState, onClose },
-  inputRef
-) {
+const SearchInput = forwardRef(function SearchInput({ autocomplete, autocompleteState, onClose }, inputRef) {
   let inputProps = autocomplete.getInputProps({})
 
   return (
@@ -275,11 +228,7 @@ const SearchInput = forwardRef(function SearchInput(
         )}
         {...inputProps}
         onKeyDown={(event) => {
-          if (
-            event.key === 'Escape' &&
-            !autocompleteState.isOpen &&
-            autocompleteState.query === ''
-          ) {
+          if (event.key === 'Escape' && !autocompleteState.isOpen && autocompleteState.query === '') {
             // In Safari, closing the dialog with the escape key can sometimes cause the scroll position to jump to the
             // bottom of the page. This is a workaround for that until we can figure out a proper fix in Headless UI.
             document.activeElement?.blur()
@@ -446,9 +395,7 @@ export function Search() {
   let { buttonProps, dialogProps } = useSearchProps()
 
   useEffect(() => {
-    setModifierKey(
-      /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? '⌘' : 'Ctrl '
-    )
+    setModifierKey(/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? '⌘' : 'Ctrl ')
   }, [])
 
   return (

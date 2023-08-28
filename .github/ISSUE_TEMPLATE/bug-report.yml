@@ -1,7 +1,7 @@
 name: Bug Report
 description: File a bug report
-title: "[Bug]: "
-labels: ["bug", "triage"]
+title: '[Bug]: '
+labels: ['bug', 'triage']
 body:
   - type: markdown
     attributes:
@@ -21,7 +21,7 @@ body:
       label: What happened?
       description: Describe the issue here.
       placeholder: Tell us what you see!
-      value: "A bug happened!"
+      value: 'A bug happened!'
     validations:
       required: true
   - type: dropdown
@@ -53,4 +53,4 @@ body:
     attributes:
       label: Code to produce this issue.
       description: Please copy and paste any relevant code to re-produce this issue. And the version of the browser you are using.
-      render: shell
+      render: Shell

@@ -14,37 +14,22 @@ START=`date +%s`
 # Import Common Functions and Constants
 source $CWD/.devcontainer/scripts/common
 
-# Add Third-Party Submodules
-$CWD/.devcontainer/scripts/submodules-add
-
 # Run Base Installer
 cd $CWD
-output 'Installing: ./'
-npm clean-install > /dev/null 2>&1
+output 'Installing Dependencies'
+npm clean-install
 
-# Look at .gitmodules for which external repos we need to initialize
-$CWD/.devcontainer/scripts/submodules-init
-
-##################################################
-# COMMAND COMPLETE                               #
-##################################################
-
+# Install Complete
 END=`date +%s`
-
 RUNTIME=$((END-START))
 HOURS=$((RUNTIME / 3600))
 MINUTES=$(( (RUNTIME % 3600) / 60 ))
 SECONDS=$(( (RUNTIME % 3600) % 60 ))
 
+# Notify Developer
 success "INSTALLATION COMPLETE: $(printf '%02d' $HOURS):$(printf '%02d' $MINUTES):$(printf '%02d' $SECONDS)"
-
 notify 'Installation Complete' "Total Runtime: $(printf '%02d' $HOURS):$(printf '%02d' $MINUTES):$(printf '%02d' $SECONDS)"
 
-##################################################
-# CREATE CONFIGURATION FILE                      #
-##################################################
-
-# Initialize Instance
-$CWD/dependencies/b2c-tools/cli.js instance setup
-
-# @TODO: Add any other scripts that need to run the very first time the virtual machine is created
+# Start Dev Environment
+output 'Running Dev Environment'
+npm run dev

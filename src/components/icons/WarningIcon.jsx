@@ -4,16 +4,8 @@ export function WarningIcon({ id, color }) {
   return (
     <>
       <defs>
-        <Gradient
-          id={`${id}-gradient`}
-          color={color}
-          gradientTransform="rotate(65.924 1.519 20.92) scale(25.7391)"
-        />
-        <Gradient
-          id={`${id}-gradient-dark`}
-          color={color}
-          gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)"
-        />
+        <Gradient id={`${id}-gradient`} color={color} gradientTransform="rotate(65.924 1.519 20.92) scale(25.7391)" />
+        <Gradient id={`${id}-gradient-dark`} color={color} gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)" />
       </defs>
       <LightMode>
         <circle cx={20} cy={20} r={12} fill={`url(#${id}-gradient)`} />

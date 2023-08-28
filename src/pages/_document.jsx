@@ -40,10 +40,7 @@ const themeScript = `
 
 export default function Document() {
   return (
-    <Html
-      className="h-full antialiased [font-feature-settings:'ss01'] scroll-smooth"
-      lang="en"
-    >
+    <Html className="h-full scroll-smooth antialiased [font-feature-settings:'ss01']" lang="en">
       <Head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </Head>

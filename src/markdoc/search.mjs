@@ -12,10 +12,7 @@ const __filename = url.fileURLToPath(import.meta.url)
 const slugify = slugifyWithCounter()
 
 function toString(node) {
-  let str =
-    node.type === 'text' && typeof node.attributes?.content === 'string'
-      ? node.attributes.content
-      : ''
+  let str = node.type === 'text' && typeof node.attributes?.content === 'string' ? node.attributes.content : ''
   if ('children' in node) {
     for (let child of node.children) {
       str += toString(child)
@@ -57,8 +54,7 @@ const search = function (nextConfig = {}) {
 
             let files = glob.sync('**/*.md', { cwd: pagesDir })
             let data = files.map((file) => {
-              let url =
-                file === 'index.md' ? '/' : `/${file.replace(/\.md$/, '')}`
+              let url = file === 'index.md' ? '/' : `/${file.replace(/\.md$/, '')}`
               let md = fs.readFileSync(path.join(pagesDir, file), 'utf8')
 
               let sections
@@ -67,10 +63,7 @@ const search = function (nextConfig = {}) {
                 sections = cache.get(file)[1]
               } else {
                 let ast = Markdoc.parse(md)
-                let title =
-                  ast.attributes?.frontmatter?.match(
-                    /^title:\s*(.*?)\s*$/m
-                  )?.[1]
+                let title = ast.attributes?.frontmatter?.match(/^title:\s*(.*?)\s*$/m)?.[1]
                 sections = [[title, null, []]]
                 extractSections(ast, sections)
                 cache.set(file, [md, sections])

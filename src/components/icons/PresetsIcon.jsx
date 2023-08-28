@@ -4,16 +4,8 @@ export function PresetsIcon({ id, color }) {
   return (
     <>
       <defs>
-        <Gradient
-          id={`${id}-gradient`}
-          color={color}
-          gradientTransform="matrix(0 21 -21 0 20 3)"
-        />
-        <Gradient
-          id={`${id}-gradient-dark`}
-          color={color}
-          gradientTransform="matrix(0 22.75 -22.75 0 16 6.25)"
-        />
+        <Gradient id={`${id}-gradient`} color={color} gradientTransform="matrix(0 21 -21 0 20 3)" />
+        <Gradient id={`${id}-gradient-dark`} color={color} gradientTransform="matrix(0 22.75 -22.75 0 16 6.25)" />
       </defs>
       <LightMode>
         <circle cx={20} cy={12} r={12} fill={`url(#${id}-gradient)`} />

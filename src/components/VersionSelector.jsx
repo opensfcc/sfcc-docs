@@ -14,10 +14,7 @@ export function VersionSelector() {
       <div>
         <Menu.Button className="ml-4 inline-flex w-full justify-center gap-x-1.5 rounded-full bg-slate-800 px-1 py-1 text-xs font-semibold leading-5 text-slate-400 hover:bg-slate-700 hover:text-white focus:text-white focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:text-slate-400">
           v23.9
-          <ChevronDownIcon
-            className="top-0.25 relative -mr-1 h-5 w-5 text-gray-400"
-            aria-hidden="true"
-          />
+          <ChevronDownIcon className="top-0.25 relative -mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
         </Menu.Button>
       </div>
 

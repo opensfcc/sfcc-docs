@@ -28,9 +28,7 @@ function collectHeadings(nodes, slugify = slugifyWithCounter()) {
         node.attributes.id = id
         if (node.name === 'h3') {
           if (!sections[sections.length - 1]) {
-            throw new Error(
-              'Cannot add `h3` to table of contents without a preceding `h2`'
-            )
+            throw new Error('Cannot add `h3` to table of contents without a preceding `h2`')
           }
           sections[sections.length - 1].children.push({
             ...node.attributes,
@@ -51,15 +49,11 @@ function collectHeadings(nodes, slugify = slugifyWithCounter()) {
 export default function App({ Component, pageProps }) {
   let title = pageProps.markdoc?.frontmatter.title
 
-  let pageTitle =
-    pageProps.markdoc?.frontmatter.pageTitle ||
-    `${pageProps.markdoc?.frontmatter.title} - Docs`
+  let pageTitle = pageProps.markdoc?.frontmatter.pageTitle || `${pageProps.markdoc?.frontmatter.title} - Docs`
 
   let description = pageProps.markdoc?.frontmatter.description
 
-  let tableOfContents = pageProps.markdoc?.content
-    ? collectHeadings(pageProps.markdoc.content)
-    : []
+  let tableOfContents = pageProps.markdoc?.content ? collectHeadings(pageProps.markdoc.content) : []
 
   return (
     <>
@@ -67,11 +61,7 @@ export default function App({ Component, pageProps }) {
         <title>{pageTitle}</title>
         {description && <meta name="description" content={description} />}
       </Head>
-      <Layout
-        title={title}
-        tableOfContents={tableOfContents}
-        isMarkdoc={Boolean(pageProps.markdoc)}
-      >
+      <Layout title={title} tableOfContents={tableOfContents} isMarkdoc={Boolean(pageProps.markdoc)}>
         <Component {...pageProps} />
       </Layout>
     </>

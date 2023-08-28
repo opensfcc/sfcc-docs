@@ -60,12 +60,7 @@ function Header({ navigation }) {
       </div>
       <div className="relative flex basis-0 justify-end gap-6 sm:gap-8 md:flex-grow">
         <ThemeSelector className="relative z-10" />
-        <Link
-          href="https://github.com/sfccdevops/sfcc-docs"
-          target="_blank"
-          className="group"
-          aria-label="GitHub"
-        >
+        <Link href="https://github.com/sfccdevops/sfcc-docs" target="_blank" className="group" aria-label="GitHub">
           <GitHubIcon className="h-6 w-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300" />
         </Link>
       </div>
@@ -116,24 +111,15 @@ function useTableOfContents(tableOfContents) {
   return currentSection
 }
 
-export function Layout({
-  children,
-  title,
-  tableOfContents,
-  isMarkdoc = false,
-}) {
+export function Layout({ children, title, tableOfContents, isMarkdoc = false }) {
   let router = useRouter()
   let isHomePage = router.pathname === '/'
   let allLinks = navigation.flatMap((section) => section.links)
-  let linkIndex = allLinks.findIndex(
-    (link) => link?.href && link.href === router.pathname
-  )
+  let linkIndex = allLinks.findIndex((link) => link?.href && link.href === router.pathname)
   let previousPage = linkIndex > -1 ? allLinks[linkIndex - 1] : null
   let nextPage = linkIndex > -1 ? allLinks[linkIndex + 1] : null
   let section = navigation.find(
-    (section) =>
-      section?.links &&
-      section.links.find((link) => link.href === router.pathname)
+    (section) => section?.links && section.links.find((link) => link.href === router.pathname)
   )
   let currentSection = useTableOfContents(tableOfContents)
 
@@ -181,15 +167,9 @@ export function Layout({
             <article>
               {(title || section) && (
                 <header className="mb-9 space-y-1">
-                  {section && (
-                    <p className="font-display text-sm font-medium text-sky-500">
-                      {section.title}
-                    </p>
-                  )}
+                  {section && <p className="font-display text-sm font-medium text-sky-500">{section.title}</p>}
                   {title && (
-                    <h1 className="font-display text-3xl tracking-tight text-slate-900 dark:text-white">
-                      {title}
-                    </h1>
+                    <h1 className="font-display text-3xl tracking-tight text-slate-900 dark:text-white">{title}</h1>
                   )}
                 </header>
               )}
@@ -202,25 +182,20 @@ export function Layout({
             <dl className="mt-12 flex border-t border-slate-200 pt-6 dark:border-slate-800">
               {previousPage && (
                 <div>
-                  <dt className="font-display text-sm font-medium text-slate-900 dark:text-white">
-                    Previous
-                  </dt>
+                  <dt className="font-display text-sm font-medium text-slate-900 dark:text-white">Previous</dt>
                   <dd className="mt-1">
                     <Link
                       href={previousPage.href}
                       className="text-base font-semibold text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300"
                     >
-                      <span aria-hidden="true">&larr;</span>{' '}
-                      {previousPage.title}
+                      <span aria-hidden="true">&larr;</span> {previousPage.title}
                     </Link>
                   </dd>
                 </div>
               )}
               {nextPage && (
                 <div className="ml-auto text-right">
-                  <dt className="font-display text-sm font-medium text-slate-900 dark:text-white">
-                    Next
-                  </dt>
+                  <dt className="font-display text-sm font-medium text-slate-900 dark:text-white">Next</dt>
                   <dd className="mt-1">
                     <Link
                       href={nextPage.href}
@@ -262,10 +237,7 @@ export function Layout({
                           </Link>
                         </h3>
                         {section.children.length > 0 && (
-                          <ol
-                            role="list"
-                            className="mt-2 space-y-3 pl-5 text-slate-500 dark:text-slate-400"
-                          >
+                          <ol role="list" className="mt-2 space-y-3 pl-5 text-slate-500 dark:text-slate-400">
                             {section.children.map((subSection) => (
                               <li key={subSection.id}>
                                 <Link

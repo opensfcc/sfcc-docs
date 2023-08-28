@@ -34,11 +34,5 @@ RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhisto
     && chown -R node /commandhistory \
     && echo $SNIPPET >> /home/node/.bashrc
 
-# Add Support for Live Share
-RUN wget -O ~/vsls-reqs https://raw.githubusercontent.com/MicrosoftDocs/live-share/master/scripts/linux-prereqs.sh \
-    --no-check-certificate \
-    && chmod +x ~/vsls-reqs \
-    && ~/vsls-reqs
-
 # Prevent Error of missing notice file ( not sure why some people get that error )
 RUN sudo touch /conda-notice.txt

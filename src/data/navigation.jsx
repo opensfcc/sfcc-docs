@@ -584,8 +584,7 @@ export const navigation = [
             href: '/v23.7/sfra/server/models-product-line-item-bundle-order-line-item-js',
           },
           {
-            title:
-              '› Models Product Line Item Decorators Applied Promotions JS',
+            title: '› Models Product Line Item Decorators Applied Promotions JS',
             alt: 'View: SFRA › Server-side › Models Product Line Item Decorators Applied Promotions JS',
             href: '/v23.7/sfra/server/models-product-line-item-decorators-applied-promotions-js',
           },
@@ -595,14 +594,12 @@ export const navigation = [
             href: '/v23.7/sfra/server/models-product-line-item-decorators-bonus-unit-price-js',
           },
           {
-            title:
-              '› Models Product Line Item Decorators Bundled Product Line Items JS',
+            title: '› Models Product Line Item Decorators Bundled Product Line Items JS',
             alt: 'View: SFRA › Server-side › Models Product Line Item Decorators Bundled Product Line Items JS',
             href: '/v23.7/sfra/server/models-product-line-item-decorators-bundled-product-line-items-js',
           },
           {
-            title:
-              '› Models Product Line Item Decorators Discount Bonus Line Items JS',
+            title: '› Models Product Line Item Decorators Discount Bonus Line Items JS',
             alt: 'View: SFRA › Server-side › Models Product Line Item Decorators Discount Bonus Line Items JS',
             href: '/v23.7/sfra/server/models-product-line-item-decorators-discount-bonus-line-items-js',
           },
@@ -617,8 +614,7 @@ export const navigation = [
             href: '/v23.7/sfra/server/models-product-line-item-decorators-quantity-options-js',
           },
           {
-            title:
-              '› Models Product Line Item Decorators Rendered Promotions JS',
+            title: '› Models Product Line Item Decorators Rendered Promotions JS',
             alt: 'View: SFRA › Server-side › Models Product Line Item Decorators Rendered Promotions JS',
             href: '/v23.7/sfra/server/models-product-line-item-decorators-rendered-promotions-js',
           },
@@ -1063,8 +1059,7 @@ export const navigation = [
             href: '/v23.7/sfra/server/scripts-hooks-fraud-detection-js',
           },
           {
-            title:
-              '› Scripts Hooks Payment Processor Basic Credit Form Processor JS',
+            title: '› Scripts Hooks Payment Processor Basic Credit Form Processor JS',
             alt: 'View: SFRA › Server-side › Scripts Hooks Payment Processor Basic Credit Form Processor JS',
             href: '/v23.7/sfra/server/scripts-hooks-payment-processor-basic-credit-form-processor-js',
           },
@@ -1074,8 +1069,7 @@ export const navigation = [
             href: '/v23.7/sfra/server/scripts-hooks-payment-processor-basic-credit-js',
           },
           {
-            title:
-              '› Scripts Hooks Payment Processor Default Form Processor JS',
+            title: '› Scripts Hooks Payment Processor Default Form Processor JS',
             alt: 'View: SFRA › Server-side › Scripts Hooks Payment Processor Default Form Processor JS',
             href: '/v23.7/sfra/server/scripts-hooks-payment-processor-default-form-processor-js',
           },

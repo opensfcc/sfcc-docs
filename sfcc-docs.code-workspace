@@ -1,41 +1,74 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-        "window.title": "${SFCC DevOps}${separator}${SFCC Docs}${separator}${activeEditorShort}",
-        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-        "editor.formatOnSave": true,
-		"cSpell.words": [
-            "bashhistory",
-            "callout",
-            "clsx",
-            "commandhistory",
-            "compareapi",
-            "devcontainer",
-            "esbenp",
-            "flexsearch",
-            "frontmatter",
-            "headlessui",
-            "heroicons",
-            "jobstep",
-            "jobstepapi",
-            "Lexend",
-            "markdoc",
-            "pipelet",
-            "pipeletapi",
-            "Pipelets",
-            "Schmalfeldt",
-            "scriptapi",
-            "sfcc",
-            "sfccdevops",
-            "sfccdocs",
-            "sindresorhus",
-            "styleguide",
-            "tailwindcss"
-        ],
-        "vs-code-prettier-eslint.prettierLast": true
-	}
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "vs-code-prettier-eslint.prettierLast": true,
+    "markdown-preview-enhanced.codeBlockTheme": "github.css",
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.formatOnSave": true,
+    "cSpell.words": [
+      "applepay",
+      "bancontact",
+      "bashhistory",
+      "callout",
+      "clsx",
+      "commandhistory",
+      "compareapi",
+      "ctnr",
+      "cybersource",
+      "devcontainer",
+      "esbenp",
+      "finalizeo",
+      "flexsearch",
+      "frontmatter",
+      "headlessui",
+      "heroicons",
+      "impex",
+      "initiateo",
+      "jobstep",
+      "jobstepapi",
+      "klarna",
+      "lexend",
+      "logomark",
+      "manifestinteractive",
+      "markdoc",
+      "paymentapi",
+      "paymentrequest",
+      "pinterest",
+      "pipelet",
+      "pipeletapi",
+      "pipelets",
+      "preconfigured",
+      "reindex",
+      "rvest",
+      "schmalfeldt",
+      "scriptapi",
+      "sepa",
+      "sfcc",
+      "sfccdevops",
+      "sfccdocs",
+      "sfra",
+      "sindresorhus",
+      "styleguide",
+      "tailwindcss",
+      "unoptimized",
+      "venmo",
+      "webdav"
+    ],
+    "search.exclude": {
+      ".b2c-dev-doc": true,
+      ".devcontainer": true,
+      ".github": true,
+      ".next": true,
+      ".vscode": true,
+      "**/node_modules": true,
+      "**/package-lock.json": true,
+      "node_modules": true,
+      "public": true,
+      "src/pages/**/*.md": true
+    }
+  }
 }

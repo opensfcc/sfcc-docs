@@ -1,11 +1,9 @@
-Contributing Guide
-===
+# Contributing Guide
 
 Make sure you read and follow the instructions in the [pull request template](PULL_REQUEST_TEMPLATE.md). And note that all participation in this project (including code submissions) is
 governed by our [Code of Conduct](CODE_OF_CONDUCT.md).
 
-Issues & Feature Requests
----
+## Issues & Feature Requests
 
 [![Create Issue](https://img.shields.io/badge/Github-Create_Issue-red.svg?style=for-the-badge&logo=github&logoColor=ffffff&logoWidth=16)](https://github.com/FindByColor/api/issues/new/choose)
 
@@ -29,14 +27,13 @@ Issues & Feature Requests
 4. Look for the `Labels` section, and select `Feature Request` from the drop down menu
 5. Click `Submit new issue` button
 
-Pull Requests
----
+## Pull Requests
 
 [![Create Pull Request](https://img.shields.io/badge/Github-Create_Pull_Request-blue.svg?style=for-the-badge&logo=github&logoColor=ffffff&logoWidth=16)](https://github.com/FindByColor/api/compare)
 
 ### Bug Fix
 
-> Each Bug Fix reported on GitHub should have its own `fix/*` branch.  The branch name should be formatted `fix/###-issue-name` where `###` is the GitHub Issue Number, and `issue-name` is a 1-3 word summary of the issue.
+> Each Bug Fix reported on GitHub should have its own `fix/*` branch. The branch name should be formatted `fix/###-issue-name` where `###` is the GitHub Issue Number, and `issue-name` is a 1-3 word summary of the issue.
 
 1. Checkout latest `develop` branch
 2. Pull down the latest changes via `git pull`

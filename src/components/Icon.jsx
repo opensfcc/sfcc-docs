@@ -19,8 +19,7 @@ const icons = {
 
 const iconStyles = {
   blue: '[--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]',
-  amber:
-    '[--icon-foreground:theme(colors.amber.900)] [--icon-background:theme(colors.amber.100)]',
+  amber: '[--icon-foreground:theme(colors.amber.900)] [--icon-background:theme(colors.amber.100)]',
 }
 
 export function Icon({ color = 'blue', icon, className, ...props }) {
@@ -28,24 +27,14 @@ export function Icon({ color = 'blue', icon, className, ...props }) {
   let IconComponent = icons[icon]
 
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 32 32"
-      fill="none"
-      className={clsx(className, iconStyles[color])}
-      {...props}
-    >
+    <svg aria-hidden="true" viewBox="0 0 32 32" fill="none" className={clsx(className, iconStyles[color])} {...props}>
       <IconComponent id={id} color={color} />
     </svg>
   )
 }
 
 const gradients = {
-  blue: [
-    { stopColor: '#0EA5E9' },
-    { stopColor: '#22D3EE', offset: '.527' },
-    { stopColor: '#818CF8', offset: 1 },
-  ],
+  blue: [{ stopColor: '#0EA5E9' }, { stopColor: '#22D3EE', offset: '.527' }, { stopColor: '#818CF8', offset: 1 }],
   amber: [
     { stopColor: '#FDE68A', offset: '.08' },
     { stopColor: '#F59E0B', offset: '.837' },
@@ -54,13 +43,7 @@ const gradients = {
 
 export function Gradient({ color = 'blue', ...props }) {
   return (
-    <radialGradient
-      cx={0}
-      cy={0}
-      r={1}
-      gradientUnits="userSpaceOnUse"
-      {...props}
-    >
+    <radialGradient cx={0} cy={0} r={1} gradientUnits="userSpaceOnUse" {...props}>
       {gradients[color].map((stop, stopIndex) => (
         <stop key={stopIndex} {...stop} />
       ))}
