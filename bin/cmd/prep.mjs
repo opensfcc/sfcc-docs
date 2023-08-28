@@ -257,26 +257,17 @@ export default async (cli) => {
     let newHTML = dom.toString()
 
     // Fix Line Issues with Params
-    newHTML = newHTML.replace(
-      /<strong class="parameterTitle">([^<]+)<\/strong>/g,
-      '<strong class="parameterTitle">$1</strong><br>'
-    )
+    newHTML = newHTML.replace(/<strong class="parameterTitle">([^<]+)<\/strong>/g, '<strong class="parameterTitle">$1</strong><br>')
 
     // Wrap parameters in list items
-    newHTML = newHTML.replace(
-      /<span class="parameterTitle">([^<]+)<\/span>\s?<code class="parameterDetail">([^<]+)<\/code>/gi,
-      '<li><strong class="parameterTitle">$1</strong> <code class="parameterDetail">$2</code></li>'
-    )
+    newHTML = newHTML.replace(/<span class="parameterTitle">([^<]+)<\/span>\s?<code class="parameterDetail">([^<]+)<\/code>/gi, '<li><strong class="parameterTitle">$1</strong> <code class="parameterDetail">$2</code></li>')
 
     // Mark Required as Code
     newHTML = newHTML.replace(/\(Required\)/g, '<code>Required</code>')
     newHTML = newHTML.replace(/\(Read Only\)/g, '<code>Read Only</code>')
 
     // Fix weird HTML for Constants
-    newHTML = newHTML.replace(
-      /<span>([A-Z_]+)\s?:\s?<a href="([^"]+)"><span class="">([^<]+)<\/span><\/a>=([^<]+)<\/span>/g,
-      '<p><strong>$1</strong> : <a href="$2">$3</a></p><p><pre><code>$4</code></pre></p>'
-    )
+    newHTML = newHTML.replace(/<span>([A-Z_]+)\s?:\s?<a href="([^"]+)"><span class="">([^<]+)<\/span><\/a>=([^<]+)<\/span>/g, '<p><strong>$1</strong> : <a href="$2">$3</a></p><p><pre><code>$4</code></pre></p>')
 
     // Give a bit more emphasis to the title of the constant
     newHTML = newHTML.replace(/<span>([^\s]+) : <a/g, '<span><strong>$1</strong> : <a')

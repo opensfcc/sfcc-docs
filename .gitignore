@@ -43,3 +43,4 @@ yarn-error.log*
 # Exclude generated markdown files from B2C docs from source code
 src/pages/**/*.md
 !src/pages/index.md
+.b2c-dev-doc

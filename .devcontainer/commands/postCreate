@@ -14,10 +14,29 @@ START=`date +%s`
 # Import Common Functions and Constants
 source $CWD/.devcontainer/scripts/common
 
-# Run Base Installer
+## Start Post Create Command
+make_header 'Intiliaizing Dev Container'
+
+# Installing Dependencies
 cd $CWD
 output 'Installing Dependencies'
 npm clean-install
+
+# Run CLI Commands to Build Documentation
+output 'Initialize and Download Resources'
+DEBUG=sfcc-docs:* ./bin/cli.mjs init
+
+output 'Cleanup HTML for Markdown'
+for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs prep --version `basename "$f"`; done
+
+output 'Update Anchor Tags in HTML'
+for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs update-links --version `basename "$f"`; done
+
+output 'Convert HTML to Markdown'
+for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs markdown --version `basename "$f"`; done
+
+output 'Build navigation for version'
+for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs build-nav --version `basename "$f"`; done
 
 # Install Complete
 END=`date +%s`

@@ -11,14 +11,28 @@ const debug = Debug('sfcc-docs:cli')
 const cli = yargs(hideBin(process.argv))
   .scriptName('sfcc-docs')
   .usage('Usage: sfcc-docs <command> --switches')
-  .command('prep', 'Prepare version of docs', {
+  .command('init', 'Initialize and Download Resources', {
     version: {
       alias: 'v',
       describe: 'Version',
       type: 'string',
     },
   })
-  .command('markdown', 'Convert HTML to Markdown', {
+  .command('prep', 'Cleanup HTML for Markdown', {
+    version: {
+      alias: 'v',
+      describe: 'Version',
+      type: 'string',
+    },
+  })
+  .command('update-links', 'Update Anchor Tags in HTML', {
+    version: {
+      alias: 'v',
+      describe: 'Version',
+      type: 'string',
+    },
+  })
+  .command('convert', 'Convert HTML to Markdown', {
     version: {
       alias: 'v',
       describe: 'Version',
@@ -32,8 +46,10 @@ const cli = yargs(hideBin(process.argv))
       type: 'string',
     },
   })
+  .example('sfcc-docs init', 'Initialize and Download Resources')
   .example('sfcc-docs prep -v 23.8', 'Prepare v23.8 for this site')
-  .example('sfcc-docs markdown -v 23.8', 'Convert HTML to Markdown for v23.8')
+  .example('sfcc-docs update-links -v 23.8', 'Update Anchor Tags for v23.8')
+  .example('sfcc-docs convert -v 23.8', 'Convert HTML to Markdown for v23.8')
   .example('sfcc-docs build-nav -v 23.8', 'Generate Navigation for v23.8')
   .example(' ', ' ')
   .example('----------------------------------', '----------------------------------')

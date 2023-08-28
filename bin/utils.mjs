@@ -17,14 +17,7 @@ export function getVersionFolder(version, folder) {
 
   // Make sure version is valid
   if (!fs.existsSync(versionFolder)) {
-    debug(
-      chalk.red.bold(
-        `✖ ERROR: ${version} does not exist at ${folder.replace(
-          DOCS_FOLDER,
-          '.b2c-dev-doc'
-        )}/${version}`
-      )
-    )
+    debug(chalk.red.bold(`✖ ERROR: ${version} does not exist at ${folder.replace(DOCS_FOLDER, '.b2c-dev-doc')}/${version}`))
 
     return false
   }
@@ -38,6 +31,7 @@ export function isHelpfulFile(uri) {
   return (
     typeof uri === 'string' &&
     !uri.endsWith('/classList.html') &&
+    !uri.endsWith('/groupList.html') &&
     !uri.endsWith('/jobstepapi/html/index.html') &&
     !uri.endsWith('/jobStepList.html') &&
     !uri.endsWith('/overview.html') &&
@@ -59,10 +53,7 @@ export function prepURI(uri, version) {
   let pathName = uri.replace(`${DOCS_FOLDER}/versions/${version}`, '').trim()
 
   // Convert Camel Case to Snake Case ( but ignore multiple uppercase in a row )
-  pathName = pathName.replace(
-    /([A-Z])([a-z])/g,
-    (_, upper, lower) => `-${upper.toLowerCase()}${lower}`
-  )
+  pathName = pathName.replace(/([A-Z])([a-z])/g, (_, upper, lower) => `-${upper.toLowerCase()}${lower}`)
 
   // Look for abbreviations in file name in all uppercase and split it to its own word
   pathName = pathName.replace(/[A-Z]{2,}/g, (match) => `-${match}`)
