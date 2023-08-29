@@ -22,23 +22,29 @@ export function getVersionFolder(version, folder) {
     return false
   }
 
-  debug(`Using version ${version} at ${versionFolder}`)
-
   return versionFolder
 }
 
-export function isHelpfulFile(uri) {
+export function isEmptyDir(path) {
+  const files = fs.readdirSync(path)
+  return files && files.length === 0
+}
+
+export function isHelpfulFile(string) {
+  const uri = string.toLowerCase()
   return (
     typeof uri === 'string' &&
-    !uri.endsWith('/classList.html') &&
-    !uri.endsWith('/groupList.html') &&
+    !uri.endsWith('/classlist.html') &&
+    !uri.endsWith('/grouplist.html') &&
     !uri.endsWith('/jobstepapi/html/index.html') &&
-    !uri.endsWith('/jobStepList.html') &&
+    !uri.endsWith('/jobsteplist.html') &&
     !uri.endsWith('/overview.html') &&
-    !uri.endsWith('/packageList.html') &&
+    !uri.endsWith('/packagelist.html') &&
     !uri.endsWith('/pipeletapi/html/index.html') &&
-    !uri.endsWith('/pipeletList.html') &&
+    !uri.endsWith('/pipeletlist.html') &&
     !uri.endsWith('/scriptapi/html/index.html') &&
+    !uri.endsWith('deprecated.html') &&
+    !uri.endsWith('versioning.html') &&
     !uri.includes('/compareapi/') &&
     !uri.includes('/content/') &&
     !uri.includes('/pipeletapi/html/api/group.') &&
@@ -48,7 +54,7 @@ export function isHelpfulFile(uri) {
   )
 }
 
-export function prepURI(uri, version) {
+export function prepURI(uri, version, group) {
   // Do some fancy cleanup to file path to better organize content
   let pathName = uri.replace(`${DOCS_FOLDER}/versions/${version}`, '').trim()
 
@@ -120,25 +126,42 @@ export function prepURI(uri, version) {
   pathName = pathName.replace('/jobstep/job-step-', '/jobstep/')
   pathName = pathName.replace('/jobstep/jobstep-', '/jobstep/')
   pathName = pathName.replace('/pipelet/pipelet-', '/pipelet/')
-  pathName = pathName.replace('/class-top-level-', '/class-')
+
+  // Sort Pipelets into Groups
+  if (group && pathName.includes('/pipelet/')) {
+    pathName = pathName.replace('/pipelet/', `/pipelet/${group.toLowerCase().replace(/ /g, '-')}/`)
+  }
 
   // Organize Job Steps into Groups
-  pathName = pathName.replace('/jobstep/execute-', '/jobstep/execute/')
-  pathName = pathName.replace('/jobstep/export-', '/jobstep/export/')
-  pathName = pathName.replace('/jobstep/import-', '/jobstep/import/')
+  if (group && pathName.includes('/jobstep/')) {
+    pathName = pathName.replace('/jobstep/', `/jobstep/${group.toLowerCase().replace(/ /g, '-')}/`)
+  }
 
-  // Organize Pipelets into Groups
-  pathName = pathName.replace('/pipelet/add-', '/pipelet/add/')
-  pathName = pathName.replace('/pipelet/create-', '/pipelet/create/')
-  pathName = pathName.replace('/pipelet/export-', '/pipelet/export/')
-  pathName = pathName.replace('/pipelet/get-', '/pipelet/get/')
-  pathName = pathName.replace('/pipelet/import-', '/pipelet/import/')
-  pathName = pathName.replace('/pipelet/remove-', '/pipelet/remove/')
-  pathName = pathName.replace('/pipelet/search-', '/pipelet/search/')
-  pathName = pathName.replace('/pipelet/set-', '/pipelet/set/')
-  pathName = pathName.replace('/pipelet/update-', '/pipelet/update/')
-  pathName = pathName.replace('/pipelet/validate-', '/pipelet/validate/')
-  pathName = pathName.replace('/pipelet/verify-', '/pipelet/verify/')
+  // Organize Script API into Groups
+  pathName = pathName.replace('/script/class-top-level-', '/script/top-level/')
+  pathName = pathName.replace('/script/class-dw-alert-', '/script/dw.alert/')
+  pathName = pathName.replace('/script/class-dw-campaign-', '/script/dw.campaign/')
+  pathName = pathName.replace('/script/class-dw-catalog-', '/script/dw.catalog/')
+  pathName = pathName.replace('/script/class-dw-content-', '/script/dw.content/')
+  pathName = pathName.replace('/script/class-dw-crypto-', '/script/dw.crypto/')
+  pathName = pathName.replace('/script/class-dw-customer-', '/script/dw.customer/')
+  pathName = pathName.replace('/script/class-dw-experience-', '/script/dw.experience/')
+  pathName = pathName.replace('/script/class-dw-extensions-', '/script/dw.extensions/')
+  pathName = pathName.replace('/script/class-dw-io-', '/script/dw.io/')
+  pathName = pathName.replace('/script/class-dw-job-job-', '/script/dw.job/')
+  pathName = pathName.replace('/script/class-dw-net-', '/script/dw.net/')
+  pathName = pathName.replace('/script/class-dw-object-', '/script/dw.object/')
+  pathName = pathName.replace('/script/class-dw-order-', '/script/dw.order/')
+  pathName = pathName.replace('/script/class-dw-rpc-', '/script/dw.rpc/')
+  pathName = pathName.replace('/script/class-dw-sitemap-sitemap-', '/script/dw.sitemap/')
+  pathName = pathName.replace('/script/class-dw-suggest-', '/script/dw.suggest/')
+  pathName = pathName.replace('/script/class-dw-svc-', '/script/dw.svc/')
+  pathName = pathName.replace('/script/class-dw-system-', '/script/dw.system/')
+  pathName = pathName.replace('/script/class-dw-template-', '/script/dw.template/')
+  pathName = pathName.replace('/script/class-dw-util-', '/script/dw.util/')
+  pathName = pathName.replace('/script/class-dw-value-', '/script/dw.value/')
+  pathName = pathName.replace('/script/class-dw-web-', '/script/dw.web/')
+  pathName = pathName.replace('/script/class-dw-ws-', '/script/dw.ws/')
 
   return `/prep/${version}${pathName}`
 }

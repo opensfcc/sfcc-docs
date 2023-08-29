@@ -17,12 +17,20 @@ const cli = yargs(hideBin(process.argv))
       describe: 'Version',
       type: 'string',
     },
+    verbose: {
+      describe: 'Verbose Output for More Debugging',
+      type: 'boolean',
+    },
   })
   .command('prep', 'Cleanup HTML for Markdown', {
     version: {
       alias: 'v',
       describe: 'Version',
       type: 'string',
+    },
+    verbose: {
+      describe: 'Verbose Output for More Debugging',
+      type: 'boolean',
     },
   })
   .command('update-links', 'Update Anchor Tags in HTML', {
@@ -31,6 +39,10 @@ const cli = yargs(hideBin(process.argv))
       describe: 'Version',
       type: 'string',
     },
+    verbose: {
+      describe: 'Verbose Output for More Debugging',
+      type: 'boolean',
+    },
   })
   .command('convert', 'Convert HTML to Markdown', {
     version: {
@@ -38,12 +50,20 @@ const cli = yargs(hideBin(process.argv))
       describe: 'Version',
       type: 'string',
     },
+    verbose: {
+      describe: 'Verbose Output for More Debugging',
+      type: 'boolean',
+    },
   })
   .command('build-nav', 'Build navigation for version', {
     version: {
       alias: 'v',
       describe: 'Version',
       type: 'string',
+    },
+    verbose: {
+      describe: 'Verbose Output for More Debugging',
+      type: 'boolean',
     },
   })
   .example('sfcc-docs init', 'Initialize and Download Resources')
