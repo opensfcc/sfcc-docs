@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Listbox } from '@headlessui/react'
 import clsx from 'clsx'
 
+import { publish } from '../events'
+
 const themes = [
   { name: 'Light', value: 'light', icon: LightIcon },
   { name: 'Dark', value: 'dark', icon: DarkIcon },
@@ -53,11 +55,13 @@ export function ThemeSelector(props) {
     } else {
       setSelectedTheme(themes.find((theme) => theme.value === document.documentElement.getAttribute('data-theme')))
     }
+    publish('themeChanged', { theme: selectedTheme?.value })
   }, [selectedTheme])
 
   useEffect(() => {
-    let handler = () =>
+    let handler = () => {
       setSelectedTheme(themes.find((theme) => theme.value === (window.localStorage.theme ?? 'system')))
+    }
 
     window.addEventListener('storage', handler)
 
@@ -67,10 +71,7 @@ export function ThemeSelector(props) {
   return (
     <Listbox as="div" value={selectedTheme} onChange={setSelectedTheme} {...props}>
       <Listbox.Label className="sr-only">Theme</Listbox.Label>
-      <Listbox.Button
-        className="flex h-6 w-6 items-center justify-center rounded-lg shadow-md shadow-black/5 ring-1 ring-black/5 dark:bg-slate-700 dark:ring-inset dark:ring-white/5"
-        aria-label={selectedTheme?.name}
-      >
+      <Listbox.Button className="flex h-6 w-6 items-center justify-center rounded-lg shadow-md shadow-black/5 ring-1 ring-black/5 dark:bg-slate-700 dark:ring-inset dark:ring-white/5" aria-label={selectedTheme?.name}>
         <LightIcon className="hidden h-4 w-4 fill-sky-400 [[data-theme=light]_&]:block" />
         <DarkIcon className="hidden h-4 w-4 fill-sky-400 [[data-theme=dark]_&]:block" />
         <LightIcon className="hidden h-4 w-4 fill-slate-400 [:not(.dark)[data-theme=system]_&]:block" />
@@ -93,9 +94,7 @@ export function ThemeSelector(props) {
             {({ selected }) => (
               <>
                 <div className="rounded-md bg-white p-1 shadow ring-1 ring-slate-900/5 dark:bg-slate-700 dark:ring-inset dark:ring-white/5">
-                  <theme.icon
-                    className={clsx('h-4 w-4', selected ? 'fill-sky-400 dark:fill-sky-400' : 'fill-slate-400')}
-                  />
+                  <theme.icon className={clsx('h-4 w-4', selected ? 'fill-sky-400 dark:fill-sky-400' : 'fill-slate-400')} />
                 </div>
                 <div className="ml-3">{theme.name}</div>
               </>
