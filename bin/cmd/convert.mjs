@@ -1,5 +1,6 @@
 import { Glob } from 'glob'
 import Debug from 'debug'
+import chalk from 'chalk'
 import fs from 'fs'
 import path from 'path'
 import turndownPluginGfm from 'turndown-plugin-gfm'
@@ -84,7 +85,7 @@ export default async (cli) => {
   }
 
   const files = new Glob(`${prepFolder}${SEP}**${SEP}*.html`, {})
-  const metaFile = path.resolve(`${DATA_FOLDER}${SEP}${cli.version}`, 'meta.json')
+  const metaFile = path.resolve(DATA_FOLDER, `meta-${cli.version}.json`)
 
   let meta, metaKeys, metaText
 
@@ -100,7 +101,11 @@ export default async (cli) => {
     // Loop through the files
     for await (const file of files) {
       let metaKey = file.replace(PREP_FOLDER, '')
-      metaKey = metaKey.replace('.html', '')
+      metaKey = metaKey.replace('.html', '').replace(`${SEP}deprecated${SEP}`, SEP).replace(`${SEP}${cli.version}${SEP}`, SEP)
+
+      if (cli.verbose) {
+        debug(`LOADING: ${file.replace(PREP_FOLDER, '')}`)
+      }
 
       const html = fs.readFileSync(file)
 
@@ -124,5 +129,8 @@ export default async (cli) => {
       filePath = filePath.replace('.html', '.md')
       fs.writeFileSync(filePath, `${prefix}\n\n${markdown}`)
     }
+  } else {
+    debug(chalk.red.bold(`✖ ERROR: Missing Data or Files`))
+    process.exit(1)
   }
 }
