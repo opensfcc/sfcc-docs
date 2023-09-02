@@ -453,6 +453,26 @@ export default async (cli) => {
     meta[url].description = meta[url].deprecated ? `[DEPRECATED] ${description}` : description
     meta[url].keywords = keywords
 
+    let navTitle = title
+
+    const reParent = new RegExp(`^${parent} `, 'g')
+    const reGroup = new RegExp(`^${groupTitle} `, 'g')
+    const reGroupAlt = new RegExp(`^${groupTitle}\.`, 'g')
+
+    navTitle = navTitle.replace(/^Class /, '')
+    navTitle = navTitle.replace(/^Job Step /, '')
+    navTitle = navTitle.replace(/^Job Step: Job Step /, '')
+    navTitle = navTitle.replace(reParent, '')
+    navTitle = navTitle.replace(reGroup, '')
+    navTitle = navTitle.replace(reGroupAlt, '')
+
+    meta[url].nav = {
+      parent: parent,
+      child: groupTitle,
+      title: navTitle,
+      alt: `${parent} › ${groupTitle} › ${navTitle}`,
+    }
+
     // Update Core Mapping
     const coreMappingKey = url.replace(`${SEP}${cli.version}${SEP}`, SEP)
     if (!coreMapping[coreMappingKey]) {
