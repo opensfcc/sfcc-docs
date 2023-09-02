@@ -6,6 +6,7 @@ import path from 'path'
 import { DOCS_FOLDER } from './config.mjs'
 
 const debug = Debug('sfcc-docs:utils')
+const SEP = path.sep
 
 export function getVersionFolder(version, folder) {
   // Make sure we have a version
@@ -17,7 +18,7 @@ export function getVersionFolder(version, folder) {
 
   // Make sure version is valid
   if (!fs.existsSync(versionFolder)) {
-    debug(chalk.red.bold(`✖ ERROR: ${version} does not exist at ${folder.replace(DOCS_FOLDER, '.b2c-dev-doc')}/${version}`))
+    debug(chalk.red.bold(`✖ ERROR: ${version} does not exist at ${folder.replace(DOCS_FOLDER, '.b2c-dev-doc')}${SEP}${version}`))
 
     return false
   }
@@ -34,29 +35,29 @@ export function isHelpfulFile(string) {
   const uri = string.toLowerCase()
   return (
     typeof uri === 'string' &&
-    !uri.endsWith('/classlist.html') &&
-    !uri.endsWith('/grouplist.html') &&
-    !uri.endsWith('/jobstepapi/html/index.html') &&
-    !uri.endsWith('/jobsteplist.html') &&
-    !uri.endsWith('/overview.html') &&
-    !uri.endsWith('/packagelist.html') &&
-    !uri.endsWith('/pipeletapi/html/index.html') &&
-    !uri.endsWith('/pipeletlist.html') &&
-    !uri.endsWith('/scriptapi/html/index.html') &&
+    !uri.endsWith(`${SEP}classlist.html`) &&
+    !uri.endsWith(`${SEP}grouplist.html`) &&
+    !uri.endsWith(`${SEP}jobstepapi${SEP}html${SEP}index.html`) &&
+    !uri.endsWith(`${SEP}jobsteplist.html`) &&
+    !uri.endsWith(`${SEP}overview.html`) &&
+    !uri.endsWith(`${SEP}packagelist.html`) &&
+    !uri.endsWith(`${SEP}pipeletapi${SEP}html${SEP}index.html`) &&
+    !uri.endsWith(`${SEP}pipeletlist.html`) &&
+    !uri.endsWith(`${SEP}scriptapi${SEP}html${SEP}index.html`) &&
     !uri.endsWith('deprecated.html') &&
     !uri.endsWith('versioning.html') &&
-    !uri.includes('/compareapi/') &&
-    !uri.includes('/content/') &&
-    !uri.includes('/pipeletapi/html/api/group.') &&
-    !uri.includes('/scriptapi/html/api/package_') &&
-    !uri.includes('/xsd/') &&
+    !uri.includes(`${SEP}compareapi${SEP}`) &&
+    !uri.includes(`${SEP}content${SEP}`) &&
+    !uri.includes(`${SEP}pipeletapi${SEP}html${SEP}api${SEP}group.`) &&
+    !uri.includes(`${SEP}scriptapi${SEP}html${SEP}api${SEP}package_`) &&
+    !uri.includes(`${SEP}xsd${SEP}`) &&
     uri.endsWith('.html')
   )
 }
 
 export function prepURI(uri, version, group) {
   // Do some fancy cleanup to file path to better organize content
-  let pathName = uri.replace(`${DOCS_FOLDER}/versions/${version}`, '').trim()
+  let pathName = uri.replace(`${DOCS_FOLDER}${SEP}versions${SEP}${version}`, '').trim()
 
   // Convert Camel Case to Snake Case ( but ignore multiple uppercase in a row )
   pathName = pathName.replace(/([A-Z])([a-z])/g, (_, upper, lower) => `-${upper.toLowerCase()}${lower}`)
@@ -70,8 +71,9 @@ export function prepURI(uri, version, group) {
   pathName = pathName.toLowerCase()
 
   // Fix issue where some URLs started with uppercase characters
-  if (pathName.includes('/-')) {
-    pathName = pathName.replace(/\/-([a-z])/g, '/$1')
+  if (pathName.includes(`${SEP}-`)) {
+    const re = new RegExp(`${SEP}-([a-z])`, 'g')
+    pathName = pathName.replace(re, `${SEP}$1`)
   }
 
   // Fix possible file name issues after string replace
@@ -99,7 +101,7 @@ export function prepURI(uri, version, group) {
 
   // Move Deprecated content to a different folder
   if (pathName.endsWith('(deprecated).html')) {
-    pathName = `/deprecated/${pathName.replace('(deprecated).html', '.html')}`
+    pathName = `${SEP}deprecated${SEP}${pathName.replace('(deprecated).html', '.html')}`
   }
 
   // Fix issues when Class Files and Namespaces with the same name
@@ -108,60 +110,60 @@ export function prepURI(uri, version, group) {
   }
 
   // Shorten long file names
-  if (pathName.includes('/app-storefront-base-cartridge-')) {
-    pathName = pathName.replace('/app-storefront-base-cartridge-', '/')
+  if (pathName.includes(`${SEP}app-storefront-base-cartridge-`)) {
+    pathName = pathName.replace(`${SEP}app-storefront-base-cartridge-`, SEP)
   }
-  if (pathName.includes('/app-storefront-controllers-cartridge-')) {
-    pathName = pathName.replace('/app-storefront-controllers-cartridge-', '/')
+  if (pathName.includes(`${SEP}app-storefront-controllers-cartridge-`)) {
+    pathName = pathName.replace(`${SEP}app-storefront-controllers-cartridge-`, SEP)
   }
 
   // Final Cleanup of Path Name
-  pathName = pathName.replace('/dist/js/', '/')
-  pathName = pathName.replace('/js/', '/')
-  pathName = pathName.replace('/html/api/', '/')
-  pathName = pathName.replace('/html/', '/')
-  pathName = pathName.replace('/jobstepapi/', '/jobstep/')
-  pathName = pathName.replace('/pipeletapi/', '/pipelet/')
-  pathName = pathName.replace('/scriptapi/', '/script/')
-  pathName = pathName.replace('/jobstep/job-step-', '/jobstep/')
-  pathName = pathName.replace('/jobstep/jobstep-', '/jobstep/')
-  pathName = pathName.replace('/pipelet/pipelet-', '/pipelet/')
+  pathName = pathName.replace(`${SEP}dist${SEP}js${SEP}`, SEP)
+  pathName = pathName.replace(`${SEP}js${SEP}`, SEP)
+  pathName = pathName.replace(`${SEP}html${SEP}api${SEP}`, SEP)
+  pathName = pathName.replace(`${SEP}html${SEP}`, SEP)
+  pathName = pathName.replace(`${SEP}jobstepapi${SEP}`, `${SEP}jobstep${SEP}`)
+  pathName = pathName.replace(`${SEP}pipeletapi${SEP}`, `${SEP}pipelet${SEP}`)
+  pathName = pathName.replace(`${SEP}scriptapi${SEP}`, `${SEP}script${SEP}`)
+  pathName = pathName.replace(`${SEP}jobstep${SEP}job-step-`, `${SEP}jobstep${SEP}`)
+  pathName = pathName.replace(`${SEP}jobstep${SEP}jobstep-`, `${SEP}jobstep${SEP}`)
+  pathName = pathName.replace(`${SEP}pipelet${SEP}pipelet-`, `${SEP}pipelet${SEP}`)
 
   // Sort Pipelets into Groups
-  if (group && pathName.includes('/pipelet/')) {
-    pathName = pathName.replace('/pipelet/', `/pipelet/${group.toLowerCase().replace(/ /g, '-')}/`)
+  if (group && pathName.includes(`${SEP}pipelet${SEP}`)) {
+    pathName = pathName.replace(`${SEP}pipelet${SEP}`, `${SEP}pipelet${SEP}${group.toLowerCase().replace(/ /g, '-')}${SEP}`)
   }
 
   // Organize Job Steps into Groups
-  if (group && pathName.includes('/jobstep/')) {
-    pathName = pathName.replace('/jobstep/', `/jobstep/${group.toLowerCase().replace(/ /g, '-')}/`)
+  if (group && pathName.includes(`${SEP}jobstep${SEP}`)) {
+    pathName = pathName.replace(`${SEP}jobstep${SEP}`, `${SEP}jobstep${SEP}${group.toLowerCase().replace(/ /g, '-')}${SEP}`)
   }
 
   // Organize Script API into Groups
-  pathName = pathName.replace('/script/class-top-level-', '/script/top-level/')
-  pathName = pathName.replace('/script/class-dw-alert-', '/script/dw.alert/')
-  pathName = pathName.replace('/script/class-dw-campaign-', '/script/dw.campaign/')
-  pathName = pathName.replace('/script/class-dw-catalog-', '/script/dw.catalog/')
-  pathName = pathName.replace('/script/class-dw-content-', '/script/dw.content/')
-  pathName = pathName.replace('/script/class-dw-crypto-', '/script/dw.crypto/')
-  pathName = pathName.replace('/script/class-dw-customer-', '/script/dw.customer/')
-  pathName = pathName.replace('/script/class-dw-experience-', '/script/dw.experience/')
-  pathName = pathName.replace('/script/class-dw-extensions-', '/script/dw.extensions/')
-  pathName = pathName.replace('/script/class-dw-io-', '/script/dw.io/')
-  pathName = pathName.replace('/script/class-dw-job-job-', '/script/dw.job/')
-  pathName = pathName.replace('/script/class-dw-net-', '/script/dw.net/')
-  pathName = pathName.replace('/script/class-dw-object-', '/script/dw.object/')
-  pathName = pathName.replace('/script/class-dw-order-', '/script/dw.order/')
-  pathName = pathName.replace('/script/class-dw-rpc-', '/script/dw.rpc/')
-  pathName = pathName.replace('/script/class-dw-sitemap-sitemap-', '/script/dw.sitemap/')
-  pathName = pathName.replace('/script/class-dw-suggest-', '/script/dw.suggest/')
-  pathName = pathName.replace('/script/class-dw-svc-', '/script/dw.svc/')
-  pathName = pathName.replace('/script/class-dw-system-', '/script/dw.system/')
-  pathName = pathName.replace('/script/class-dw-template-', '/script/dw.template/')
-  pathName = pathName.replace('/script/class-dw-util-', '/script/dw.util/')
-  pathName = pathName.replace('/script/class-dw-value-', '/script/dw.value/')
-  pathName = pathName.replace('/script/class-dw-web-', '/script/dw.web/')
-  pathName = pathName.replace('/script/class-dw-ws-', '/script/dw.ws/')
+  pathName = pathName.replace(`${SEP}script${SEP}class-top-level-`, `${SEP}script${SEP}top-level${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-alert-`, `${SEP}script${SEP}dw.alert${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-campaign-`, `${SEP}script${SEP}dw.campaign${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-catalog-`, `${SEP}script${SEP}dw.catalog${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-content-`, `${SEP}script${SEP}dw.content${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-crypto-`, `${SEP}script${SEP}dw.crypto${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-customer-`, `${SEP}script${SEP}dw.customer${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-experience-`, `${SEP}script${SEP}dw.experience${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-extensions-`, `${SEP}script${SEP}dw.extensions${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-io-`, `${SEP}script${SEP}dw.io${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-job-job-`, `${SEP}script${SEP}dw.job${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-net-`, `${SEP}script${SEP}dw.net${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-object-`, `${SEP}script${SEP}dw.object${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-order-`, `${SEP}script${SEP}dw.order${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-rpc-`, `${SEP}script${SEP}dw.rpc${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-sitemap-sitemap-`, `${SEP}script${SEP}dw.sitemap${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-suggest-`, `${SEP}script${SEP}dw.suggest${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-svc-`, `${SEP}script${SEP}dw.svc${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-system-`, `${SEP}script${SEP}dw.system${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-template-`, `${SEP}script${SEP}dw.template${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-util-`, `${SEP}script${SEP}dw.util${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-value-`, `${SEP}script${SEP}dw.value${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-web-`, `${SEP}script${SEP}dw.web${SEP}`)
+  pathName = pathName.replace(`${SEP}script${SEP}class-dw-ws-`, `${SEP}script${SEP}dw.ws${SEP}`)
 
-  return `/prep/${version}${pathName}`
+  return `${SEP}prep${SEP}${version}${pathName}`
 }

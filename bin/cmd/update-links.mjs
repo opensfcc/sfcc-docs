@@ -8,6 +8,7 @@ import path from 'path'
 import { DATA_FOLDER, PREP_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:update-links')
+const SEP = path.sep
 
 export default async (cli) => {
   debug('CMD: update-links', cli.version)
@@ -18,15 +19,19 @@ export default async (cli) => {
     process.exit(1)
   }
 
-  const versionFolder = path.resolve(`${PREP_FOLDER}/${cli.version}`)
+  const versionFolder = path.resolve(`${PREP_FOLDER}${SEP}${cli.version}`)
+
+  if (cli.verbose) {
+    debug(`Loading HTML from ${versionFolder.replace(PREP_FOLDER, '.b2c-dev-doc')}`)
+  }
 
   // Make sure version is valid
   if (!versionFolder) {
     process.exit()
   }
 
-  const files = new Glob(`${versionFolder}/**/*.html`, {})
-  const mappingFile = path.resolve(`${DATA_FOLDER}/${cli.version}`, 'mapping.json')
+  const files = new Glob(`${versionFolder}${SEP}**${SEP}*.html`, {})
+  const mappingFile = path.resolve(DATA_FOLDER, 'mapping.json')
 
   let mapping, mappingKeys, mappingText
 
@@ -41,6 +46,10 @@ export default async (cli) => {
   if (files && mapping) {
     // Loop through the files
     for await (const file of files) {
+      if (cli.verbose) {
+        debug(`LOADING: ${file.replace(PREP_FOLDER, '')}`)
+      }
+
       // Get the HTML from the file
       let html = fs.readFileSync(file)
       let $ = cheerio.load(html, { useHtmlParser2: true })
@@ -66,13 +75,21 @@ export default async (cli) => {
             url = href
           }
 
-          // Make sure we have a mapping
-          const updatedURL = url ? mapping[url]?.url : null
+          // Get Mapped URL
+          let updatedURL = null
+          mappingKeys.forEach((key) => {
+            if (mapping[key] === url) {
+              updatedURL = `/${cli.version}${key}`
+              return
+            }
+          })
 
           // Update the URL
           if (updatedURL) {
+            if (cli.verbose) {
+              debug(`UPDATING URL: ${url} => ${updatedURL}`)
+            }
             link.setAttribute('href', updatedURL)
-            // debug(`UPDATING URL: ${url} => ${updatedURL}`)
           }
 
           // Update hash if we had one
@@ -83,13 +100,13 @@ export default async (cli) => {
               updatedHash = updatedHash.replace('category-', '')
               updatedHash = `${updatedHash}-category`
 
-              debug(`UPDATING HASH: ${hash} => ${updatedHash}`)
+              if (cli.verbose) {
+                debug(`UPDATING HASH: ${hash} => ${updatedHash}`)
+              }
             }
 
             link.setAttribute('href', updatedHash)
           }
-
-          // TODO: Make sure we update any old hashes to the new ones
         }
       })
 

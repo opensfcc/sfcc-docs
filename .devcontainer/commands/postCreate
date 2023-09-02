@@ -17,14 +17,19 @@ source $CWD/.devcontainer/scripts/common
 ## Start Post Create Command
 make_header 'Intiliaizing Dev Container'
 
-# Installing Dependencies
+# Switch to Project Directory
 cd $CWD
+
+# Start Installation
+output 'Switch to Supported Node Version'
+nvm use
+
 output 'Installing Dependencies'
 npm clean-install
 
-# Run CLI Commands to Build Documentation
+# Run CLI Commands to Build Documentation ( need to complete each stage before moving to next )
 output 'Initialize and Download Resources'
-DEBUG=sfcc-docs:* ./bin/cli.mjs init
+DEBUG=sfcc-docs:* $CWD/bin/cli.mjs init
 
 output 'Cleanup HTML for Markdown'
 for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs prep --version `basename "$f"`; done
@@ -35,8 +40,11 @@ for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/
 output 'Convert HTML to Markdown'
 for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs convert --version `basename "$f"`; done
 
-output 'Build navigation for version'
+output 'Build Navigation for Version'
 for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs build-nav --version `basename "$f"`; done
+
+output 'Build Version DIFFs'
+DEBUG=sfcc-docs:* $CWD/bin/cli.mjs diff
 
 # Install Complete
 END=`date +%s`

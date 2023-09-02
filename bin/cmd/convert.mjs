@@ -8,6 +8,7 @@ import TurndownService from 'turndown'
 import { DATA_FOLDER, MARKDOWN_FOLDER, PREP_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:convert')
+const SEP = path.sep
 
 // Setup Markdown Converter
 const turndownService = new TurndownService({
@@ -69,8 +70,8 @@ export default async (cli) => {
     process.exit(1)
   }
 
-  const markdownFolder = path.resolve(`${MARKDOWN_FOLDER}/${cli.version}`)
-  const prepFolder = path.resolve(`${PREP_FOLDER}/${cli.version}`)
+  const markdownFolder = path.resolve(`${MARKDOWN_FOLDER}${SEP}${cli.version}`)
+  const prepFolder = path.resolve(`${PREP_FOLDER}${SEP}${cli.version}`)
 
   // Make sure version is valid
   if (!prepFolder) {
@@ -82,8 +83,8 @@ export default async (cli) => {
     fs.mkdirSync(markdownFolder, { recursive: true })
   }
 
-  const files = new Glob(`${prepFolder}/**/*.html`, {})
-  const metaFile = path.resolve(`${DATA_FOLDER}/${cli.version}`, 'meta.json')
+  const files = new Glob(`${prepFolder}${SEP}**${SEP}*.html`, {})
+  const metaFile = path.resolve(`${DATA_FOLDER}${SEP}${cli.version}`, 'meta.json')
 
   let meta, metaKeys, metaText
 

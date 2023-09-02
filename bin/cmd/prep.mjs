@@ -12,9 +12,15 @@ import { isEmptyDir, isHelpfulFile, getVersionFolder, prepURI } from '../utils.m
 import { DATA_FOLDER, DOCS_FOLDER, PREP_FOLDER, VERSIONS_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:prep')
+const SEP = path.sep
 
-// Store some Mappings of File Data
-let mapping = {}
+const coreMappingFile = path.resolve(DATA_FOLDER, 'mapping.json')
+let coreMapping = {}
+
+if (fs.existsSync(coreMappingFile)) {
+  const coreMappingText = fs.readFileSync(coreMappingFile)
+  coreMapping = JSON.parse(coreMappingText)
+}
 
 // Create META data for site usage
 let meta = {}
@@ -30,6 +36,11 @@ export default async (cli) => {
     process.exit(1)
   }
 
+  // Make Directory if needed
+  if (!fs.existsSync(DATA_FOLDER)) {
+    fs.mkdirSync(DATA_FOLDER, { recursive: true })
+  }
+
   const versionFolder = getVersionFolder(cli.version, VERSIONS_FOLDER)
   if (cli.verbose) {
     debug(`Loading HTML from ${versionFolder.replace(DOCS_FOLDER, '.b2c-dev-doc')}`)
@@ -41,11 +52,11 @@ export default async (cli) => {
   }
 
   // Remove old prep folder for version if it exists
-  if (fs.existsSync(`${PREP_FOLDER}/${cli.version}`)) {
-    spawnSync('rm', ['-fr', `${PREP_FOLDER}/${cli.version}`])
+  if (fs.existsSync(`${PREP_FOLDER}${SEP}${cli.version}`)) {
+    spawnSync('rm', ['-fr', `${PREP_FOLDER}${SEP}${cli.version}`])
   }
 
-  const files = new Glob(`${versionFolder}/**/*.html`, {})
+  const files = new Glob(`${versionFolder}${SEP}**${SEP}*.html`, {})
 
   // Now do the actual work
   for await (const file of files) {
@@ -58,18 +69,7 @@ export default async (cli) => {
     }
 
     // Get original file info
-    const fileKey = file.split('/').slice(-1)
-
-    // Check if this file is not unique
-    if (typeof mapping[fileKey] !== 'undefined') {
-      debug(chalk.red(`ALREADY FOUND: ${fileKey}`))
-    }
-
-    // Add some meta data for this file
-    mapping[fileKey] = {
-      deprecated: false,
-      path: file.replace(VERSIONS_FOLDER, '').replace(`/${cli.version}/`, '/'),
-    }
+    const fileKey = file.split(SEP).slice(-1).toString()
 
     // Read old file into memory so we can grab group info for sorting
     let oldHtml = fs.readFileSync(file)
@@ -94,8 +94,12 @@ export default async (cli) => {
       groupTitle = isGroup ? oldDOM.querySelector('.parameterDetail:nth-of-type(2)')?.innerText.trim() : null
     }
 
-    if (groupTitle && groupTitle.includes('deprecated')) {
-      groupTitle = groupTitle.replace(' (deprecated)', '')
+    if (groupTitle && groupTitle.toLowerCase().includes('deprecated')) {
+      groupTitle = groupTitle.replace(/ \(deprecated\)/gi, '')
+    }
+
+    if (groupTitle && groupTitle.toLowerCase().includes('internal')) {
+      groupTitle = groupTitle.replace(/ \(internal\)/gi, '')
     }
 
     // Set a new file name for prepped HTML file
@@ -108,6 +112,15 @@ export default async (cli) => {
 
     // Set new file path
     let newFilePath = `${DOCS_FOLDER}${newFile}`
+
+    let url = newFilePath.replace(PREP_FOLDER, '')
+    url = url.replace(`${SEP}${cli.version}${SEP}`, SEP)
+    url = url.replace('.html', '')
+
+    // Set initial meta data
+    if (!meta[url]) {
+      meta[url] = {}
+    }
 
     // Set new folder path
     let folder = path.dirname(newFilePath)
@@ -124,9 +137,6 @@ export default async (cli) => {
     // Copy file to new location
     spawnSync('cp', ['-fi', file, newFilePath])
 
-    // Run TIDY on new HTML file ( this is required because some of the HTML is ... not great )
-    spawnSync('tidy', ['--tidy-mark', 'no', '-m', '-w', 0, newFilePath, '-errors'])
-
     // Read new HTML file we just tidy'd up so we can parse it and make changes
     let html = fs.readFileSync(newFilePath)
     let $ = cheerio.load(html, { useHtmlParser2: true })
@@ -134,7 +144,7 @@ export default async (cli) => {
 
     // Check if this file indicates is is deprecated and relocate it
     if (dom.querySelector('div.className.dep')) {
-      mapping[fileKey].deprecated = true
+      meta[url].deprecated = true
 
       // Delete the current file
       spawnSync('rm', ['-f', newFilePath])
@@ -149,7 +159,7 @@ export default async (cli) => {
       }
 
       // Change the file name to indicate it is deprecated
-      newFilePath = newFilePath.replace(`/${cli.version}/`, `/${cli.version}/deprecated/`)
+      newFilePath = newFilePath.replace(`${SEP}${cli.version}${SEP}`, `${SEP}${cli.version}${SEP}deprecated${SEP}`)
 
       // Store folder paths
       let folder = path.dirname(newFilePath)
@@ -168,7 +178,7 @@ export default async (cli) => {
     dom.querySelector('body').removeAttribute('onload')
 
     // Remove elements that are not helpful for search indexer of markdown conversion
-    dom.querySelectorAll('div:empty, a:empty, link, script, meta, div.copyright, div.banner, img').forEach((x) => {
+    dom.querySelectorAll('div:empty, a:empty, link, script, meta, div.banner, img').forEach((x) => {
       x.remove()
     })
 
@@ -187,7 +197,7 @@ export default async (cli) => {
     }
 
     // Generate H2 Tags
-    const $h2 = newFilePath.includes('/quota/') ? dom.querySelectorAll('div.section div.header, p b') : dom.querySelectorAll('div.section div.header')
+    const $h2 = newFilePath.includes(`${SEP}quota${SEP}`) ? dom.querySelectorAll('div.section div.header, p b') : dom.querySelectorAll('div.section div.header')
     if ($h2) {
       $h2.forEach((x) => {
         x.tagName = 'h2'
@@ -248,8 +258,6 @@ export default async (cli) => {
       $hierarchy.tagName = 'ul'
     }
 
-    let hierarchy = []
-
     // Convert Hierarchy to proper nested set of ULs ( everything in original code was on the same level with CSS styling to indent )
     const $hierarchyItem = dom.querySelectorAll('ul.hierarchy div')
     if ($hierarchy && $hierarchyItem) {
@@ -272,13 +280,6 @@ export default async (cli) => {
             }
 
             $child1.appendChild(parse(`<li>${x.innerHTML}</li>`))
-            hierarchy[0].children.push({
-              title: x.innerText,
-              href: x.firstChild?.getAttribute ? x.firstChild.getAttribute('href') : null,
-              level: 2,
-              alt: `Hierarchy for ${x.innerText}`,
-              children: [],
-            })
           } else if (percent[1] === '5') {
             if (!$child2) {
               $hierarchy.querySelector('ul li:first-child').appendChild(parse(`<ul></ul>`))
@@ -286,12 +287,6 @@ export default async (cli) => {
             }
 
             $child2.appendChild(parse(`<li>${x.innerHTML}</li>`))
-            hierarchy[0].children[0].children.push({
-              title: x.innerText,
-              href: x.firstChild?.getAttribute ? x.firstChild.getAttribute('href') : null,
-              level: 3,
-              children: [],
-            })
           } else if (percent[1] === '7') {
             if (!$child3) {
               $hierarchy.querySelector('ul ul li:first-child').appendChild(parse(`<ul></ul>`))
@@ -299,12 +294,6 @@ export default async (cli) => {
             }
 
             $child3.appendChild(parse(`<li>${x.innerHTML}</li>`))
-            hierarchy[0].children[0].children[0].children.push({
-              title: x.innerText,
-              href: x.firstChild?.getAttribute ? x.firstChild.getAttribute('href') : null,
-              level: 4,
-              children: [],
-            })
           } else if (percent[1] === '9') {
             if (!$child4) {
               $hierarchy.querySelector('ul ul ul li:first-child').appendChild(parse(`<ul></ul>`))
@@ -312,12 +301,6 @@ export default async (cli) => {
             }
 
             $child4.appendChild(parse(`<li>${x.innerHTML}</li>`))
-            hierarchy[0].children[0].children[0].children[0].children.push({
-              title: x.innerText,
-              href: x.firstChild?.getAttribute ? x.firstChild.getAttribute('href') : null,
-              level: 5,
-              children: [],
-            })
           } else if (percent[1] === '11') {
             if (!$child5) {
               $hierarchy.querySelector('ul ul ul ul li:first-child').appendChild(parse(`<ul></ul>`))
@@ -325,12 +308,6 @@ export default async (cli) => {
             }
 
             $child5.appendChild(parse(`<li>${x.innerHTML}</li>`))
-            hierarchy[0].children[0].children[0].children[0].children[0].children.push({
-              title: x.innerText,
-              href: x.firstChild?.getAttribute ? x.firstChild.getAttribute('href') : null,
-              level: 6,
-              children: [],
-            })
           } else if (percent[1] === '13') {
             if (!$child6) {
               $hierarchy.querySelector('ul ul ul ul ul li:first-child').appendChild(parse(`<ul></ul>`))
@@ -338,12 +315,6 @@ export default async (cli) => {
             }
 
             $child6.appendChild(parse(`<li>${x.innerHTML}</li>`))
-            hierarchy[0].children[0].children[0].children[0].children[0].children[0].children.push({
-              title: x.innerText,
-              href: x.firstChild?.getAttribute ? x.firstChild.getAttribute('href') : null,
-              level: 7,
-              children: [],
-            })
           } else if (percent[1] === '15') {
             if (!$child7) {
               $hierarchy.querySelector('ul ul ul ul ul ul li:first-child').appendChild(parse(`<ul></ul>`))
@@ -351,23 +322,9 @@ export default async (cli) => {
             }
 
             $child7.appendChild(parse(`<li>${x.innerHTML}</li>`))
-            hierarchy[0].children[0].children[0].children[0].children[0].children[0].children[0].children.push({
-              title: x.innerText,
-              href: x.firstChild?.getAttribute ? x.firstChild.getAttribute('href') : null,
-              level: 8,
-              alt: `Hierarchy for ${x.innerText}`,
-              children: [],
-            })
           }
         } else {
           $hierarchy.appendChild(parse(`<li>${x.innerHTML}</li>`))
-          hierarchy.push({
-            title: x.innerText,
-            href: x.firstChild?.getAttribute ? x.firstChild.getAttribute('href') : null,
-            level: 1,
-            alt: `Hierarchy for ${x.innerText}`,
-            children: [],
-          })
         }
 
         x.remove()
@@ -384,9 +341,10 @@ export default async (cli) => {
     newHTML = newHTML.replace(/<span class="parameterTitle">([^<]+)<\/span>\s?<code class="parameterDetail">([^<]+)<\/code>/gi, '<li><strong class="parameterTitle">$1</strong> <code class="parameterDetail">$2</code></li>')
 
     // Mark Required as Code
-    newHTML = newHTML.replace(/\(Optional\)/g, '<code>Optional</code>')
-    newHTML = newHTML.replace(/\(Required\)/g, '<code>Required</code>')
-    newHTML = newHTML.replace(/\(Read Only\)/g, '<code>Read Only</code>')
+    newHTML = newHTML.replace(/\(Internal\)/gi, '<code>Internal</code>')
+    newHTML = newHTML.replace(/\(Optional\)/gi, '<code>Optional</code>')
+    newHTML = newHTML.replace(/\(Required\)/gi, '<code>Required</code>')
+    newHTML = newHTML.replace(/\(Read Only\)/gi, '<code>Read Only</code>')
 
     // Fix weird HTML for Constants
     newHTML = newHTML.replace(/<span>([A-Z_]+)\s?:\s?<a href="([^"]+)"><span class="">([^<]+)<\/span><\/a>=([^<]+)<\/span>/g, '<p><strong>$1</strong> : <a href="$2">$3</a></p><p><pre><code>$4</code></pre></p>')
@@ -413,8 +371,6 @@ export default async (cli) => {
     let parent = ''
     let title = dom.querySelector('title')?.innerText.replace(/\n/g, ' ').trim() || null
     let description = dom.querySelector('blockquote.topLevelDescription')?.innerText.replace(/\n/g, ' ').trim() || null
-    let url = newFilePath.replace(PREP_FOLDER, '')
-    url = url.replace('.html', '')
 
     if (!groupTitle) {
       const splitGroup = newFilePath.match(/script\/([^\/]+)/)
@@ -430,9 +386,36 @@ export default async (cli) => {
       description = dom.querySelector('.classSummary .classSummaryDetail .description')?.innerText.replace(/\n/g, ' ').trim() || null
     }
 
+    // Clean up description
+    if (description) {
+      description = description
+        .trim()
+        .replace(/\n/g, ' ')
+        .replace(/\s{2,}/g, ' ')
+
+      // Prep description for META tag
+      if (description.length > 155) {
+        // Truncate to 155 characters
+        description = description.substring(0, 155)
+
+        // Split sentences if possible
+        if (description.includes('. ')) {
+          const splitDesc = description.split('. ')
+          splitDesc.pop()
+
+          // Remove last sentence since it's not a full sentence
+          description = `${splitDesc.join('. ')}.`
+        } else {
+          description = description.substring(0, Math.min(description.length, description.lastIndexOf(' ')))
+          description = `${description}...`
+        }
+      }
+    }
+
     // Set initial keywords for page
     let keywords = ['salesforce', 'commerce cloud', 'b2c', 'sfra', 'developer', 'documentation', `v${cli.version}`]
-    const fileKeywords = file.replace(VERSIONS_FOLDER, '').replace('/html/', '/').replace('/api/', '/').replace(`/${cli.version}/`, '').replace(/^\//, '').replace(/-/g, ' ').split('/')
+    const re = new RegExp(`^${SEP}`)
+    const fileKeywords = file.replace(VERSIONS_FOLDER, '').replace(`${SEP}html${SEP}`, SEP).replace(`${SEP}api${SEP}`, SEP).replace(`${SEP}${cli.version}${SEP}`, '').replace(re, '').replace(/-/g, ' ').split(SEP)
     keywords = keywords.concat(fileKeywords)
 
     // Slice of the last element as it's the HTML file and we're going to clean that up a bit
@@ -441,44 +424,53 @@ export default async (cli) => {
     keywords.pop()
     keywords = keywords.concat(last)
 
-    if (mapping[fileKey].deprecated) {
+    if (meta[url].deprecated) {
       keywords.push('deprecated')
     }
 
     // Add Parent Info
-    if (newFilePath.includes('/jobstep/')) {
+    if (newFilePath.includes(`${SEP}jobstep${SEP}`)) {
       parent = 'Job Step'
-    } else if (newFilePath.includes('/pipelet/')) {
+    } else if (newFilePath.includes(`${SEP}pipelet${SEP}`)) {
       title = title !== groupTitle ? title.replace('Pipelet ', `${groupTitle} `) : title.replace('Pipelet ', '')
       parent = 'Pipelet'
-    } else if (newFilePath.includes('/quota/')) {
+    } else if (newFilePath.includes(`${SEP}quota${SEP}`)) {
       parent = 'Quota'
-    } else if (newFilePath.includes('/script/')) {
+    } else if (newFilePath.includes(`${SEP}script${SEP}`)) {
       title = title.replace('Class ', groupTitle === 'Top Level' ? `Class ${groupTitle} ` : `Class ${groupTitle}.`)
       parent = 'Script'
     }
 
+    // Last check to see if we have a description
+    if (!description) {
+      description = meta[url].deprecated ? `[DEPRECATED] ${parent}: ${title}` : `${parent}: ${title}`
+    }
+
     // Update Mapping
-    mapping[fileKey].parent = parent
-    mapping[fileKey].group = groupTitle
-    mapping[fileKey].title = mapping[fileKey].deprecated ? `[DEPRECATED] ${parent}: ${title}` : `${parent}: ${title}`
-    mapping[fileKey].description = mapping[fileKey].deprecated ? `[DEPRECATED] ${description}` : description
-    mapping[fileKey].url = url
-    mapping[fileKey].keywords = keywords
-    mapping[fileKey].hierarchy = hierarchy
+    meta[url].parent = parent
+    meta[url].group = groupTitle
+    meta[url].title = meta[url].deprecated ? `[DEPRECATED] ${parent}: ${title}` : `${parent}: ${title}`
+    meta[url].description = meta[url].deprecated ? `[DEPRECATED] ${description}` : description
+    meta[url].keywords = keywords
 
-    // Update Meta Data
-    meta[url] = mapping[fileKey]
+    // Update Core Mapping
+    const coreMappingKey = url.replace(`${SEP}${cli.version}${SEP}`, SEP)
+    if (!coreMapping[coreMappingKey]) {
+      coreMapping[coreMappingKey] = fileKey
+    }
   }
 
-  // Make Data Directory if needed
-  if (!fs.existsSync(`${DATA_FOLDER}/${cli.version}`)) {
-    fs.mkdirSync(`${DATA_FOLDER}/${cli.version}`, { recursive: true })
-  }
+  // Sort Core Mapping
+  coreMapping = Object.keys(coreMapping)
+    .sort()
+    .reduce((obj, key) => {
+      obj[key] = coreMapping[key]
+      return obj
+    }, {})
 
   // Write mappings file to data folder
-  fs.writeFileSync(`${DATA_FOLDER}/${cli.version}/mapping.json`, JSON.stringify(mapping, null, 2))
-  fs.writeFileSync(`${DATA_FOLDER}/${cli.version}/meta.json`, JSON.stringify(meta, null, 2))
+  fs.writeFileSync(coreMappingFile, JSON.stringify(coreMapping, null, 2))
+  fs.writeFileSync(`${DATA_FOLDER}${SEP}meta-${cli.version}.json`, JSON.stringify(meta, null, 2))
 
   process.exit(0)
 }

@@ -1,14 +1,19 @@
 import chalk from 'chalk'
 import Debug from 'debug'
 import fs from 'fs'
+import path from 'path'
+import * as cheerio from 'cheerio'
 
+import { Glob } from 'glob'
 import { spawnSync } from 'child_process'
+import { parse } from 'node-html-parser'
 
 import { SUPPORTED_VERSIONS, VERSIONS_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:init')
+const SEP = path.sep
 
-export default () => {
+export default async () => {
   // Create versions folder if needed
   if (!fs.existsSync(VERSIONS_FOLDER)) {
     fs.mkdirSync(VERSIONS_FOLDER, {
@@ -45,6 +50,7 @@ export default () => {
         if (http_response !== '200') {
           debug(chalk.red.bold(`✖ ERROR: Download Failed for ${version} - Receive HTTP Error Code ${http_response}`))
           debug(chalk.red.bold(`✖        Receive HTTP Error Code ${http_response}`))
+          process.exit(1)
         } else {
           // Extract Zip Files
           debug(`Unzipping ${version}...`)
@@ -53,6 +59,7 @@ export default () => {
       } catch (error) {
         debug(chalk.red.bold(`✖ ERROR: Download Failed for ${version}`))
         debug(chalk.red.bold(`✖        ${error.message}`))
+        process.exit(1)
       }
     } else {
       debug(chalk.green.bold(`✔ Already Downloaded ${version}`))
@@ -64,4 +71,25 @@ export default () => {
       spawnSync('rm', [`${VERSIONS_FOLDER}/${version}.zip`])
     }
   })
+
+  // Do some initial cleanup on the HTML files
+  debug('Cleaning HTML Files... ( this may take a while )')
+  const files = new Glob(`${VERSIONS_FOLDER}${SEP}**${SEP}*.html`, {})
+  for await (const file of files) {
+    // Run Tidy on the file so DIFF's look better
+    spawnSync('tidy', ['--tidy-mark', 'no', '-m', '-i', '-w', 0, file, '-errors'])
+
+    // Read old file into memory so we can grab group info for sorting
+    let html = fs.readFileSync(file)
+    let $ = cheerio.load(html, { useHtmlParser2: true })
+    let dom = parse($.html())
+
+    // Remove stuff that is going to break our diffs
+    dom.querySelectorAll('div:empty, link, script, meta, div.banner, div.copyright, img').forEach((x) => {
+      x.remove()
+    })
+
+    // Write new HTML file back out after cleaning
+    fs.writeFileSync(file, dom.toString())
+  }
 }
