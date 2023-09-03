@@ -1,9 +1,11 @@
-import { compareSync } from 'dir-compare'
+import chalk from 'chalk'
+import Debug from 'debug'
 import fs from 'fs'
 import path from 'path'
-import Debug from 'debug'
-import { spawnSync } from 'child_process'
+
+import { compareSync } from 'dir-compare'
 import { Glob } from 'glob'
+import { spawnSync } from 'child_process'
 
 import { DATA_FOLDER, DIFF_FOLDER, SUPPORTED_VERSIONS, VERSIONS_FOLDER } from '../config.mjs'
 
@@ -15,10 +17,14 @@ const options = {
   compareContent: true,
 }
 
+let diffVersions = []
 let changeHistory = {}
 
-export default async () => {
-  debug('CMD: diff')
+export default (cli) => {
+  if (cli.verbose) {
+    debug(chalk.magenta.bold('CMD:'), 'diff')
+    debug(chalk.magenta.bold('VERSIONS:'), cli.version ? cli.version.split(',').join(', ') : 'All')
+  }
 
   // Remove old prep folder for version if it exists
   if (fs.existsSync(DIFF_FOLDER)) {
@@ -33,20 +39,31 @@ export default async () => {
   // Get current supported versions
   const versions = Object.keys(SUPPORTED_VERSIONS)
 
-  // Loop through supported versions and compare to previous version
+  // Loop through supported versions
   versions.forEach((version, index) => {
+    // Check if we should skip this version
+    if (cli.version && !cli.version.split(',').includes(version)) {
+      if (cli.verbose) {
+        debug(chalk.dim(`SKIPPING: ${version}`))
+      }
+
+      return
+    }
+
+    // No need to run
     if (index === versions.length - 1) {
       return
     }
 
+    diffVersions.push(version)
+
     const thisVersion = path.resolve(VERSIONS_FOLDER, version)
     const previousVersion = path.resolve(VERSIONS_FOLDER, versions[index + 1])
-
-    debug(`Comparing ${version} <==> ${versions[index + 1]}`)
     const diffs = compareSync(thisVersion, previousVersion, options)
 
+    debug(chalk.green.bold(`DIFF: v${version} <==> v${versions[index + 1]}`))
+
     if (!diffs.diffSet) {
-      debug('No Changes Between Versions:', version, versions[index + 1])
       return
     }
 
@@ -86,7 +103,6 @@ export default async () => {
 
           // Now let's generate a complete diff file
           if (diffOutput) {
-            debug('MODIFIED:', version, fileName)
             status = 'modified'
 
             diffPatchFile = `${fileName.replace('.html', '')}-${version}.diff`
@@ -104,11 +120,9 @@ export default async () => {
             ])
           }
         } else if (dif.type1 === 'missing' && dif.type2 === 'file') {
-          debug('DELETED:', version, fileName)
           // File was there before and now it is not
           status = 'deleted'
         } else if (dif.type1 === 'file' && dif.type2 === 'missing') {
-          debug('ADDED:', version, fileName)
           // File was not there before and now it is
           status = 'added'
         }
@@ -133,28 +147,40 @@ export default async () => {
         }
       }
     })
-  })
 
-  // Make Data Directory if needed
-  if (!fs.existsSync(DATA_FOLDER)) {
-    fs.mkdirSync(DATA_FOLDER, { recursive: true })
-  }
-
-  // // Write new HTML file back out after cleaning
-  fs.writeFileSync(`${DATA_FOLDER}${SEP}diffs.json`, JSON.stringify(changeHistory, null, 2))
-
-  // Do some initial cleanup on the HTML files
-  debug('Cleaning DIFF Files... ( this may take a while )')
-  const files = new Glob(`${DIFF_FOLDER}${SEP}*.diff`, {})
-  for await (const file of files) {
-    let diffFile = fs.readFileSync(file)
-    diffFile = diffFile.toString()
-
-    // Remove stuff that is going to break our diffs
-    const re = new RegExp(`${VERSIONS_FOLDER}`, 'g')
-    diffFile = diffFile.replace(re, '')
+    // Make Data Directory if needed
+    if (!fs.existsSync(DATA_FOLDER)) {
+      fs.mkdirSync(DATA_FOLDER, { recursive: true })
+    }
 
     // Write new HTML file back out after cleaning
-    fs.writeFileSync(file, diffFile)
-  }
+    fs.writeFileSync(`${DATA_FOLDER}${SEP}diffs.json`, JSON.stringify(changeHistory, null, 2))
+
+    // Do some initial cleanup on the HTML files
+    const files = new Glob(`${DIFF_FOLDER}${SEP}*.diff`, {})
+    for (const file of files) {
+      // We can skip this file if it is not in one pf our versions
+      let fileVersion = file.replace(DIFF_FOLDER, '').split(SEP)
+      fileVersion = fileVersion[fileVersion.length - 1].split('-')[1]
+      fileVersion = fileVersion.replace('.diff', '')
+
+      if (!diffVersions.includes(fileVersion)) {
+        continue
+      }
+
+      let diffFile = fs.readFileSync(file)
+      diffFile = diffFile.toString()
+
+      // Remove stuff that is going to break our diffs
+      const re = new RegExp(`${VERSIONS_FOLDER}`, 'g')
+      diffFile = diffFile.replace(re, '')
+
+      // Write new HTML file back out after cleaning
+      fs.writeFileSync(file, diffFile)
+    }
+
+    debug(chalk.dim(`✔ Complete`))
+  })
+
+  debug(chalk.green.bold('✅ ALL DONE (๑˃̵ᴗ˂̵)و '))
 }

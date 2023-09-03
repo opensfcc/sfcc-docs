@@ -27,25 +27,6 @@ nvm use
 output 'Installing Dependencies'
 npm clean-install
 
-# Run CLI Commands to Build Documentation ( need to complete each stage before moving to next )
-output 'Initialize and Download Resources'
-DEBUG=sfcc-docs:* $CWD/bin/cli.mjs init
-
-output 'Cleanup HTML for Markdown'
-for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs prep --version `basename "$f"`; done
-
-output 'Update Anchor Tags in HTML'
-for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs update-links --version `basename "$f"`; done
-
-output 'Convert HTML to Markdown'
-for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs convert --version `basename "$f"`; done
-
-output 'Build Navigation for Version'
-for f in $CWD/.b2c-dev-doc/versions/*; do [ -d "$f" ] && DEBUG=sfcc-docs:* $CWD/bin/cli.mjs build-nav --version `basename "$f"`; done
-
-output 'Build Version DIFFs'
-DEBUG=sfcc-docs:* $CWD/bin/cli.mjs diff
-
 # Install Complete
 END=`date +%s`
 RUNTIME=$((END-START))

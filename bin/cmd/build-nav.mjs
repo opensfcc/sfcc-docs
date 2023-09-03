@@ -1,19 +1,35 @@
+import chalk from 'chalk'
 import Debug from 'debug'
 import fs from 'fs'
 import path from 'path'
+
 import { DATA_FOLDER, SUPPORTED_VERSIONS } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:build-nav')
 const SEP = path.sep
 
 export default (cli) => {
-  debug('CMD: build-nav', cli.version)
+  if (cli.verbose) {
+    debug(chalk.magenta.bold('CMD:'), 'build-nav')
+    debug(chalk.magenta.bold('VERSIONS:'), cli.version ? cli.version.split(',').join(', ') : 'All')
+  }
 
   // Get current supported versions
   const versions = Object.keys(SUPPORTED_VERSIONS)
 
-  // Loop through supported versions and compare to previous version
+  // Loop through supported versions
   versions.forEach((version) => {
+    // Check if we should skip this version
+    if (cli.version && !cli.version.split(',').includes(version)) {
+      if (cli.verbose) {
+        debug(chalk.dim(`SKIPPING: ${version}`))
+      }
+
+      return
+    }
+
+    debug(chalk.green.bold(`BUILDING NAV: v${version}`))
+
     const metaFile = path.resolve(DATA_FOLDER, `meta-${version}.json`)
 
     let meta, metaKeys, metaText
@@ -87,5 +103,8 @@ export default (cli) => {
     )
 
     fs.writeFileSync(path.resolve(DATA_FOLDER, `nav-${version}.json`), JSON.stringify(nav, null, 2))
+    debug(chalk.dim(`✔ Complete`))
   })
+
+  debug(chalk.green.bold('✅ ALL DONE (๑˃̵ᴗ˂̵)و '))
 }
