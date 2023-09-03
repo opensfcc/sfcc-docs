@@ -27,6 +27,9 @@ nvm use
 output 'Installing Dependencies'
 npm clean-install
 
+output 'Running Install Process ( this may take a while )'
+npm run -s cli:run
+
 # Install Complete
 END=`date +%s`
 RUNTIME=$((END-START))

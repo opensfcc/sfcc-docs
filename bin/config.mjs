@@ -12,6 +12,11 @@ export const MARKDOWN_FOLDER = path.resolve(DOCS_FOLDER, 'markdown')
 export const PREP_FOLDER = path.resolve(DOCS_FOLDER, 'prep')
 export const VERSIONS_FOLDER = path.resolve(DOCS_FOLDER, 'versions')
 
+export const SRC_FOLDER = path.resolve(__dirname, '../src')
+export const SRC_PAGES_FOLDER = path.resolve(SRC_FOLDER, 'pages')
+export const SRC_DATA_FOLDER = path.resolve(SRC_FOLDER, 'data')
+export const SRC_JSON_FOLDER = path.resolve(SRC_DATA_FOLDER, 'json')
+
 // prettier-ignore
 export const SUPPORTED_VERSIONS = {
   '23.9': {
