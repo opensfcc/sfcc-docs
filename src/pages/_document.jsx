@@ -1,7 +1,7 @@
 import { Head, Html, Main, NextScript } from 'next/document'
 
 // Load our supported versions from the JSON file
-import versions from '@/data/json/versions.json'
+import { versions } from '@/data/versions'
 
 // Get the version that is "current" so we can use it as a default
 const defaultVersion = versions.find((version) => version.release === 'current')

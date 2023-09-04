@@ -5,7 +5,7 @@ import clsx from 'clsx'
 
 import { publish } from '../events'
 
-import versions from '@/data/json/versions.json'
+import { versions } from '@/data/versions'
 
 export function VersionSelector(props) {
   let [selectedVersion, setSelectedVersion] = useState(null)

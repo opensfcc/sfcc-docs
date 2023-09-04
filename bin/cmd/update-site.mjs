@@ -19,7 +19,7 @@ export default (cli) => {
   // Get current supported versions
   const versions = Object.keys(SUPPORTED_VERSIONS)
 
-  const versionsModule = {}
+  let versionModules = ''
 
   // Loop through supported versions
   versions.forEach((version) => {
@@ -44,32 +44,24 @@ export default (cli) => {
 
     // Create mew JSX friendly export
     const nav = fs.readFileSync(path.resolve(DATA_FOLDER, `nav-${version}.json`))
-    versionsModule[version] = JSON.parse(nav.toString())
+
+    versionModules = versionModules.concat(`
+// Navigation for v${version}
+const v${version.replace(/\./g, '_')} = ${nav}
+    `)
 
     debug(chalk.dim(`✔ Complete`))
   })
 
   // Remove old version folder if it exists
-  if (fs.existsSync(SRC_JSON_FOLDER)) {
-    spawnSync('rm', ['-fr', `${SRC_JSON_FOLDER}${SEP}*.json`], { shell: true })
+  if (fs.existsSync(SRC_DATA_FOLDER)) {
+    spawnSync('rm', ['-fr', SRC_DATA_FOLDER])
   }
 
-  if (!fs.existsSync(SRC_JSON_FOLDER)) {
-    fs.mkdirSync(SRC_JSON_FOLDER, { recursive: true })
+  // Recreate it since it's gone
+  if (!fs.existsSync(SRC_DATA_FOLDER)) {
+    fs.mkdirSync(SRC_DATA_FOLDER, { recursive: true })
   }
-
-  // Copy new version folder
-  spawnSync('cp', ['-r', `${DATA_FOLDER}${SEP}*.json`, SRC_JSON_FOLDER], { shell: true })
-
-  const JSX = `/** THIS FILE IS AUTO GENERATED. DO NOT EDIT. */
-
-// prettier-ignore
-const navigation = ${JSON.stringify(versionsModule)}
-
-export function getNavigation(version) {
-  return navigation[version]
-}
-`
 
   // Create Supported Versions JSON
   const supportedVersions = []
@@ -82,9 +74,29 @@ export function getNavigation(version) {
     })
   })
 
+  const JSX_NAV = `/** THIS FILE IS AUTO GENERATED. DO NOT EDIT. */
+
+${versionModules}
+
+// prettier-ignore
+const supportedVersions = {
+  ${versions.map((version) => `'${version}': v${version.replace(/\./g, '_')},`).join('\n  ')}
+}
+
+export function getNavigation(version) {
+  return supportedVersions[version]
+}
+`
+
+  const JSX_VERSIONS = `/** THIS FILE IS AUTO GENERATED. DO NOT EDIT. */
+
+export const versions = ${JSON.stringify(supportedVersions, null, 2)}
+
+`
+
   // Copy supported versions to JSON
-  fs.writeFileSync(path.resolve(SRC_DATA_FOLDER, 'navigation.jsx'), JSX)
-  fs.writeFileSync(path.resolve(SRC_JSON_FOLDER, 'versions.json'), JSON.stringify(supportedVersions, null, 2))
+  fs.writeFileSync(path.resolve(SRC_DATA_FOLDER, 'navigation.jsx'), JSX_NAV)
+  fs.writeFileSync(path.resolve(SRC_DATA_FOLDER, 'versions.jsx'), JSX_VERSIONS)
 
   debug(chalk.green.bold('✅ ALL DONE (๑˃̵ᴗ˂̵)و '))
 }
