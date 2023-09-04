@@ -13,7 +13,8 @@ import { ThemeSelector } from '@/components/ThemeSelector'
 import { VersionSelector } from '@/components/VersionSelector'
 import { DiffTimeline } from '@/components/DiffTimeline'
 
-import { navigation } from '@/data/navigation'
+import { getNavigation } from '@/data/navigation'
+import { subscribe } from '../events'
 
 function GitHubIcon(props) {
   return (
@@ -24,6 +25,7 @@ function GitHubIcon(props) {
 }
 
 function Header({ navigation }) {
+  let router = useRouter()
   let [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
@@ -113,11 +115,49 @@ function useTableOfContents(tableOfContents) {
 export function Layout({ children, title, tableOfContents, isMarkdoc = false }) {
   let router = useRouter()
   let isHomePage = router.pathname === '/'
-  let allLinks = navigation.flatMap((section) => section.links)
-  let linkIndex = allLinks.findIndex((link) => link?.href && link.href === router.pathname)
-  let previousPage = linkIndex > -1 ? allLinks[linkIndex - 1] : null
-  let nextPage = linkIndex > -1 ? allLinks[linkIndex + 1] : null
-  let section = navigation.find((section) => section?.links && section.links.find((link) => link.href === router.pathname))
+
+  let [selectedVersion, setSelectedVersion] = useState(null)
+  let [navigation, setNavigation] = useState(null)
+
+  useEffect(() => {
+    // Get current selected version
+    setSelectedVersion(document.documentElement.getAttribute('data-version'))
+  }, [selectedVersion])
+
+  useEffect(() => {
+    // Set initial state of navigation
+    if (selectedVersion) {
+      setNavigation(getNavigation(selectedVersion))
+    }
+
+    // Listen for version changes
+    subscribe('versionChanged', (evt) => {
+      // Make sure we have a selected version and that it's not the same as the one we're switching to
+      if (selectedVersion && evt?.detail?.version && selectedVersion !== evt.detail.version) {
+        // Split the current path into an array
+        let currentPath = router.pathname.split('/')
+
+        // Make sure we have a valid path
+        if (currentPath.length > 2) {
+          // Replace the version in the path with the new version
+          currentPath[1] = evt.detail.version
+
+          // Reload the page
+          router.push({ pathname: currentPath.join('/') }).then(() => {
+            router.reload()
+          })
+        } else {
+          setNavigation(getNavigation(evt.detail.version))
+        }
+      }
+    })
+  }, [selectedVersion, router])
+
+  let allLinks = navigation ? navigation.flatMap((section) => section.links) : null
+  let linkIndex = navigation ? allLinks.findIndex((link) => link?.href && link.href === router.pathname) : null
+  let previousPage = navigation ? (linkIndex > -1 ? allLinks[linkIndex - 1] : null) : null
+  let nextPage = navigation ? (linkIndex > -1 ? allLinks[linkIndex + 1] : null) : null
+  let section = navigation ? navigation.find((section) => section?.links && section.links.find((link) => link.href === router.pathname)) : null
   let currentSection = useTableOfContents(tableOfContents)
 
   function isActive(section) {
@@ -144,7 +184,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
       >
         Skip to Content
       </a>
-      <Header navigation={navigation} />
+      {navigation && <Header navigation={navigation} />}
 
       {isHomePage && <Hero />}
       <div className="relative mx-auto flex w-full max-w-8xl flex-auto scroll-mt-20 justify-center sm:px-2 lg:px-8 xl:px-12" id="main">
@@ -152,9 +192,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
           <div className="absolute inset-y-0 right-0 w-[50vw] bg-slate-50 dark:hidden" />
           <div className="absolute bottom-0 right-0 top-16 hidden h-12 w-px bg-gradient-to-t from-slate-800 dark:block" />
           <div className="absolute bottom-0 right-0 top-28 hidden w-px bg-slate-800 dark:block" />
-          <div className="sticky top-[4.75rem] -ml-0.5 h-[calc(100vh-4.75rem)] w-64 w-80 overflow-y-auto overflow-x-hidden py-16 pl-0.5 pr-2">
-            <Navigation navigation={navigation} />
-          </div>
+          <div className="sticky top-[4.75rem] -ml-0.5 h-[calc(100vh-4.75rem)] w-64 overflow-y-auto overflow-x-hidden py-16 pl-0.5 pr-2">{navigation && <Navigation navigation={navigation} />}</div>
         </div>
         <div className="min-w-0 max-w-2xl flex-auto px-4 py-16 lg:max-w-none lg:pl-8 lg:pr-0 xl:px-16">
           {isMarkdoc ? (

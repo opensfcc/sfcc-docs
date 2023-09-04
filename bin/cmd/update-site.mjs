@@ -5,7 +5,7 @@ import path from 'path'
 
 import { spawnSync } from 'child_process'
 
-import { DATA_FOLDER, MARKDOWN_FOLDER, SUPPORTED_VERSIONS, SRC_JSON_FOLDER, SRC_PAGES_FOLDER } from '../config.mjs'
+import { DATA_FOLDER, MARKDOWN_FOLDER, SUPPORTED_VERSIONS, SRC_JSON_FOLDER, SRC_PAGES_FOLDER, SRC_DATA_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:update-site')
 const SEP = path.sep
@@ -18,6 +18,8 @@ export default (cli) => {
 
   // Get current supported versions
   const versions = Object.keys(SUPPORTED_VERSIONS)
+
+  const versionsModule = {}
 
   // Loop through supported versions
   versions.forEach((version) => {
@@ -40,6 +42,10 @@ export default (cli) => {
     // Copy new version folder
     spawnSync('cp', ['-r', `${MARKDOWN_FOLDER}${SEP}${version}`, SRC_PAGES_FOLDER])
 
+    // Create mew JSX friendly export
+    const nav = fs.readFileSync(path.resolve(DATA_FOLDER, `nav-${version}.json`))
+    versionsModule[version] = JSON.parse(nav.toString())
+
     debug(chalk.dim(`✔ Complete`))
   })
 
@@ -54,6 +60,31 @@ export default (cli) => {
 
   // Copy new version folder
   spawnSync('cp', ['-r', `${DATA_FOLDER}${SEP}*.json`, SRC_JSON_FOLDER], { shell: true })
+
+  const JSX = `/** THIS FILE IS AUTO GENERATED. DO NOT EDIT. */
+
+// prettier-ignore
+const navigation = ${JSON.stringify(versionsModule)}
+
+export function getNavigation(version) {
+  return navigation[version]
+}
+`
+
+  // Create Supported Versions JSON
+  const supportedVersions = []
+
+  Object.keys(SUPPORTED_VERSIONS).forEach((version) => {
+    supportedVersions.push({
+      name: `v${version}`,
+      value: version,
+      release: SUPPORTED_VERSIONS[version].release,
+    })
+  })
+
+  // Copy supported versions to JSON
+  fs.writeFileSync(path.resolve(SRC_DATA_FOLDER, 'navigation.jsx'), JSX)
+  fs.writeFileSync(path.resolve(SRC_JSON_FOLDER, 'versions.json'), JSON.stringify(supportedVersions, null, 2))
 
   debug(chalk.green.bold('✅ ALL DONE (๑˃̵ᴗ˂̵)و '))
 }
