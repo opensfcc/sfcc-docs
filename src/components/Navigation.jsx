@@ -80,9 +80,9 @@ export function Navigation({ navigation, className }) {
   // Check if the current link is the active link
   const isCurrentLink = (section, link, pathname) => {
     const splitPath = pathname.split('/')
-    const isDeprecated = splitPath[2] === 'deprecated'
-    const sectionName = isDeprecated ? splitPath[3] : splitPath[2]
-    const linkName = isDeprecated ? splitPath[4] : splitPath[3]
+    const isDeprecated = splitPath[1] === 'deprecated'
+    const sectionName = isDeprecated ? splitPath[2] : splitPath[1]
+    const linkName = isDeprecated ? splitPath[3] : splitPath[2]
 
     const sectionMatch = sectionName === section.toLowerCase().replace(/\s/g, '')
     const linkMatch = linkName === link.toLowerCase().replace(/\s/g, '-')
@@ -202,9 +202,9 @@ export function Navigation({ navigation, className }) {
                                 title={link.alt}
                                 onClick={() => setInitialOpen(false)}
                                 className={clsx(
-                                  'm-0 flex w-full rounded-r-md py-2 pl-3.5 pr-2 font-medium before:pointer-events-none before:absolute',
+                                  'm-0 flex w-full rounded-r-md py-2 pl-3.5 pr-2 font-medium before:pointer-events-none before:absolute before:-left-0.5 before:top-5 before:h-10 before:w-0.5 before:-translate-y-1/2 hover:before:bg-sky-500/40',
                                   shouldPanelOpen(open, section.title, link.title, router.pathname, inputRef?.current?.value)
-                                    ? 'bg-slate-100 font-semibold text-sky-500 before:-left-0.5 before:top-5 before:h-10 before:w-0.5 before:-translate-y-1/2 before:bg-sky-400 dark:bg-slate-950/70 dark:before:bg-sky-500'
+                                    ? 'bg-slate-100 font-semibold text-sky-500 before:bg-sky-400 dark:bg-slate-950/30 dark:before:bg-sky-500'
                                     : 'text-slate-500 before:hidden before:bg-slate-300 hover:text-slate-600 hover:before:block dark:text-slate-400 dark:before:bg-slate-700 dark:hover:text-slate-300'
                                 )}
                               >

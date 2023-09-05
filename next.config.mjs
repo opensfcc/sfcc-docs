@@ -4,11 +4,11 @@ import withSearch from './src/markdoc/search.mjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  trailingSlash: false,
+  skipTrailingSlashRedirect: true,
+  distDir: 'dist',
   reactStrictMode: true,
   pageExtensions: ['js', 'jsx', 'md'],
-  experimental: {
-    scrollRestoration: true,
-  },
 }
 
 export default withSearch(withMarkdoc({ schemaPath: './src/markdoc' })(nextConfig))

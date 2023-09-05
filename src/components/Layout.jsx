@@ -13,8 +13,7 @@ import { ThemeSelector } from '@/components/ThemeSelector'
 import { VersionSelector } from '@/components/VersionSelector'
 import { DiffTimeline } from '@/components/DiffTimeline'
 
-import { getNavigation } from '@/data/navigation'
-import { subscribe } from '../events'
+import { navigation } from '@/data/navigation'
 
 function GitHubIcon(props) {
   return (
@@ -42,7 +41,7 @@ function Header({ navigation }) {
   return (
     <header
       className={clsx(
-        'sticky top-0 z-50 flex flex-none flex-wrap items-center justify-between bg-white px-4 py-5 shadow-md shadow-slate-900/5 transition duration-500 dark:shadow-none sm:px-6 lg:px-8',
+        'sticky top-0 z-40 flex flex-none flex-wrap items-center justify-between bg-white px-4 py-5 shadow-md shadow-slate-900/5 transition duration-500 dark:shadow-none sm:px-6 lg:px-8',
         isScrolled ? 'dark:bg-slate-900/95 dark:backdrop-blur dark:[@supports(backdrop-filter:blur(0))]:bg-slate-900/75' : 'dark:bg-transparent'
       )}
     >
@@ -116,48 +115,11 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
   let router = useRouter()
   let isHomePage = router.pathname === '/'
 
-  let [selectedVersion, setSelectedVersion] = useState(null)
-  let [navigation, setNavigation] = useState(null)
-
-  useEffect(() => {
-    // Get current selected version
-    setSelectedVersion(document.documentElement.getAttribute('data-version'))
-  }, [selectedVersion])
-
-  useEffect(() => {
-    // Set initial state of navigation
-    if (selectedVersion) {
-      setNavigation(getNavigation(selectedVersion))
-    }
-
-    // Listen for version changes
-    subscribe('versionChanged', (evt) => {
-      // Make sure we have a selected version and that it's not the same as the one we're switching to
-      if (selectedVersion && evt?.detail?.version && selectedVersion !== evt.detail.version) {
-        // Split the current path into an array
-        let currentPath = router.pathname.split('/')
-
-        // Make sure we have a valid path
-        if (currentPath.length > 2) {
-          // Replace the version in the path with the new version
-          currentPath[1] = evt.detail.version
-
-          // Reload the page
-          router.push({ pathname: currentPath.join('/') }).then(() => {
-            router.reload()
-          })
-        } else {
-          setNavigation(getNavigation(evt.detail.version))
-        }
-      }
-    })
-  }, [selectedVersion, router])
-
-  let allLinks = navigation ? navigation.flatMap((section) => section.links) : null
-  let linkIndex = navigation ? allLinks.findIndex((link) => link?.href && link.href === router.pathname) : null
-  let previousPage = navigation ? (linkIndex > -1 ? allLinks[linkIndex - 1] : null) : null
-  let nextPage = navigation ? (linkIndex > -1 ? allLinks[linkIndex + 1] : null) : null
-  let section = navigation ? navigation.find((section) => section?.links && section.links.find((link) => link.href === router.pathname)) : null
+  let allLinks = navigation.flatMap((section) => section.links)
+  let linkIndex = allLinks.findIndex((link) => link?.href && link.href === router.pathname)
+  let previousPage = linkIndex > -1 ? allLinks[linkIndex - 1] : null
+  let nextPage = linkIndex > -1 ? allLinks[linkIndex + 1] : null
+  let section = navigation.find((section) => section?.links && section.links.find((link) => link.href === router.pathname))
   let currentSection = useTableOfContents(tableOfContents)
 
   function isActive(section) {
@@ -174,7 +136,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
     <>
       <a
         id="skip-to-content-link"
-        className="rounded-b-md bg-slate-950 px-3 py-1 text-white dark:bg-slate-50 dark:text-black"
+        className="duration-350 absolute left-1/2 top-0 z-50 w-36 -translate-x-1/2 -translate-y-full transform rounded-b-md bg-slate-950 px-3 py-1 text-white transition focus:translate-y-0 dark:bg-slate-50 dark:text-black"
         href="#main"
         onClick={(evt) => {
           document.getElementById('main').scrollIntoView()

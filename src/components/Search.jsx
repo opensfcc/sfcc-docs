@@ -7,7 +7,8 @@ import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import Highlighter from 'react-highlight-words'
 
-import { navigation } from '@/components/Layout'
+import { navigation } from '@/data/navigation'
+import { subscribe } from '../events'
 
 function SearchIcon(props) {
   return (
@@ -98,23 +99,14 @@ function LoadingIcon(props) {
 }
 
 function HighlightQuery({ text, query }) {
-  return (
-    <Highlighter
-      highlightClassName="group-aria-selected:underline bg-transparent text-sky-600 dark:text-sky-400"
-      searchWords={[query]}
-      autoEscape={true}
-      textToHighlight={text}
-    />
-  )
+  return <Highlighter highlightClassName="group-aria-selected:underline bg-transparent text-sky-600 dark:text-sky-400" searchWords={[query]} autoEscape={true} textToHighlight={text} />
 }
 
 function SearchResult({ result, autocomplete, collection, query, recentResult = false }) {
   let id = useId()
   let router = useRouter()
 
-  let sectionTitle = navigation.find((section) =>
-    section.links.find((link) => link.href === result.url.split('#')[0])
-  )?.title
+  let sectionTitle = navigation.find((section) => section.links.find((link) => link.href === result.url.split('#')[0]))?.title
   let hierarchy = [sectionTitle, result.pageTitle].filter(Boolean)
 
   function onRemove(id) {
@@ -145,25 +137,15 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
       role={result.url ? 'button' : 'listitem'}
       onClick={result.url ? () => goToSearchResult(result) : undefined}
     >
-      <div
-        id={`${id}-title`}
-        aria-hidden="true"
-        className="text-sm text-slate-700 group-aria-selected:text-sky-600 dark:text-slate-300 dark:group-aria-selected:text-sky-400"
-      >
+      <div id={`${id}-title`} aria-hidden="true" className="text-sm text-slate-700 group-aria-selected:text-sky-600 dark:text-slate-300 dark:group-aria-selected:text-sky-400">
         <HighlightQuery text={result.title} query={query} />
       </div>
       {hierarchy.length > 0 && (
-        <div
-          id={`${id}-hierarchy`}
-          aria-hidden="true"
-          className="mt-0.5 truncate whitespace-nowrap text-xs text-slate-500 dark:text-slate-400"
-        >
+        <div id={`${id}-hierarchy`} aria-hidden="true" className="mt-0.5 truncate whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
           {hierarchy.map((item, itemIndex, items) => (
             <Fragment key={itemIndex}>
               <HighlightQuery text={item} query={query} />
-              <span className={itemIndex === items.length - 1 ? 'sr-only' : 'mx-2 text-slate-300 dark:text-slate-700'}>
-                /
-              </span>
+              <span className={itemIndex === items.length - 1 ? 'sr-only' : 'mx-2 text-slate-300 dark:text-slate-700'}>/</span>
               {recentResult === true && result.url && (
                 <button
                   className="absolute right-1 top-1 inline-block h-12 w-12 p-3.5 text-slate-400 transition-colors duration-200 hover:text-red-500 focus:text-red-500 focus:outline-none dark:text-slate-500 dark:hover:text-red-500"
@@ -201,14 +183,7 @@ function SearchResults({ autocomplete, query, collection, recentResult = false }
   return (
     <ul role="list" {...autocomplete.getListProps()}>
       {collection.items.map((result) => (
-        <SearchResult
-          key={result.url}
-          result={result}
-          autocomplete={autocomplete}
-          collection={collection}
-          query={query}
-          recentResult={recentResult}
-        />
+        <SearchResult key={result.url} result={result} autocomplete={autocomplete} collection={collection} query={query} recentResult={recentResult} />
       ))}
     </ul>
   )
@@ -312,30 +287,13 @@ function SearchDialog({ open, setOpen, className }) {
                 inputElement: inputRef.current,
               })}
             >
-              <SearchInput
-                ref={inputRef}
-                autocomplete={autocomplete}
-                autocompleteState={autocompleteState}
-                onClose={() => setOpen(false)}
-              />
-              <div
-                ref={panelRef}
-                className="max-h-96 overflow-scroll border-t border-slate-200 bg-white px-2 py-3 empty:hidden dark:border-slate-400/10 dark:bg-slate-800"
-                {...autocomplete.getPanelProps({})}
-              >
+              <SearchInput ref={inputRef} autocomplete={autocomplete} autocompleteState={autocompleteState} onClose={() => setOpen(false)} />
+              <div ref={panelRef} className="max-h-96 overflow-scroll border-t border-slate-200 bg-white px-2 py-3 empty:hidden dark:border-slate-400/10 dark:bg-slate-800" {...autocomplete.getPanelProps({})}>
                 {autocompleteState.isOpen &&
                   autocompleteState.collections?.map((collection, index) => {
                     const { source } = collection
                     if (source.sourceId === 'documentation') {
-                      return (
-                        <SearchResults
-                          key={index}
-                          autocomplete={autocomplete}
-                          query={autocompleteState.query}
-                          collection={collection}
-                          recentResult={false}
-                        />
-                      )
+                      return <SearchResults key={index} autocomplete={autocomplete} query={autocompleteState.query} collection={collection} recentResult={false} />
                     }
                   })}
                 {!autocompleteState.isOpen &&
@@ -344,20 +302,12 @@ function SearchDialog({ open, setOpen, className }) {
                     if (source.sourceId === 'recentSearchesPlugin') {
                       return (
                         <div key={index}>
-                          <span className="mb-1 block text-center text-xs uppercase text-slate-700 dark:text-slate-400">
-                            Recent Searches
-                          </span>
-                          <SearchResults
-                            autocomplete={autocomplete}
-                            query={autocompleteState.query}
-                            collection={collection}
-                            recentResult={true}
-                          />
+                          <span className="mb-1 block text-center text-xs uppercase text-slate-700 dark:text-slate-400">Recent Searches</span>
+                          <SearchResults autocomplete={autocomplete} query={autocompleteState.query} collection={collection} recentResult={true} />
                         </div>
                       )
                     }
                   })}
-                {/* {JSON.stringify(autocompleteState.collections)} */}
               </div>
             </form>
           </div>
@@ -406,9 +356,7 @@ export function Search() {
         {...buttonProps}
       >
         <SearchIcon className="h-5 w-5 flex-none fill-slate-400 group-hover:fill-slate-500 dark:fill-slate-500 md:group-hover:fill-slate-400" />
-        <span className="sr-only md:not-sr-only md:ml-2 md:text-slate-500 md:dark:text-slate-400">
-          Search SFCC Docs ...
-        </span>
+        <span className="sr-only md:not-sr-only md:ml-2 md:text-slate-500 md:dark:text-slate-400">Search SFCC Docs ...</span>
         {modifierKey && (
           <kbd className="ml-auto hidden font-medium text-slate-400 dark:text-slate-500 md:block">
             <kbd className="font-sans">{modifierKey}</kbd>

@@ -42,7 +42,6 @@ function extractSections(node, sections, isRoot = true) {
 
 const search = function (nextConfig = {}) {
   let cache = new Map()
-
   return Object.assign({}, nextConfig, {
     webpack(config, options) {
       config.module.rules.push({

@@ -1,5 +1,6 @@
 import { DocumentIcon, DocumentPlusIcon, DocumentMinusIcon } from '@heroicons/react/20/solid'
 import { useRef, useState, createRef, useMemo } from 'react'
+import { Callout } from '@/components/Callout'
 
 import { Diff } from '@/components/Diff'
 
@@ -75,6 +76,12 @@ export function DiffTimeline() {
         Change History
       </h2>
       <p className="mt-1 text-base font-light text-slate-600 dark:text-slate-400">The following changes have been made historically to this document.</p>
+      <Callout type="warning" title="TESTERS: Change History is not working yet">
+        <p>
+          I have the DIFF content created. I need to swap out the library being used with one that can load actual <code>.diff</code> file extensions. I have one that will work, it&apos;s just not setup yet :) The content below is just a
+          placeholder to test the UI.
+        </p>
+      </Callout>
       <ul role="list" className="-mb-8 pt-6">
         {timeline.map((diff, diffIdx) => (
           <li key={diff.id}>
