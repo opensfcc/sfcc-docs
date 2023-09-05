@@ -8,15 +8,14 @@ Unofficial community edition of the Salesforce Commerce Cloud developer document
 
 ## Getting started
 
-To get started with this template, first install the npm dependencies:
-
 ```bash
+# Install Dependencies
 npm install
-```
 
-Next, run the development server:
+# Run All CLI Commands
+npm run cli:all
 
-```bash
+# Start Dev Server
 npm run dev
 ```
 

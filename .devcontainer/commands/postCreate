@@ -28,7 +28,7 @@ output 'Installing Dependencies'
 npm clean-install
 
 output 'Running Install Process ( this may take a while )'
-npm run -s cli:run
+npm run -s cli:all
 
 # Install Complete
 END=`date +%s`

@@ -73,7 +73,6 @@ const headerScript = `
         window.location.reload()
       }
     }
-
   });
 `
 
