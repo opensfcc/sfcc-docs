@@ -1,13 +1,15 @@
 import chalk from 'chalk'
 import Debug from 'debug'
 import fs from 'fs'
+import markdownlint from 'markdownlint'
 import path from 'path'
 import turndownPluginGfm from 'turndown-plugin-gfm'
 import TurndownService from 'turndown'
 
 import { Glob } from 'glob'
 
-import { DATA_FOLDER, MARKDOWN_FOLDER, PREP_FOLDER, SUPPORTED_VERSIONS } from '../config.mjs'
+import { getVersion } from '../utils.mjs'
+import { DATA_FOLDER, MARKDOWN_FOLDER, PREP_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:convert')
 const SEP = path.sep
@@ -64,88 +66,110 @@ turndownService.addRule('code', {
 })
 
 export default (cli) => {
-  if (cli.verbose) {
-    debug(chalk.magenta.bold('CMD:'), 'convert')
-    debug(chalk.magenta.bold('VERSIONS:'), cli.version ? cli.version.split(',').join(', ') : 'All')
+  // Get Version
+  let version = getVersion(cli)
+
+  debug(chalk.green.bold(`CONVERTING: v${version}`))
+
+  // Setup Paths
+  const markdownFolder = path.resolve(MARKDOWN_FOLDER, version)
+  const prepFolder = path.resolve(PREP_FOLDER, version)
+
+  // Make sure version is valid
+  if (!prepFolder) {
+    debug(chalk.red.bold(`✖ ERROR: ${version} prep folder missing.`))
+    process.exit()
   }
 
-  // Get current supported versions
-  const versions = Object.keys(SUPPORTED_VERSIONS)
+  // Make markdown folder if needed
+  if (!fs.existsSync(markdownFolder)) {
+    fs.mkdirSync(markdownFolder, { recursive: true })
+  }
 
-  // Loop through supported versions
-  versions.forEach((version) => {
-    // Check if we should skip this version
-    if (cli.version && !cli.version.split(',').includes(version)) {
+  const files = new Glob(`${prepFolder}${SEP}**${SEP}*.html`, {})
+  const metaFile = path.resolve(DATA_FOLDER, `meta-${version}.json`)
+
+  let meta, metaKeys, metaText
+
+  // Make Data Directory if needed
+  if (fs.existsSync(metaFile)) {
+    metaText = fs.readFileSync(metaFile)
+    meta = JSON.parse(metaText)
+    metaKeys = Object.keys(meta)
+  }
+
+  // Make sure we have everything we need
+  if (files && meta) {
+    // Loop through the files
+    for (const file of files) {
       if (cli.verbose) {
-        debug(chalk.dim(`SKIPPING: ${version}`))
+        debug(chalk.dim('='.repeat(80)))
+        debug(chalk.green('PROCESSING:'), file.replace(prepFolder, ''))
       }
 
-      return
-    }
+      let metaKey = file.replace(PREP_FOLDER, '')
+      metaKey = metaKey.replace('.html', '').replace(`${SEP}deprecated${SEP}`, SEP).replace(`${SEP}${version}${SEP}`, SEP)
 
-    debug(chalk.green.bold(`CONVERTING: v${version}`))
+      const html = fs.readFileSync(file)
 
-    const markdownFolder = path.resolve(`${MARKDOWN_FOLDER}${SEP}${version}`)
-    const prepFolder = path.resolve(`${PREP_FOLDER}${SEP}${version}`)
+      // Remove HTML Title from Markdown
+      turndownService.remove('title')
 
-    // Make sure version is valid
-    if (!prepFolder) {
-      process.exit()
-    }
+      // Generate Markdown from HTML
+      const markdown = turndownService.turndown(html.toString())
 
-    // Make markdown folder if needed
-    if (!fs.existsSync(markdownFolder)) {
-      fs.mkdirSync(markdownFolder, { recursive: true })
-    }
+      // Create new folder path
+      let filePath = file.replace(prepFolder, markdownFolder)
+      const folder = path.dirname(filePath)
 
-    const files = new Glob(`${prepFolder}${SEP}**${SEP}*.html`, {})
-    const metaFile = path.resolve(DATA_FOLDER, `meta-${version}.json`)
+      // Make Directory
+      if (!fs.existsSync(folder)) {
+        fs.mkdirSync(folder, { recursive: true })
+      }
 
-    let meta, metaKeys, metaText
+      // Add Front Matter for Markdown ( and escape single quotes )
+      const mdTitle = `title: '${meta[metaKey].title.replace(/'/g, '&apos;')}'`
+      const mdDescription = `description: '${meta[metaKey].description.replace(/'/g, '&apos;')}'`
+      const mdKeywords = `keywords: '${meta[metaKey].keywords.join(', ').replace(/'/g, '&apos;')}'`
+      const prefix = `---\n${mdTitle}\n${mdDescription}\n${mdKeywords}\n---`
 
-    // Make Data Directory if needed
-    if (fs.existsSync(metaFile)) {
-      metaText = fs.readFileSync(metaFile)
-      meta = JSON.parse(metaText)
-      metaKeys = Object.keys(meta)
-    }
+      const md = `${prefix}\n\n${markdown}`
 
-    // Make sure we have everything we need
-    if (files && meta) {
-      // Loop through the files
-      for (const file of files) {
-        let metaKey = file.replace(PREP_FOLDER, '')
-        metaKey = metaKey.replace('.html', '').replace(`${SEP}deprecated${SEP}`, SEP).replace(`${SEP}${version}${SEP}`, SEP)
+      filePath = filePath.replace('.html', '.md')
+      fs.writeFileSync(filePath, md)
 
-        const html = fs.readFileSync(file)
+      // Lint & Fix Markdown
+      const result = markdownlint.sync({
+        files: [filePath],
+      })
 
-        // Remove HTML Title from Markdown
-        turndownService.remove('title')
-
-        // Generate Markdown from HTML
-        const markdown = turndownService.turndown(html.toString())
-
-        // Create new folder path
-        let filePath = file.replace(prepFolder, markdownFolder)
-        const folder = path.dirname(filePath)
-
-        // Make Directory
-        if (!fs.existsSync(folder)) {
-          fs.mkdirSync(folder, { recursive: true })
+      if (cli.verbose) {
+        if (result[filePath].length === 0) {
+          debug(chalk.green.bold('PERFECTION !!! (๑˃̵ᴗ˂̵)و '))
+        } else {
+          result[filePath].forEach((error) => {
+            debug(chalk.yellow('LINT ERROR:'), chalk.dim(`Line ${error.lineNumber}: ${error.ruleDescription} ( ${error.errorDetail || error.errorContext} )`))
+          })
         }
-
-        const prefix = `---\ntitle: "${meta[metaKey].title}"\ndescription: "${meta[metaKey].description}"\nkeywords: "${meta[metaKey].keywords.join(', ')}"\n---`
-
-        filePath = filePath.replace('.html', '.md')
-        fs.writeFileSync(filePath, `${prefix}\n\n${markdown}`)
       }
-    } else {
-      debug(chalk.red.bold(`✖ ERROR: Missing Data or Files`))
-      process.exit(1)
     }
+  } else {
+    debug(chalk.red.bold(`✖ ERROR: Missing Data or Files`))
+    process.exit(1)
+  }
 
-    debug(chalk.dim(`✔ Complete`))
-  })
+  /*
+    sfcc-docs:convert     {
+  sfcc-docs:convert       lineNumber: 119,
+  sfcc-docs:convert       ruleNames: [Array],
+  sfcc-docs:convert       ruleDescription: 'Files should end with a single newline character',
+  sfcc-docs:convert       ruleInformation: 'https://github.com/DavidAnson/markdownlint/blob/v0.30.0/doc/md047.md',
+  sfcc-docs:convert       errorDetail: null,
+  sfcc-docs:convert       errorContext: null,
+  sfcc-docs:convert       errorRange: [Array],
+  sfcc-docs:convert       fixInfo: [Object]
+  sfcc-docs:convert     }
+  */
 
   debug(chalk.green.bold('✅ ALL DONE (๑˃̵ᴗ˂̵)و '))
 }

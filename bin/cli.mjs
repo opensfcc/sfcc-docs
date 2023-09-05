@@ -12,11 +12,6 @@ const cli = yargs(hideBin(process.argv))
   .scriptName('sfcc-docs')
   .usage('Usage: sfcc-docs <command> --switches')
   .command('init', 'Initialize and Download Resources', {
-    version: {
-      alias: 'v',
-      describe: 'Version(s)',
-      type: 'string',
-    },
     verbose: {
       describe: 'Verbose Output for More Debugging',
       type: 'boolean',
@@ -88,18 +83,17 @@ const cli = yargs(hideBin(process.argv))
       type: 'boolean',
     },
   })
-  .example('sfcc-docs init', 'Initialize and download all versions')
-  .example('sfcc-docs init -v 23.9', 'Initialize and download only v23.9')
-  .example('sfcc-docs prep', 'Prepare all versions for conversion')
-  .example('sfcc-docs prep -v 23.8,23.9', 'Prepare v23.8 and v23.9 for conversion')
-  .example('sfcc-docs update-links', 'Update anchor tags for all versions')
-  .example('sfcc-docs update-links -v 23.8', 'Update anchor tags for v23.8')
-  .example('sfcc-docs convert', 'Convert HTML to Markdown for all versions')
-  .example('sfcc-docs convert -v 23.8', 'Convert HTML to Markdown for v23.8')
-  .example('sfcc-docs diff', 'Generate DIFF files for all versions')
-  .example('sfcc-docs diff -v 23.8,23.9', 'Generate DIFF for v23.8 and v23.9')
+  .example('sfcc-docs init', 'Initialize and download current versions')
+  .example('sfcc-docs init -v 23.9', 'Initialize and download v23.9')
+  .example('sfcc-docs prep', 'Prepare current version for conversion')
+  .example('sfcc-docs prep -v 23.9', 'Prepare v23.9 for conversion')
+  .example('sfcc-docs update-links', 'Update anchor tags for current version')
+  .example('sfcc-docs update-links -v 23.9', 'Update anchor tags for v23.9')
+  .example('sfcc-docs convert', 'Convert HTML to Markdown for current version')
+  .example('sfcc-docs convert -v 23.9', 'Convert HTML to Markdown for v23.9')
+  .example('sfcc-docs diff', 'Generate DIFF files for current version')
+  .example('sfcc-docs diff -v 23.9', 'Generate DIFF for v23.9')
   .example('sfcc-docs update-site', 'Copy all generated files to site')
-  .example('sfcc-docs update-site -v 23.8', 'Copy generated files for v23.8 to site')
   .example(' ', ' ')
   .example('----------------------------------', '----------------------------------')
   .example('NEED MORE HELP ?', 'https://bit.ly/sfcc-docs-help')

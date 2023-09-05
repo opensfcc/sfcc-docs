@@ -3,10 +3,26 @@ import chalk from 'chalk'
 import fs from 'fs'
 import path from 'path'
 
-import { DOCS_FOLDER } from './config.mjs'
+import { CURRENT_VERSION, DOCS_FOLDER, SUPPORTED_VERSIONS } from './config.mjs'
 
 const debug = Debug('sfcc-docs:utils')
 const SEP = path.sep
+
+export function getVersion(cli) {
+  let version = CURRENT_VERSION
+
+  // Make sure we have a supported version
+  if (cli.version && SUPPORTED_VERSIONS.find((version) => version.value === cli.version)) {
+    version = cli.version
+  } else if (cli.version) {
+    debug(chalk.red.bold(`✖ ERROR: ${cli.version} is not a supported version.`))
+    debug('SUPPORTED VERSION:')
+    debug(SUPPORTED_VERSIONS.map((version) => version.value).join(', '))
+    process.exit(1)
+  }
+
+  return version
+}
 
 export function getVersionFolder(version, folder) {
   // Make sure we have a version

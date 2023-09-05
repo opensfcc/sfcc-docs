@@ -10,6 +10,7 @@
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
     "editor.formatOnSave": true,
     "cSpell.words": [
+      "apos",
       "applepay",
       "bancontact",
       "bashhistory",

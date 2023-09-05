@@ -2,6 +2,7 @@ import chalk from 'chalk'
 import Debug from 'debug'
 import fs from 'fs'
 import path from 'path'
+import https from 'https'
 
 import * as cheerio from 'cheerio'
 
@@ -9,7 +10,7 @@ import { Glob } from 'glob'
 import { parse } from 'node-html-parser'
 import { spawnSync } from 'child_process'
 
-import { SUPPORTED_VERSIONS, VERSIONS_FOLDER } from '../config.mjs'
+import { DATA_FOLDER, DIFF_FOLDER, MARKDOWN_FOLDER, PREP_FOLDER, SRC_DATA_FOLDER, SUPPORTED_VERSIONS_FILE, SUPPORTED_VERSIONS, VERSIONS_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:init')
 const SEP = path.sep
@@ -17,7 +18,45 @@ const SEP = path.sep
 export default (cli) => {
   if (cli.verbose) {
     debug(chalk.magenta.bold('CMD:'), 'init')
-    debug(chalk.magenta.bold('VERSIONS:'), cli.version ? cli.version.split(',').join(', ') : 'All')
+    debug(chalk.magenta.bold('VERSIONS:'), 'All')
+  }
+
+  // Make all the folders we're going to need
+  if (!fs.existsSync(DATA_FOLDER)) fs.mkdirSync(DATA_FOLDER, { recursive: true })
+  if (!fs.existsSync(DIFF_FOLDER)) fs.mkdirSync(DIFF_FOLDER, { recursive: true })
+  if (!fs.existsSync(MARKDOWN_FOLDER)) fs.mkdirSync(MARKDOWN_FOLDER, { recursive: true })
+  if (!fs.existsSync(PREP_FOLDER)) fs.mkdirSync(PREP_FOLDER, { recursive: true })
+  if (!fs.existsSync(VERSIONS_FOLDER)) fs.mkdirSync(VERSIONS_FOLDER, { recursive: true })
+  if (!fs.existsSync(SRC_DATA_FOLDER)) fs.mkdirSync(SRC_DATA_FOLDER, { recursive: true })
+
+  // Get current supported versions
+  let versions = SUPPORTED_VERSIONS
+
+  // Download latest supported versions data
+  if (!SUPPORTED_VERSIONS) {
+    debug('Downloading Supported Versions Data...')
+    const file = fs.createWriteStream(SUPPORTED_VERSIONS_FILE)
+    https.get('https://docs.sfccdocs.com/supported.json', (response) => {
+      response.pipe(file)
+
+      // Close File
+      file.on('finish', () => {
+        file.close()
+        debug(chalk.dim('✔ Download Completed'))
+
+        // Read File into variable
+        const supportedVersionsFile = fs.readFileSync(SUPPORTED_VERSIONS_FILE, 'utf8')
+        versions = JSON.parse(supportedVersionsFile)
+      })
+    })
+  } else {
+    debug(chalk.green('✔ Supported Versions Already Downloaded'))
+  }
+
+  // Check if we have any versions
+  if (!versions) {
+    debug(chalk.red.bold('✖ ERROR: Unable to download supported versions data'))
+    process.exit(1)
   }
 
   // Create versions folder if needed
@@ -27,27 +66,15 @@ export default (cli) => {
     })
   }
 
-  // Get current supported versions
-  const versions = Object.keys(SUPPORTED_VERSIONS)
-
   // Track which versions we needed to download
   let downloaded = []
 
   // Download each version from our server if needed
   versions.forEach((version) => {
-    // Check if we should skip this version
-    if (cli.version && !cli.version.split(',').includes(version)) {
-      if (cli.verbose) {
-        debug(chalk.dim(`SKIPPING: ${version}`))
-      }
-
-      return
-    }
-
-    debug(chalk.green.bold(`INITIALIZING: v${version}`))
+    debug(chalk.green.bold(`INITIALIZING: v${version.value}`))
 
     // Check if we already have the version
-    if (!fs.existsSync(`${VERSIONS_FOLDER}/${version}`)) {
+    if (!fs.existsSync(path.resolve(VERSIONS_FOLDER, version.value))) {
       // Download ZIP files containing data
       debug('› Downloading')
 
@@ -60,26 +87,26 @@ export default (cli) => {
         // prettier-ignore
         const response_code = spawnSync('curl', [
           '--silent', '--write-out', '%{response_code}',
-          `https://docs.sfccdocs.com/${version}.zip`,
+          `https://docs.sfccdocs.com/${version.value}.zip`,
           '-H', `${atob('QXV0aG9yaXphdGlvbjogQmFzaWMgYzJaalkyUmxkbTl3Y3pwelptTmpMV1J2WTNNPQ==')}`,
-          '-L', '-o', `${VERSIONS_FOLDER}/${version}.zip`
+          '-L', '-o', `${VERSIONS_FOLDER}/${version.value}.zip`
         ])
 
         // Check HTTP Response Code
         const http_response = response_code.stdout.toString()
         if (http_response !== '200') {
-          debug(chalk.red.bold(`✖ ERROR: Download Failed for ${version} - Receive HTTP Error Code ${http_response}`))
+          debug(chalk.red.bold(`✖ ERROR: Download Failed for ${version.value} - Receive HTTP Error Code ${http_response}`))
           debug(chalk.red.bold(`✖        Receive HTTP Error Code ${http_response}`))
           process.exit(1)
         } else {
           // Extract Zip Files
           debug('› Unzipping')
-          spawnSync('unzip', [`${VERSIONS_FOLDER}/${version}.zip`, '-d', VERSIONS_FOLDER])
+          spawnSync('unzip', [`${path.resolve(VERSIONS_FOLDER, `${version.value}.zip`)}`, '-d', VERSIONS_FOLDER])
 
-          downloaded.push(version)
+          downloaded.push(version.value)
         }
       } catch (error) {
-        debug(chalk.red.bold(`✖ ERROR: Download Failed for ${version}`))
+        debug(chalk.red.bold(`✖ ERROR: Download Failed for ${version.value}`))
         debug(chalk.red.bold(`✖        ${error.message}`))
         process.exit(1)
       }
@@ -88,15 +115,15 @@ export default (cli) => {
     }
 
     // Cleanup
-    if (fs.existsSync(`${VERSIONS_FOLDER}/${version}.zip`)) {
+    if (fs.existsSync(path.resolve(VERSIONS_FOLDER, `${version.value}.zip`))) {
       debug('› Removing Zip File')
-      spawnSync('rm', [`${VERSIONS_FOLDER}/${version}.zip`])
+      spawnSync('rm', [path.resolve(VERSIONS_FOLDER, `${version.value}.zip`)])
     }
   })
 
   // Do some initial cleanup on the HTML files if we downloaded anything
   if (downloaded.length > 0) {
-    debug(chalk.bold('CLEANING:'), `${downloaded.length === 1 ? 'Version' : 'Versions'} ${downloaded.join(', ')} ...${downloaded.length > 1 ? ' ( this may take a while )' : ''}`)
+    debug(chalk.bold('CLEANING:'), `${downloaded.length} ${downloaded.length === 1 ? 'Version' : 'Versions ( this may take a while )'}`)
 
     // Get all HTML Files in Versions Folder
     const files = new Glob(`${VERSIONS_FOLDER}${SEP}**${SEP}*.html`, {})
