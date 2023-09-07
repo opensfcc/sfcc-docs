@@ -50,13 +50,9 @@ export default async (cli) => {
     // Make sure HTML file contains content that is helpful
     if (!isHelpfulFile(file)) {
       if (cli.verbose) {
-        debug(chalk.dim(`SKIPPING: ${file.replace(versionFolder, '')} ( junk file )`))
+        debug(chalk.dim(`SKIPPING: ${file} ( junk file )`))
       }
       continue
-    }
-
-    if (cli.verbose) {
-      debug(chalk.green('PROCESSING:'), file.replace(versionFolder, ''))
     }
 
     // Get original file info
@@ -161,7 +157,7 @@ export default async (cli) => {
     dom.querySelector('body').removeAttribute('onload')
 
     // Remove elements that are not helpful for search indexer of markdown conversion
-    dom.querySelectorAll('div:empty, a:empty, link, script, meta, div.banner, img').forEach((x) => {
+    dom.querySelectorAll('div:empty, a:empty, link, script, meta, div.banner, img, div.packageName').forEach((x) => {
       x.remove()
     })
 
@@ -196,26 +192,10 @@ export default async (cli) => {
     }
 
     // Generate H4 Tags
-    const $h4 = dom.querySelectorAll('div.summaryItem span.parameterTitle')
+    const $h4 = dom.querySelectorAll('span.parameterTitle')
     if ($h4) {
       $h4.forEach((x) => {
-        x.tagName = 'h4'
-      })
-    }
-
-    // Generate Description Blockquote Tags
-    const $description = dom.querySelectorAll('div.topLevelDescription, div.description')
-    if ($description) {
-      $description.forEach((x) => {
-        x.tagName = 'blockquote'
-      })
-    }
-
-    // Convert list elements to list
-    const $list = dom.querySelectorAll('div.parameters')
-    if ($list) {
-      $list.forEach((x) => {
-        x.tagName = 'ul'
+        x.tagName = 'strong'
       })
     }
 
@@ -231,7 +211,7 @@ export default async (cli) => {
     const $code = dom.querySelectorAll('div.parameterDetail')
     if ($code) {
       $code.forEach((x) => {
-        x.tagName = 'code'
+        x.tagName = 'blockquote'
       })
     }
 
@@ -314,14 +294,16 @@ export default async (cli) => {
       })
     }
 
+    // Fix Line Issues with Top Level Description
+    const $tld = dom.querySelectorAll('div.topLevelDescription > br')
+    if ($tld) {
+      $tld.forEach((x) => {
+        x.replaceWith(parse('<br><br>'))
+      })
+    }
+
     // Convert HTML to String
     let newHTML = dom.toString()
-
-    // Fix Line Issues with Params
-    newHTML = newHTML.replace(/<strong class="parameterTitle">([^<]+)<\/strong>/g, '<strong class="parameterTitle">$1</strong><br>')
-
-    // Wrap parameters in list items
-    newHTML = newHTML.replace(/<span class="parameterTitle">([^<]+)<\/span>\s?<code class="parameterDetail">([^<]+)<\/code>/gi, '<li><strong class="parameterTitle">$1</strong> <code class="parameterDetail">$2</code></li>')
 
     // Mark Required as Code
     newHTML = newHTML.replace(/\(Internal\)/gi, '<code>Internal</code>')
@@ -331,14 +313,23 @@ export default async (cli) => {
 
     // Fix weird HTML for Constants
     newHTML = newHTML.replace(/<span>([A-Z_]+)\s?:\s?<a href="([^"]+)"><span class="">([^<]+)<\/span><\/a>=([^<]+)<\/span>/g, '<p><strong>$1</strong> : <a href="$2">$3</a></p><p><pre><code>$4</code></pre></p>')
-    newHTML = newHTML.replace(/<span><h4 class="parameterTitle">([^<]+)<\/h4>[\n\s\t]+:[\n\s\t]+([A-Za-z]+)[\n\s\t]+<code>([^<]+)<\/code>[\n\s\t]+<\/span>/g, '<h4 class="parameterTitle">$1</h4> $2 <code>$3</code>')
+    newHTML = newHTML.replace(/<span><strong class="parameterTitle">([^<]+)<\/strong>[\n\s\t]+:[\n\s\t]+([A-Za-z]+)[\n\s\t]+<code>([^<]+)<\/code>[\n\s\t]+<\/span>/g, '<strong class="parameterTitle">$1</strong> $2 <code>$3</code>')
 
     // Give a bit more emphasis to the title of the constant
     newHTML = newHTML.replace(/<span>([^\s]+) : <a/g, '<span><strong>$1</strong> : <a')
 
     // Remove lingering characters that break markdown
     newHTML = newHTML.replace(/&nbsp;/g, '')
+    newHTML = newHTML.replace(/<\/strong> : /g, '</strong> ')
     newHTML = newHTML.replace(/<\/h4> : /g, '</h4> ')
+    newHTML = newHTML.replace(/ : <code>/g, ' <code>')
+    newHTML = newHTML.replace(/<\/a>="/g, '</a> = "')
+
+    if (cli.verbose) {
+      debug(chalk.green('PROCESSING:'))
+      debug('› OLD:', chalk.dim(file))
+      debug('› NEW:', chalk.dim(newFilePath))
+    }
 
     // Write new HTML file back out after cleaning
     fs.writeFileSync(newFilePath, newHTML)
@@ -353,7 +344,7 @@ export default async (cli) => {
     // Prep additional info
     let parent = ''
     let title = dom.querySelector('title')?.innerText.replace(/\n/g, ' ').trim() || null
-    let description = dom.querySelector('blockquote.topLevelDescription')?.innerText.replace(/\n/g, ' ').trim() || null
+    let description = dom.querySelector('div.topLevelDescription')?.innerText.replace(/\n/g, ' ').trim() || null
 
     if (!groupTitle) {
       const splitGroup = newFilePath.match(/script\/([^\/]+)/)

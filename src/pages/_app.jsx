@@ -47,21 +47,20 @@ function collectHeadings(nodes, slugify = slugifyWithCounter()) {
 }
 
 export default function App({ Component, pageProps }) {
-  let title = pageProps.markdoc?.frontmatter.title
-
-  let pageTitle = pageProps.markdoc?.frontmatter.pageTitle || `${pageProps.markdoc?.frontmatter.title} - Docs`
-
-  let description = pageProps.markdoc?.frontmatter.description
+  let metaTitle = pageProps.markdoc?.frontmatter.metaTitle
+  let metaDescription = pageProps.markdoc?.frontmatter.metaDescription
+  let metaKeywords = pageProps.markdoc?.frontmatter.metaKeywords
 
   let tableOfContents = pageProps.markdoc?.content ? collectHeadings(pageProps.markdoc.content) : []
 
   return (
     <>
       <Head>
-        <title>{pageTitle}</title>
-        {description && <meta name="description" content={description} />}
+        <title>{metaTitle}</title>
+        {description && <meta name="description" content={metaDescription} />}
+        {keywords && <meta name="keywords" content={metaKeywords} />}
       </Head>
-      <Layout title={title} tableOfContents={tableOfContents} isMarkdoc={Boolean(pageProps.markdoc)}>
+      <Layout title={metaTitle} tableOfContents={tableOfContents} isMarkdoc={Boolean(pageProps.markdoc)}>
         <Component {...pageProps} />
       </Layout>
     </>

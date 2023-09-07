@@ -2,7 +2,6 @@ import chalk from 'chalk'
 import Debug from 'debug'
 import fs from 'fs'
 import path from 'path'
-import https from 'https'
 
 import * as cheerio from 'cheerio'
 
@@ -11,6 +10,7 @@ import { parse } from 'node-html-parser'
 import { spawnSync } from 'child_process'
 
 import { DATA_FOLDER, DIFF_FOLDER, MARKDOWN_FOLDER, PREP_FOLDER, SRC_DATA_FOLDER, SUPPORTED_VERSIONS_FILE, SUPPORTED_VERSIONS, VERSIONS_FOLDER } from '../config.mjs'
+import { downloadExternalFile } from '../utils.mjs'
 
 const debug = Debug('sfcc-docs:init')
 const SEP = path.sep
@@ -35,20 +35,12 @@ export default (cli) => {
   // Download latest supported versions data
   if (!SUPPORTED_VERSIONS) {
     debug('Downloading Supported Versions Data...')
-    const file = fs.createWriteStream(SUPPORTED_VERSIONS_FILE)
-    https.get('https://docs.sfccdocs.com/supported.json', (response) => {
-      response.pipe(file)
 
-      // Close File
-      file.on('finish', () => {
-        file.close()
-        debug(chalk.dim('✔ Download Completed'))
-
-        // Read File into variable
-        const supportedVersionsFile = fs.readFileSync(SUPPORTED_VERSIONS_FILE, 'utf8')
-        versions = JSON.parse(supportedVersionsFile)
-      })
-    })
+    if (downloadExternalFile('supported.json', SUPPORTED_VERSIONS_FILE)) {
+      // Read File into variable
+      const supportedVersionsFile = fs.readFileSync(SUPPORTED_VERSIONS_FILE, 'utf8')
+      versions = JSON.parse(supportedVersionsFile)
+    }
   } else {
     debug(chalk.green('✔ Supported Versions Already Downloaded'))
   }
@@ -78,37 +70,12 @@ export default (cli) => {
       // Download ZIP files containing data
       debug('› Downloading')
 
-      // NOTE: Here we are just downloading packaged versions to our machine.
-      //       Our saved packages help avoid hitting SFCC servers too much.
-      //       Auth headers prevent random bots from hitting our server.
-      //       It is not to protect any data, this stuff was public.
-      try {
-        // Fetch Zip Files
-        // prettier-ignore
-        const response_code = spawnSync('curl', [
-          '--silent', '--write-out', '%{response_code}',
-          `https://docs.sfccdocs.com/${version.value}.zip`,
-          '-H', `${atob('QXV0aG9yaXphdGlvbjogQmFzaWMgYzJaalkyUmxkbTl3Y3pwelptTmpMV1J2WTNNPQ==')}`,
-          '-L', '-o', `${VERSIONS_FOLDER}/${version.value}.zip`
-        ])
+      if (downloadExternalFile(`${version.value}.zip`, path.resolve(VERSIONS_FOLDER, `${version.value}.zip`))) {
+        // Extract Zip Files
+        debug('› Unzipping')
+        spawnSync('unzip', [`${path.resolve(VERSIONS_FOLDER, `${version.value}.zip`)}`, '-d', VERSIONS_FOLDER])
 
-        // Check HTTP Response Code
-        const http_response = response_code.stdout.toString()
-        if (http_response !== '200') {
-          debug(chalk.red.bold(`✖ ERROR: Download Failed for ${version.value} - Receive HTTP Error Code ${http_response}`))
-          debug(chalk.red.bold(`✖        Receive HTTP Error Code ${http_response}`))
-          process.exit(1)
-        } else {
-          // Extract Zip Files
-          debug('› Unzipping')
-          spawnSync('unzip', [`${path.resolve(VERSIONS_FOLDER, `${version.value}.zip`)}`, '-d', VERSIONS_FOLDER])
-
-          downloaded.push(version.value)
-        }
-      } catch (error) {
-        debug(chalk.red.bold(`✖ ERROR: Download Failed for ${version.value}`))
-        debug(chalk.red.bold(`✖        ${error.message}`))
-        process.exit(1)
+        downloaded.push(version.value)
       }
     } else {
       debug(chalk.dim('✔ Already Downloaded'))

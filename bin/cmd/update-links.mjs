@@ -48,6 +48,12 @@ export default (cli) => {
       let $ = cheerio.load(html, { useHtmlParser2: true })
       let dom = parse($.html())
 
+      if (cli.verbose) {
+        debug(chalk.dim('='.repeat(80)))
+        debug(chalk.green('PROCESSING:'))
+        debug('› FILE:', chalk.dim(file))
+      }
+
       // Loop through all the links
       dom.querySelectorAll('a').forEach((link) => {
         // Get the href
@@ -72,26 +78,31 @@ export default (cli) => {
           let updatedURL = null
           mappingKeys.forEach((key) => {
             if (mapping[key] === url) {
-              updatedURL = `/${version}${key}`
+              updatedURL = key
               return
             }
           })
 
           // Update the URL
-          if (updatedURL) {
+          if (updatedURL && url !== updatedURL) {
+            if (cli.verbose) {
+              debug('› URL:', chalk.dim(url), '=>', chalk.dim(updatedURL))
+            }
+
             link.setAttribute('href', updatedURL)
           }
 
           // Update hash if we had one
           if (!updatedURL && hash) {
-            let updatedHash = hash.replace(/%20/g, '-').replace(/_/g, '-').replace('/', '').toLowerCase()
+            let updatedHash = `#${link.innerText.replace(/%20/g, '-').replace(/_/g, '-').replace('/', '').toLowerCase()}`
 
-            if (updatedHash.startsWith('#category-')) {
-              updatedHash = updatedHash.replace('category-', '')
-              updatedHash = `${updatedHash}-category`
+            if (hash !== updatedHash) {
+              if (cli.verbose) {
+                debug('› HASH:', chalk.dim(hash), '=>', chalk.dim(updatedHash))
+              }
+
+              link.setAttribute('href', updatedHash)
             }
-
-            link.setAttribute('href', updatedHash)
           }
         }
       })

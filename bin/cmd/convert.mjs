@@ -7,6 +7,7 @@ import turndownPluginGfm from 'turndown-plugin-gfm'
 import TurndownService from 'turndown'
 
 import { Glob } from 'glob'
+import { minify } from 'html-minifier'
 
 import { getVersion } from '../utils.mjs'
 import { DATA_FOLDER, MARKDOWN_FOLDER, PREP_FOLDER } from '../config.mjs'
@@ -44,9 +45,7 @@ turndownService.addRule('td-description', {
 
 // Add Rule for Code
 turndownService.addRule('code', {
-  filter: (node) => {
-    return node.nodeName === 'CODE'
-  },
+  filter: 'code',
   replacement: (content) => {
     let syntax = 'javascript'
     let code = content.replace(/\n    /g, '\n')
@@ -56,12 +55,12 @@ turndownService.addRule('code', {
       return '\n```html\n' + code + '\n```\n'
     } else if (code.startsWith('{')) {
       return '\n```json\n' + code + '\n```\n'
-    } else if (/^[A-Z0-9]/i.test(code)) {
+    } else if (/^[A-Z0-9]/i.test(code) && !code.startsWith('import') && !code.startsWith('var')) {
       syntax = 'text'
       return ' `' + code + '`'
     }
 
-    return '\n```javascript\n' + code + '\n```\n'
+    return '\n```javascript\n' + content + '\n```\n'
   },
 })
 
@@ -102,11 +101,6 @@ export default (cli) => {
   if (files && meta) {
     // Loop through the files
     for (const file of files) {
-      if (cli.verbose) {
-        debug(chalk.dim('='.repeat(80)))
-        debug(chalk.green('PROCESSING:'), file.replace(prepFolder, ''))
-      }
-
       let metaKey = file.replace(PREP_FOLDER, '')
       metaKey = metaKey.replace('.html', '').replace(`${SEP}deprecated${SEP}`, SEP).replace(`${SEP}${version}${SEP}`, SEP)
 
@@ -116,7 +110,7 @@ export default (cli) => {
       turndownService.remove('title')
 
       // Generate Markdown from HTML
-      const markdown = turndownService.turndown(html.toString())
+      let markdown = turndownService.turndown(minify(html.toString(), { collapseWhitespace: true }))
 
       // Create new folder path
       let filePath = file.replace(prepFolder, markdownFolder)
@@ -127,28 +121,52 @@ export default (cli) => {
         fs.mkdirSync(folder, { recursive: true })
       }
 
+      // Fix Code Blocks
+      markdown = markdown.replace(/```\n([^```]+)```/g, '\n```javascript\n$1```\n')
+      markdown = markdown.replace(/```javascript\n\n/g, '```javascript\n')
+      markdown = markdown.replace(/\n\s+\n/g, '\n\n')
+      markdown = markdown.replace(/\n\n\n/g, '\n\n')
+
       // Add Front Matter for Markdown ( and escape single quotes )
-      const mdTitle = `title: '${meta[metaKey].title.replace(/'/g, '&apos;')}'`
-      const mdDescription = `description: '${meta[metaKey].description.replace(/'/g, '&apos;')}'`
-      const mdKeywords = `keywords: '${meta[metaKey].keywords.join(', ').replace(/'/g, '&apos;')}'`
+      const mdTitle = `metaTitle: '${meta[metaKey].title.replace(/'/g, '&apos;')}'`
+      const mdDescription = `metaDescription: '${meta[metaKey].description.replace(/'/g, '&apos;')}'`
+      const mdKeywords = `metaKeywords: '${meta[metaKey].keywords.join(', ').replace(/'/g, '&apos;')}'`
       const prefix = `---\n${mdTitle}\n${mdDescription}\n${mdKeywords}\n---`
 
-      const md = `${prefix}\n\n${markdown}`
+      const md = `${prefix}\n\n${markdown}\n`
 
       filePath = filePath.replace('.html', '.md')
+
+      if (cli.verbose) {
+        debug(chalk.dim('='.repeat(80)))
+        debug(chalk.green('PROCESSING:'))
+        debug('› OLD:', chalk.dim(file))
+        debug('› NEW:', chalk.dim(filePath))
+      }
+
       fs.writeFileSync(filePath, md)
 
       // Lint & Fix Markdown
-      const result = markdownlint.sync({
+      const results = markdownlint.sync({
         files: [filePath],
+        config: {
+          default: true,
+          MD003: { style: 'atx' },
+          MD007: { indent: 2 },
+          'no-emphasis-as-header': false,
+          'no-hard-tabs': false,
+          whitespace: false,
+          'line-length': false,
+          'ul-indent': false,
+        },
       })
 
       if (cli.verbose) {
-        if (result[filePath].length === 0) {
+        if (results[filePath].length === 0) {
           debug(chalk.green.bold('PERFECTION !!! (๑˃̵ᴗ˂̵)و '))
         } else {
-          result[filePath].forEach((error) => {
-            debug(chalk.yellow('LINT ERROR:'), chalk.dim(`Line ${error.lineNumber}: ${error.ruleDescription} ( ${error.errorDetail || error.errorContext} )`))
+          results[filePath].forEach((result) => {
+            debug(chalk.yellow('LINT ERROR:'), chalk.dim(`Line ${result.lineNumber}: ${result.ruleDescription} ( ${result.errorDetail || result.errorContext} )`))
           })
         }
       }
@@ -157,19 +175,6 @@ export default (cli) => {
     debug(chalk.red.bold(`✖ ERROR: Missing Data or Files`))
     process.exit(1)
   }
-
-  /*
-    sfcc-docs:convert     {
-  sfcc-docs:convert       lineNumber: 119,
-  sfcc-docs:convert       ruleNames: [Array],
-  sfcc-docs:convert       ruleDescription: 'Files should end with a single newline character',
-  sfcc-docs:convert       ruleInformation: 'https://github.com/DavidAnson/markdownlint/blob/v0.30.0/doc/md047.md',
-  sfcc-docs:convert       errorDetail: null,
-  sfcc-docs:convert       errorContext: null,
-  sfcc-docs:convert       errorRange: [Array],
-  sfcc-docs:convert       fixInfo: [Object]
-  sfcc-docs:convert     }
-  */
 
   debug(chalk.green.bold('✅ ALL DONE (๑˃̵ᴗ˂̵)و '))
 }

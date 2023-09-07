@@ -8,7 +8,7 @@
     "vs-code-prettier-eslint.prettierLast": true,
     "markdown-preview-enhanced.codeBlockTheme": "github.css",
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "cSpell.words": [
       "apos",
       "applepay",

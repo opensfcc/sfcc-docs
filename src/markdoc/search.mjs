@@ -62,7 +62,7 @@ const search = function (nextConfig = {}) {
                 sections = cache.get(file)[1]
               } else {
                 let ast = Markdoc.parse(md)
-                let title = ast.attributes?.frontmatter?.match(/^title:\s*(.*?)\s*$/m)?.[1]
+                let title = ast.attributes?.frontmatter?.match(/^metaTitle:\s*(.*?)\s*$/m)?.[1]
                 sections = [[title, null, []]]
                 extractSections(ast, sections)
                 cache.set(file, [md, sections])

@@ -3,10 +3,42 @@ import chalk from 'chalk'
 import fs from 'fs'
 import path from 'path'
 
+import { spawnSync } from 'child_process'
+
 import { CURRENT_VERSION, DOCS_FOLDER, SUPPORTED_VERSIONS } from './config.mjs'
 
 const debug = Debug('sfcc-docs:utils')
 const SEP = path.sep
+
+export function downloadExternalFile(externalFile, downloadPath) {
+  try {
+    const response_code = spawnSync('curl', [
+      '--silent',
+      '--write-out',
+      '%{response_code}',
+      `https://docs.sfccdocs.com/${externalFile}`,
+      '-H',
+      `${atob('QXV0aG9yaXphdGlvbjogQmFzaWMgYzJaalkyUmxkbTl3Y3pwelptTmpMV1J2WTNNPQ==')}`,
+      '-L',
+      '-o',
+      `${downloadPath}`,
+    ])
+
+    // Check HTTP Response Code
+    const http_response = response_code.stdout.toString()
+    if (http_response !== '200') {
+      debug(chalk.red.bold(`✖ ERROR: Download Failed for ${externalFile} - Receive HTTP Error Code ${http_response}`))
+      debug(chalk.red.bold(`✖        Receive HTTP Error Code ${http_response}`))
+      return false
+    } else {
+      return true
+    }
+  } catch (error) {
+    debug(chalk.red.bold(`✖ ERROR: Download Failed for ${externalFile}`))
+    debug(chalk.red.bold(`✖        ${error.message}`))
+    return false
+  }
+}
 
 export function getVersion(cli) {
   let version = CURRENT_VERSION
