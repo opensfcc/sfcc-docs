@@ -66,7 +66,7 @@ turndownService.addRule('code', {
 
 export default (cli) => {
   // Get Version
-  let version = getVersion(cli)
+  const version = getVersion(cli)
 
   debug(chalk.green.bold(`CONVERTING: v${version}`))
 

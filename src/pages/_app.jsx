@@ -57,8 +57,8 @@ export default function App({ Component, pageProps }) {
     <>
       <Head>
         <title>{metaTitle}</title>
-        {description && <meta name="description" content={metaDescription} />}
-        {keywords && <meta name="keywords" content={metaKeywords} />}
+        {metaDescription && <meta name="description" content={metaDescription} />}
+        {metaKeywords && <meta name="keywords" content={metaKeywords} />}
       </Head>
       <Layout title={metaTitle} tableOfContents={tableOfContents} isMarkdoc={Boolean(pageProps.markdoc)}>
         <Component {...pageProps} />

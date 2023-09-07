@@ -3,26 +3,18 @@ import Debug from 'debug'
 import fs from 'fs'
 import path from 'path'
 
-import { DATA_FOLDER, SUPPORTED_VERSIONS } from '../config.mjs'
+import { getVersion } from '../utils.mjs'
+import { DATA_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:build-nav')
-const SEP = path.sep
 
 export default (cli) => {
-  if (cli.verbose) {
-    debug(chalk.magenta.bold('CMD:'), 'build-nav')
-    debug(chalk.magenta.bold('VERSION:'), cli.version)
-  }
+  // Get Version
+  const version = getVersion(cli)
 
-  // Make sure we have a valid version
-  if (!cli.version || !versions.includes(cli.version)) {
-    debug(chalk.dim(`SKIPPING: ${version}`))
-    return
-  }
+  debug(chalk.green.bold(`BUILDING NAV: v${version}`))
 
-  debug(chalk.green.bold(`BUILDING NAV: v${cli.version}`))
-
-  const metaFile = path.resolve(DATA_FOLDER, `meta-${cli.version}.json`)
+  const metaFile = path.resolve(DATA_FOLDER, `meta-${version}.json`)
 
   let meta, metaKeys, metaText
   let nav = []
@@ -32,6 +24,9 @@ export default (cli) => {
     metaText = fs.readFileSync(metaFile)
     meta = JSON.parse(metaText)
     metaKeys = Object.keys(meta)
+  } else {
+    debug(chalk.red.bold(`✖ ERROR: ${version} meta data missing.`))
+    process.exit()
   }
 
   // First pass to create parents
@@ -77,7 +72,7 @@ export default (cli) => {
       nav[idx].links[groupIdx].children.push({
         title: meta[key].nav.title,
         alt: meta[key].nav.alt,
-        href: meta[key].deprecated ? `/${cli.version}/deprecated${key}` : `/${cli.version}${key}`,
+        href: meta[key].deprecated ? `/deprecated${key}` : key,
         deprecated: meta[key].deprecated,
       })
     }
@@ -94,7 +89,7 @@ export default (cli) => {
     })
   )
 
-  fs.writeFileSync(path.resolve(DATA_FOLDER, `nav-${cli.version}.json`), JSON.stringify(nav, null, 2))
+  fs.writeFileSync(path.resolve(DATA_FOLDER, `nav-${version}.json`), JSON.stringify(nav, null, 2))
   debug(chalk.dim(`✔ Complete`))
 
   debug(chalk.green.bold('✅ ALL DONE (๑˃̵ᴗ˂̵)و '))

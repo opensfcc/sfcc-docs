@@ -9,7 +9,7 @@ import { parse } from 'node-html-parser'
 import { spawnSync } from 'child_process'
 
 import { isEmptyDir, isHelpfulFile, getVersion, getVersionFolder, prepURI } from '../utils.mjs'
-import { CURRENT_VERSION, DATA_FOLDER, DOCS_FOLDER, PREP_FOLDER, SUPPORTED_VERSIONS, VERSIONS_FOLDER } from '../config.mjs'
+import { DATA_FOLDER, DOCS_FOLDER, PREP_FOLDER, VERSIONS_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:prep')
 const SEP = path.sep
@@ -27,7 +27,7 @@ let meta = {}
 
 export default async (cli) => {
   // Get Version
-  let version = getVersion(cli)
+  const version = getVersion(cli)
 
   debug(chalk.green.bold(`PREPPING: v${version}`))
 

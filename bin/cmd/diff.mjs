@@ -23,7 +23,7 @@ let changeHistory = {}
 export default (cli) => {
   if (cli.verbose) {
     debug(chalk.magenta.bold('CMD:'), 'diff')
-    debug(chalk.magenta.bold('VERSIONS:'), cli.version ? cli.version.split(',').join(', ') : 'All')
+    debug(chalk.magenta.bold('VERSIONS:'), 'All')
   }
 
   // Remove old prep folder for version if it exists
@@ -36,32 +36,20 @@ export default (cli) => {
     fs.mkdirSync(DIFF_FOLDER, { recursive: true })
   }
 
-  // Get current supported versions
-  const versions = Object.keys(SUPPORTED_VERSIONS)
-
   // Loop through supported versions
-  versions.forEach((version, index) => {
-    // Check if we should skip this version
-    if (cli.version && !cli.version.split(',').includes(version)) {
-      if (cli.verbose) {
-        debug(chalk.dim(`SKIPPING: ${version}`))
-      }
-
-      return
-    }
-
+  SUPPORTED_VERSIONS.forEach((version, index) => {
     // No need to run
-    if (index === versions.length - 1) {
+    if (index === SUPPORTED_VERSIONS.length - 1) {
       return
     }
 
-    diffVersions.push(version)
+    diffVersions.push(version.value)
 
-    const thisVersion = path.resolve(VERSIONS_FOLDER, version)
-    const previousVersion = path.resolve(VERSIONS_FOLDER, versions[index + 1])
+    const thisVersion = path.resolve(VERSIONS_FOLDER, version.value)
+    const previousVersion = path.resolve(VERSIONS_FOLDER, SUPPORTED_VERSIONS[index + 1].value)
     const diffs = compareSync(thisVersion, previousVersion, options)
 
-    debug(chalk.green.bold(`DIFF: v${version} <==> v${versions[index + 1]}`))
+    debug(chalk.green.bold(`DIFF: v${version.value} <==> v${SUPPORTED_VERSIONS[index + 1].value}`))
 
     if (!diffs.diffSet) {
       return
@@ -98,22 +86,22 @@ export default (cli) => {
         // Files exists in both versions
         if (dif.reason === 'different-content') {
           // Lets get the diff ( just the basic here )
-          const gitDiff = spawnSync('git', ['diff', '--shortstat', '--no-index', `${dif.path1}${SEP}${dif.name1}`, `${dif.path2}${SEP}${dif.name2}`, '--ignore-all-space', '--ignore-blank-lines'])
+          const gitDiff = spawnSync('git', ['diff', '--shortstat', '--no-index', path.resolve(dif.path1, dif.name1), path.resolve(dif.path2, dif.name2), '--ignore-all-space', '--ignore-blank-lines'])
           diffOutput = gitDiff.stdout ? gitDiff.stdout.toString().trim() : null
 
           // Now let's generate a complete diff file
           if (diffOutput) {
             status = 'modified'
 
-            diffPatchFile = `${fileName.replace('.html', '')}-${version}.diff`
+            diffPatchFile = `${fileName.replace('.html', '')}-${version.value}.diff`
             spawnSync('git', [
               'diff',
               '--patch',
               '--no-index',
-              `${dif.path1}${SEP}${dif.name1}`,
-              `${dif.path2}${SEP}${dif.name2}`,
+              path.resolve(dif.path1, dif.name1),
+              path.resolve(dif.path2, dif.name2),
               '--output',
-              `${DIFF_FOLDER}${SEP}${diffPatchFile}`,
+              path.resolve(DIFF_FOLDER, diffPatchFile),
               '--minimal',
               '--ignore-all-space',
               '--ignore-blank-lines',
@@ -139,7 +127,7 @@ export default (cli) => {
 
           // Add to change history
           changeHistory[fileName].push({
-            version,
+            version: version.value,
             status,
             label: diffOutput,
             diff: diffPatchFile,
@@ -154,7 +142,7 @@ export default (cli) => {
     }
 
     // Write new HTML file back out after cleaning
-    fs.writeFileSync(`${DATA_FOLDER}${SEP}diffs.json`, JSON.stringify(changeHistory, null, 2))
+    fs.writeFileSync(path.resolve(DATA_FOLDER, 'diffs.json'), JSON.stringify(changeHistory, null, 2))
 
     // Do some initial cleanup on the HTML files
     const files = new Glob(`${DIFF_FOLDER}${SEP}*.diff`, {})
