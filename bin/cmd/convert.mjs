@@ -55,7 +55,7 @@ turndownService.addRule('code', {
       return '\n```html\n' + code + '\n```\n'
     } else if (code.startsWith('{')) {
       return '\n```json\n' + code + '\n```\n'
-    } else if (/^[A-Z0-9]/i.test(code) && !code.startsWith('import') && !code.startsWith('var')) {
+    } else if (/^[A-Z0-9\/]/i.test(code) && !code.startsWith('import') && !code.startsWith('var')) {
       syntax = 'text'
       return ' `' + code + '`'
     }

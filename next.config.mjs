@@ -6,8 +6,12 @@ import withSearch from './src/markdoc/search.mjs'
 const nextConfig = {
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
-  distDir: 'dist',
   reactStrictMode: true,
+  output: 'export',
+  distDir: 'dist',
+  images: {
+    unoptimized: true
+  },
   pageExtensions: ['js', 'jsx', 'md'],
 }
 
