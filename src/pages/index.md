@@ -1,7 +1,7 @@
 ---
 title: Getting started
 pageTitle: SFCC Docs - Salesforce Commerce Cloud
-description: Unofficial community edition of the Salesforce Commerce Cloud developer documentation.
+description: Unofficial community edition of the Salesforce B2C Developer Documentation.
 ---
 
 You might be asking yourself, **"Are these the official SFCC docs?"** So let's get that out of the way first. **No.** This website is leveraging publicly available data to help improve SFCC developers' lives. {% .lead %}

@@ -9,7 +9,8 @@ import blurCyanImage from '@/images/blur-cyan.png'
 import blurIndigoImage from '@/images/blur-indigo.png'
 
 const codeLanguage = 'javascript'
-const code = `server.get('SetSession', function (req, res, next) {
+const code = `// TODO: Learn what "setTrackingAllowed" actually does
+server.get('SetSession', function (req, res, next) {
   var consent = (req.querystring.consent === 'true');
   req.session.raw.setTrackingAllowed(consent);
   req.session.privacyCache.set('consent', consent);
@@ -41,7 +42,7 @@ export function Hero() {
             <Image className="absolute bottom-full right-full -mb-56 -mr-72 opacity-50" src={blurCyanImage} alt="" width={530} height={530} unoptimized priority />
             <div className="relative">
               <p className="inline bg-gradient-to-r from-indigo-200 via-sky-400 to-indigo-200 bg-clip-text font-display text-5xl tracking-tight text-transparent">SFCC Dev Docs</p>
-              <p className="mt-3 text-2xl tracking-tight text-slate-400">Unofficial community edition of the Salesforce Commerce Cloud developer documentation.</p>
+              <p className="mt-3 text-2xl tracking-tight text-slate-400">Unofficial Community Edition of the Salesforce B2C Developer Documentation.</p>
               <div className="mt-8 flex gap-4 md:justify-center lg:justify-start">
                 <Button
                   href="#main"

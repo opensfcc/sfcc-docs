@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout'
 
 import 'focus-visible'
 import '@/styles/tailwind.css'
+import '@/styles/diff.css'
 
 function getNodeText(node) {
   let text = ''
