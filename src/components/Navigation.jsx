@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ChevronRightIcon, ArrowSmallRightIcon } from '@heroicons/react/20/solid'
 import { Disclosure, Transition } from '@headlessui/react'
 import { useRouter } from 'next/router'
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -17,6 +17,12 @@ function HighlightQuery({ text, query }) {
 
 export function Navigation({ navigation, className }) {
   let router = useRouter()
+
+  let [modifierKey, setModifierKey] = useState()
+
+  useEffect(() => {
+    setModifierKey(/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? '⌘' : 'Ctrl ')
+  }, [])
 
   const useFocus = () => {
     const htmlElRef = useRef(null)
@@ -41,6 +47,7 @@ export function Navigation({ navigation, className }) {
       setInitialOpen(false)
       if (event.key === 'g' && (event.metaKey || event.ctrlKey)) {
         event.preventDefault()
+        setInputFocus()
       }
     }
 
@@ -159,11 +166,11 @@ export function Navigation({ navigation, className }) {
               maxLength={20}
               spellCheck="false"
               onInput={filterByKeyword}
-              className="dark:highlight-white/5 hidden w-full items-center rounded-md py-1.5 pl-11 pr-3 text-sm leading-6 text-slate-400 shadow-sm ring-1 ring-slate-900/10 hover:ring-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 lg:flex"
+              className="dark:highlight-white/5 w-full items-center rounded-md py-1.5 pl-11 pr-3 text-sm leading-6 text-slate-400 shadow-sm ring-1 ring-slate-900/10 hover:ring-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 lg:flex"
               placeholder="Menu filter.."
             />
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <span className="ml-auto flex-none pl-3 text-xs font-semibold">⌘G</span>
+            <div className="pointer-events-none absolute inset-y-0 right-0 items-center pr-3 hidden md:flex">
+              <span className="ml-auto flex-none pl-3 text-xs font-semibold">{modifierKey}G</span>
             </div>
           </div>
         </div>
@@ -226,7 +233,7 @@ export function Navigation({ navigation, className }) {
                                 leaveFrom="transform translate-x-0 opacity-100"
                                 leaveTo="transform -translate-x-full opacity-0"
                               >
-                                <Disclosure.Panel as="ul" role="list" className="mb-4 mt-4 space-y-9 border-slate-100 dark:border-slate-800 lg:mt-4 lg:space-y-2.5 lg:border-slate-200">
+                                <Disclosure.Panel as="ul" role="list" className="mb-4 mt-4 space-y-3 border-slate-100 dark:border-slate-800 lg:border-slate-200">
                                   {link?.children &&
                                     link.children.map((child, index) => (
                                       <li key={child.href} className="relative">
@@ -235,7 +242,7 @@ export function Navigation({ navigation, className }) {
                                           title={child.alt}
                                           id={isCurrentLink(section.title, link.title, router.pathname) ? 'current-nav-link' : `nav-link-${index}`}
                                           className={clsx(
-                                            'block w-full truncate pl-3 text-xs before:pointer-events-none before:absolute before:-left-1 before:top-1/2 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full',
+                                            'block w-full truncate pl-3 text-xs before:pointer-events-none before:absolute before:-left-0 before:top-1/2 before:h-1.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full',
                                             child.href === router.pathname
                                               ? 'font-semibold text-sky-500 before:-left-0.5 before:top-2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:bg-sky-400/80 dark:before:bg-sky-500/80'
                                               : 'text-slate-500 before:hidden before:bg-slate-300 hover:text-slate-600 hover:before:block dark:text-slate-400 dark:before:bg-slate-700 dark:hover:text-slate-300'

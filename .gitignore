@@ -46,3 +46,4 @@ src/pages/**/*.md
 !src/pages/index.md
 .b2c-dev-doc
 src/data
+public/json

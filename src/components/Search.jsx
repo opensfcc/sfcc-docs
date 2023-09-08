@@ -1,14 +1,13 @@
 import { createAutocomplete } from '@algolia/autocomplete-core'
 import { createLocalStorageRecentSearchesPlugin } from '@algolia/autocomplete-plugin-recent-searches'
 import { Dialog } from '@headlessui/react'
-import { forwardRef, Fragment, useEffect, useId, useRef, useState, useMemo } from 'react'
+import { forwardRef, Fragment, useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 
 import clsx from 'clsx'
 import Highlighter from 'react-highlight-words'
 
 import { navigation } from '@/data/navigation'
-import { subscribe } from '../events'
 
 function SearchIcon(props) {
   return (

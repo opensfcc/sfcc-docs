@@ -13,42 +13,39 @@ export function DiffTimeline() {
   const router = useRouter()
   const [show, setShow] = useState([])
 
-  const diffRefs = useMemo(() => {
-    const curPage = router.pathname
-    const diffHistory = diffs[curPage] || null
+  const curPage = router.pathname
+  const diffHistory = diffs[curPage] || null
 
-    let timeline = []
+  let timeline = useMemo(() => diffHistory && diffHistory.map((change, index) => {
+    let icon = DocumentIcon
+    let iconBackground = 'bg-slate-400 dark:bg-slate-600'
+    let content = `Modified: ${change.label}`
 
-    diffHistory?.forEach((change, index) => {
-      let icon = DocumentIcon
-      let iconBackground = 'bg-slate-400 dark:bg-slate-600'
-      let content = `Modified: ${change.label}`
+    if (change.status === 'added') {
+      icon = DocumentPlusIcon
+      iconBackground = 'bg-green-400 dark:bg-green-500'
+      content = 'Document Added'
+    } else if (change.status === 'deleted') {
+      icon = DocumentMinusIcon
+      iconBackground = 'bg-red-400 dark:bg-red-500'
+      content = 'Document Deleted'
+    }
 
-      if (change.status === 'added') {
-        icon = DocumentPlusIcon
-        iconBackground = 'bg-green-400 dark:bg-green-500'
-        content = 'Document Added'
-      } else if (change.status === 'deleted') {
-        icon = DocumentMinusIcon
-        iconBackground = 'bg-red-400 dark:bg-red-500'
-        content = 'Document Deleted'
-      }
+    return {
+      id: `${change.version}-${index + 1}`,
+      status: change.status,
+      file: change.file,
+      content: content,
+      version: change.version,
+      href: '#',
+      icon: icon,
+      iconBackground: iconBackground,
+      diff: change.diff
+    }
+  }), [diffHistory])
 
-      timeline.push({
-        id: `${change.version}-${index + 1}`,
-        status: change.status,
-        file: change.file,
-        content: content,
-        version: change.version,
-        href: '#',
-        icon: icon,
-        iconBackground: iconBackground,
-        diff: change.diff
-      })
-    })
 
-    timeline.map(() => createRef())
-  }, [router])
+  const diffRefs = useMemo(() => timeline && timeline.map(() => createRef()), [timeline])
 
   const handleClick = (index) => () => {
     let newShow = [...show]
@@ -63,7 +60,7 @@ export function DiffTimeline() {
     }
   }
 
-  return (
+  return timeline && (
     <div className="mt-12 flow-root border-t border-slate-200 pt-6 dark:border-slate-800">
       <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100" id="diff-timeline">
         Change History
@@ -86,13 +83,13 @@ export function DiffTimeline() {
                       <a href={change.href} title={`View version ${change.version} of this document`} className="mr-1.5 font-medium text-sky-500 hover:underline inline-block w-12">
                         v{change.version}
                       </a>
-                      <span aria-hidden="true" className="mr-2">›</span> {change.content} {change.file}
+                      <span aria-hidden="true" className="mr-2">›</span> {change.content}
                     </p>
                   </div>
                   {change.status === 'modified' && <button
                     type="button"
                     onClick={handleClick(diffIdx)}
-                    className="rounded-full bg-sky-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
+                    className="rounded-full whitespace-nowrap bg-sky-500 px-2.5 py-1 h-7 text-xs font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
                   >
                     {show[diffIdx] ? 'Hide DIFF' : 'View DIFF'}
                   </button>}

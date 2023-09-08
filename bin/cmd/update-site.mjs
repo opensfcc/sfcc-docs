@@ -7,7 +7,7 @@ import { parseDiff } from 'react-diff-view';
 import { spawnSync } from 'child_process'
 
 import { getVersion } from '../utils.mjs'
-import { DATA_FOLDER, DIFF_FOLDER, MARKDOWN_FOLDER, SUPPORTED_VERSIONS, SRC_JSON_FOLDER, SRC_PAGES_FOLDER, SRC_DATA_FOLDER } from '../config.mjs'
+import { DATA_FOLDER, DIFF_FOLDER, MARKDOWN_FOLDER, SUPPORTED_VERSIONS, SRC_JSON_FOLDER, SRC_PAGES_FOLDER, SRC_DATA_FOLDER, PUBLIC_JSON_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:update-site')
 
@@ -16,11 +16,6 @@ export default (cli) => {
   const version = getVersion(cli)
 
   debug(chalk.green.bold(`UPDATING SITE: v${version}`))
-
-  // Remove old version folder if it exists
-  if (fs.existsSync(path.resolve(SRC_PAGES_FOLDER, 'jobstep'))) {
-    spawnSync('rm', ['-fr', path.resolve(SRC_PAGES_FOLDER, '/*/')], { shell: true })
-  }
 
   // Copy new version folder
   spawnSync('cp', ['-R', path.join(MARKDOWN_FOLDER, version, '/*'), SRC_PAGES_FOLDER], { shell: true })
@@ -67,6 +62,16 @@ export default (cli) => {
     fs.mkdirSync(SRC_JSON_FOLDER, { recursive: true })
   }
 
+  // Remove old version folder if it exists
+  if (fs.existsSync(PUBLIC_JSON_FOLDER)) {
+    spawnSync('rm', ['-fr', PUBLIC_JSON_FOLDER])
+  }
+
+  // Recreate it since it's gone
+  if (!fs.existsSync(PUBLIC_JSON_FOLDER)) {
+    fs.mkdirSync(PUBLIC_JSON_FOLDER, { recursive: true })
+  }
+
   // Loop through the diffs and update the links
   let mappedDiffs = {}
   diffsKeys.forEach((key) => {
@@ -77,8 +82,8 @@ export default (cli) => {
           if (change.diff) {
             const diffFile = fs.readFileSync(path.resolve(DIFF_FOLDER, change.diff))
             const diffObj = parseDiff(diffFile.toString())
-            const exportFile = path.resolve(SRC_JSON_FOLDER, change.diff.toLowerCase().replace('.diff', '.json'))
-            change.file = exportFile.replace(SRC_JSON_FOLDER, '').replace('/', '')
+            const exportFile = path.resolve(PUBLIC_JSON_FOLDER, change.diff.toLowerCase().replace('.diff', '.json'))
+            change.file = exportFile.replace(PUBLIC_JSON_FOLDER, '').replace('/', '/json/')
             const JSX_DIFF = JSON.stringify(diffObj, null, 2)
             fs.writeFileSync(exportFile, JSX_DIFF)
             delete mappedDiffs[map][idx].diff

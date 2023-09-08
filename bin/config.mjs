@@ -18,6 +18,9 @@ export const SRC_DATA_FOLDER = path.resolve(SRC_FOLDER, 'data')
 export const SRC_JSON_FOLDER = path.resolve(SRC_DATA_FOLDER, 'json')
 export const SRC_PAGES_FOLDER = path.resolve(SRC_FOLDER, 'pages')
 
+export const PUBLIC_FOLDER = path.resolve(__dirname, '../public')
+export const PUBLIC_JSON_FOLDER = path.resolve(PUBLIC_FOLDER, 'json')
+
 export const SUPPORTED_VERSIONS_FILE = path.resolve(DATA_FOLDER, 'supported.json')
 
 let supportedVersions = null

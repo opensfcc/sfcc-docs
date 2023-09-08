@@ -12,7 +12,7 @@ You might be asking yourself, **"Are these the official SFCC docs?"** So let's g
 
 {% quick-link title="Deep linking" icon="installation" description="Share a URL to the exact thing you want without any fuss." /%}
 
-{% quick-link title="Integrated examples" icon="presets" description="Embedded GitHub samples with actual code you can learn from." /%}
+{% quick-link title="Change history" icon="presets" description="View changes in documentation over time." /%}
 
 {% quick-link title="Versioning" icon="plugins" description="We've embedded the API version directly into the URL." /%}
 

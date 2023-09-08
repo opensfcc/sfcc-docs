@@ -1,18 +1,17 @@
 import { Diff, Hunk } from 'react-diff-view';
+import { useEffect, useState } from 'react'
 
-export const getStaticProps = async () => {
-  const res = await fetch('https://api.github.com/repos/vercel/next.js')
-  const repo = await res.json()
+export function DiffView({ file }) {
+  let [diff, setDiff] = useState(null)
 
-  console.log(repo)
-  return { props: { repo } }
-}
-
-export function DiffView({ props }) {
-  // const test = '@/data/diff-22.6-5.jsx'
-  // const { diff } = require(test)
-
-  console.log('props', props)
+  useEffect(() => {
+    async function fetchData(file) {
+      const res = await fetch(file)
+      const diff = await res.json()
+      setDiff(diff)
+    }
+    fetchData(file)
+  }, [file]);
 
   const renderFile = ({oldRevision, newRevision, type, hunks}) => (
     <Diff key={oldRevision + '-' + newRevision} viewType="unified" diffType={type} hunks={hunks}>
@@ -20,6 +19,5 @@ export function DiffView({ props }) {
     </Diff>
   );
 
-  // return file && <div className="text-slate-600 dark:text-slate-300 font-mono text-xs">{file.map(renderFile)}</div>
-  return <div>{'HELLO'}</div>
+  return diff && <div className="text-slate-600 dark:text-slate-300 font-mono text-xs">{diff.map(renderFile)}</div>
 }
