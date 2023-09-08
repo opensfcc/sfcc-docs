@@ -1,12 +1,21 @@
 name: Bug Report
 description: File a bug report
 title: '[Bug]: '
-labels: ['bug', 'triage']
+labels: ['Bug Report', 'bug', 'triage']
 body:
   - type: markdown
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
+  - type: checkboxes
+    attributes:
+      label: Checklist
+      description: "I've verified the following:"
+      options:
+        - label: There are no matching [Open Reported Bugs](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Bug+Report"+is%3Aopen)
+          required: true
+        - label: There are no matching [Close pen Reported Bugs](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Bug+Report"+is%3Aclosed)
+          required: true
   - type: input
     id: contact
     attributes:

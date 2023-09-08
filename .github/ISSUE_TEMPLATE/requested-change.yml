@@ -2,6 +2,15 @@ name: Requested Change
 description: This is a Requested Change to the project
 labels: [Requested Change]
 body:
+  - type: checkboxes
+    attributes:
+      label: Checklist
+      description: "I've verified the following:"
+      options:
+        - label: There are no matching [Open Requested Changes](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Requested+Change"+is%3Aopen)
+          required: true
+        - label: There are no matching [Closed Requested Changes](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Requested+Change"+is%3Aclosed)
+          required: true
   - type: textarea
     attributes:
       label: Describe the Problem

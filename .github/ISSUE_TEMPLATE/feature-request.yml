@@ -1,18 +1,27 @@
 name: Feature request
 description: Suggest an feature / idea for this project
-title: "[Feature Request / Suggestion]: "
-labels: ["enhancement"]
+title: '[Feature Request / Suggestion]: '
+labels: ['Feature Request']
 body:
   - type: markdown
     attributes:
       value: |
         We appreciate your feedback on how to improve this project. Please be sure to include as much details & any resources if possible!
+  - type: checkboxes
+    attributes:
+      label: Checklist
+      description: "I've verified the following:"
+      options:
+        - label: There are no matching [Open Feature Requests](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Feature+Request"+is%3Aopen)
+          required: true
+        - label: There are no matching [Closed Feature Requests](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Feature+Request"+is%3Aclosed)
+          required: true
   - type: textarea
     id: Suggestion
     attributes:
       label: Suggestion / Feature Request
       description: Describe the feature(s) you would like to see added.
       placeholder: Tell us your suggestion
-      value: "Your suggestion here"
+      value: 'Your suggestion here'
     validations:
       required: true

@@ -10,6 +10,7 @@ import { Navigation } from '@/components/Navigation'
 import { Prose } from '@/components/Prose'
 import { Search } from '@/components/Search'
 import { ThemeSelector } from '@/components/ThemeSelector'
+import { IssueSelector } from '@/components/IssueSelector'
 import { VersionSelector } from '@/components/VersionSelector'
 import { DiffTimeline } from '@/components/DiffTimeline'
 
@@ -59,8 +60,9 @@ function Header({ navigation }) {
         <Search />
       </div>
       <div className="relative flex basis-0 justify-end gap-6 sm:gap-8 md:flex-grow">
+        <IssueSelector className="relative z-10 hidden sm:block" />
         <ThemeSelector className="relative z-10" />
-        <Link href="https://github.com/sfccdevops/sfcc-docs" target="_blank" className="group" aria-label="GitHub">
+        <Link href="https://github.com/sfccdevops/sfcc-docs" target="_blank" className="group hidden sm:block" aria-label="GitHub">
           <GitHubIcon className="h-6 w-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300" />
         </Link>
       </div>
@@ -132,6 +134,10 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
     return section.children.findIndex(isActive) > -1
   }
 
+  const makeQuery = (str) => {
+    return str.replace('[DEPRECATED] ', '').replace('Job Step: ', '').replace('Script: Class ', '').replace(':', '').replace(/\./g, ' ')
+  }
+
   return (
     <>
       <a
@@ -161,13 +167,47 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
         <div className="min-w-0 max-w-2xl flex-auto px-4 py-16 lg:max-w-none lg:pl-8 lg:pr-0 xl:px-16">
           {isMarkdoc ? (
             <article>
-              {(title || section) && (
+              {/* Document Title */}
+              {!isHomePage && (title || section) && (
                 <header className="mb-3 space-y-1">
                   {section && <p className="font-display text-sm font-medium text-sky-500">{section.title}</p>}
                   {title && <h1 className="font-display text-sm font-medium text-sky-500">{title}</h1>}
                 </header>
               )}
+
+              {/* Sidebar Header Shortcuts */}
               <Prose>{children}</Prose>
+
+              {/* Salesforce Copyright Added Back */}
+              {!isHomePage && <div className="mt-8 font-display text-sm font-medium text-slate-500 dark:text-slate-400">&copy; {new Date().getUTCFullYear()} salesforce.com, inc. All rights reserved.</div>}
+
+              {/* GitHub Search Button */}
+              {!isHomePage && (
+                <div className="mt-10 bg-slate-50 shadow dark:bg-slate-950/40 dark:text-white sm:rounded-lg">
+                  <div className="px-4 py-5 sm:p-6">
+                    <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white" id="get-examples">
+                      Usage Examples
+                    </h3>
+                    <div className="mt-2 sm:flex sm:items-start sm:justify-between">
+                      <div className="max-w-xl text-sm text-slate-500">
+                        <p>Cartridges posted on GitHub can be quickly searched for examples to help you learn. It&apos;s not 100% a &quot;sure thing,&quot; but better than nothing ;)</p>
+                      </div>
+                      <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
+                        <a
+                          href={`https://github.com/search?q=${makeQuery(title)}+%28path%3A*.isml+OR+path%3A*.js+OR+path%3A*.ds%29+path%3A*%2Fcartridge%2F**&type=code&ref=advsearch`}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="inline-flex items-center rounded-full bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:bg-sky-500"
+                        >
+                          Search GitHub
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Document Diff Timeline */}
               {!isHomePage && <DiffTimeline />}
             </article>
           ) : (
@@ -203,7 +243,23 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
             <nav aria-labelledby="on-this-page-title" className="w-56">
               {tableOfContents.length > 0 && (
                 <>
-                  <h2 id="on-this-page-title" className="font-display text-sm font-medium text-slate-900 dark:text-white">
+                  <h2 id="quick-links" className="font-display text-sm font-medium text-slate-900 dark:text-white">
+                    Quick links
+                  </h2>
+                  <ol role="list" className="mt-4 space-y-3 text-sm">
+                    <li>
+                      <Link href={`#get-examples`} scroll={false} className="font-normal text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+                        Usage Examples
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={`#change-history`} scroll={false} className="font-normal text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+                        Change History
+                      </Link>
+                    </li>
+                  </ol>
+
+                  <h2 id="on-this-page-title" className="mt-10 font-display text-sm font-medium text-slate-900 dark:text-white">
                     On this page
                   </h2>
                   <ol role="list" className="mt-4 space-y-3 text-sm">

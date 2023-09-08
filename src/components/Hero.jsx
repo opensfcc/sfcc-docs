@@ -9,7 +9,7 @@ import blurCyanImage from '@/images/blur-cyan.png'
 import blurIndigoImage from '@/images/blur-indigo.png'
 
 const codeLanguage = 'javascript'
-const code = `// TODO: Learn what "setTrackingAllowed" actually does
+const code = `// TODO: Learn what "setTrackingAllowed" does
 server.get('SetSession', function (req, res, next) {
   var consent = (req.querystring.consent === 'true');
   req.session.raw.setTrackingAllowed(consent);

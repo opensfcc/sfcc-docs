@@ -8,3 +8,12 @@ body:
       description: Please Write your Question Below.
     validations:
       required: true
+  - type: checkboxes
+    attributes:
+      label: Checklist
+      description: "I've verified the following:"
+      options:
+        - label: There are no matching [Open Questions](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Question"+is%3Aopen)
+          required: true
+        - label: There are no matching [Closed Questions](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Question"+is%3Aclosed)
+          required: true
