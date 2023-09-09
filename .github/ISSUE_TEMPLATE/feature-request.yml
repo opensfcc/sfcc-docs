@@ -26,6 +26,5 @@ body:
       label: Suggestion / Feature Request
       description: Describe the feature(s) you would like to see added.
       placeholder: Tell us your suggestion
-      value: 'Your suggestion here'
     validations:
       required: true

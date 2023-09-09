@@ -33,6 +33,7 @@ body:
       label: Which Browser(s) were you using?
       multiple: true
       options:
+        - Impacts All
         - Chrome
         - Safari
         - Firefox
@@ -48,6 +49,7 @@ body:
       label: Which Operating System(s) were you using?
       multiple: true
       options:
+        - Impacts All
         - macOS
         - Windows
         - Linux
