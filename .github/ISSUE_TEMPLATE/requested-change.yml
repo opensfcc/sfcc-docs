@@ -7,9 +7,10 @@ body:
       value: |
         Please let us know what you think we should change.
   - type: checkboxes
+    id: issue-checklist
     attributes:
-      label: Checklist
-      description: "I've verified the following:"
+      label: 'Issue Checklist:'
+      description: "I've verified the following before submitting this new issue:"
       options:
         - label: There are no matching [Open Requested Changes](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Requested+Change"+is%3Aopen)
           required: true

@@ -1,6 +1,5 @@
 name: Feature request
 description: Suggest an feature / idea for this project
-title: '[Feature Request / Suggestion]: '
 labels: ['Feature Request']
 body:
   - type: markdown
@@ -8,9 +7,10 @@ body:
       value: |
         We appreciate your feedback on how to improve this project. Please be sure to include as much details & any resources if possible!
   - type: checkboxes
+    id: issue-checklist
     attributes:
-      label: Checklist
-      description: "I've verified the following:"
+      label: 'Issue Checklist:'
+      description: "I've verified the following before submitting this new issue:"
       options:
         - label: There are no matching [Open Feature Requests](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Feature+Request"+is%3Aopen)
           required: true
