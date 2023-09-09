@@ -1,8 +1,6 @@
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { QuestionMarkCircleIcon, LightBulbIcon, LifebuoyIcon, BugAntIcon } from '@heroicons/react/20/solid'
-
-import clsx from 'clsx'
+import { QuestionMarkCircleIcon, LightBulbIcon, BugAntIcon } from '@heroicons/react/20/solid'
 
 const issues = [
   { name: 'Ask Question', value: 'system', icon: QuestionMarkCircleIcon, style: 'h-4 w-4 text-sky-400', href: 'https://github.com/sfccdevops/sfcc-docs/issues/new?assignees=&labels=Question&projects=&template=question.yml' },
@@ -16,9 +14,9 @@ const issues = [
   },
 ]
 
-export function IssueSelector(prps) {
+export function IssueSelector(props) {
   return (
-    <Menu>
+    <Menu as="div" {...props}>
       <Menu.Button className="flex h-6 w-6 items-center justify-center rounded-lg shadow-md shadow-black/5 ring-1 ring-black/5 dark:bg-slate-700 dark:ring-inset dark:ring-white/5" aria-label="Report an Issue">
         <BugAntIcon className="h-4 w-4 fill-slate-400" />
       </Menu.Button>

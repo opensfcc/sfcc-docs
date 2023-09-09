@@ -273,7 +273,7 @@ function SearchDialog({ open, setOpen, className }) {
         setOpen(false)
         autocomplete.setQuery('')
       }}
-      className={clsx('fixed inset-0 z-50', className)}
+      className={clsx('fixed inset-0 z-40', className)}
     >
       <div className="fixed inset-0 bg-slate-900/50 backdrop-blur" />
 

@@ -1,18 +1,19 @@
-import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import clsx from 'clsx'
 
+import { DiffTimeline } from '@/components/DiffTimeline'
 import { Hero } from '@/components/Hero'
+import { IssueSelector } from '@/components/IssueSelector'
 import { Logo, Logomark } from '@/components/Logo'
 import { MobileNavigation } from '@/components/MobileNavigation'
 import { Navigation } from '@/components/Navigation'
 import { Prose } from '@/components/Prose'
 import { Search } from '@/components/Search'
 import { ThemeSelector } from '@/components/ThemeSelector'
-import { IssueSelector } from '@/components/IssueSelector'
 import { VersionSelector } from '@/components/VersionSelector'
-import { DiffTimeline } from '@/components/DiffTimeline'
+
+import { useCallback, useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 
 import { navigation } from '@/data/navigation'
 
@@ -42,7 +43,7 @@ function Header({ navigation }) {
   return (
     <header
       className={clsx(
-        'sticky top-0 z-40 flex flex-none flex-wrap items-center justify-between bg-white px-4 py-5 shadow-md shadow-slate-900/5 transition duration-500 dark:shadow-none sm:px-6 lg:px-8',
+        'sticky top-0 z-10 flex flex-none flex-wrap items-center justify-between bg-white px-4 py-5 shadow-md shadow-slate-900/5 transition duration-500 dark:shadow-none sm:px-6 lg:px-8',
         isScrolled ? 'dark:bg-slate-900/95 dark:backdrop-blur dark:[@supports(backdrop-filter:blur(0))]:bg-slate-900/75' : 'dark:bg-transparent'
       )}
     >
@@ -60,8 +61,8 @@ function Header({ navigation }) {
         <Search />
       </div>
       <div className="relative flex basis-0 justify-end gap-6 sm:gap-8 md:flex-grow">
-        <IssueSelector className="relative z-10 hidden sm:block" />
-        <ThemeSelector className="relative z-10" />
+        <IssueSelector className="group relative z-10 hidden sm:block" />
+        <ThemeSelector className="group relative z-10" />
         <Link href="https://github.com/sfccdevops/sfcc-docs" target="_blank" className="group hidden sm:block" aria-label="GitHub">
           <GitHubIcon className="h-6 w-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300" />
         </Link>
@@ -142,7 +143,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
     <>
       <a
         id="skip-to-content-link"
-        className="duration-350 absolute left-1/2 top-0 z-50 w-36 -translate-x-1/2 -translate-y-full transform rounded-b-md bg-slate-950 px-3 py-1 text-white transition focus:translate-y-0 dark:bg-slate-50 dark:text-black"
+        className="duration-350 absolute left-1/2 top-0 z-20 w-36 -translate-x-1/2 -translate-y-full transform rounded-b-md bg-slate-950 px-3 py-1 text-white transition focus:translate-y-0 dark:bg-slate-50 dark:text-black"
         href="#main"
         onClick={(evt) => {
           document.getElementById('main').scrollIntoView()
@@ -152,11 +153,12 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
       >
         Skip to Content
       </a>
+
       {navigation && <Header navigation={navigation} />}
 
       {isHomePage && <Hero />}
       <div className="relative mx-auto flex w-full max-w-8xl flex-auto scroll-mt-20 justify-center sm:px-2 lg:px-8 xl:px-12" id="main">
-        <div className="hidden lg:relative lg:block lg:flex-none">
+        <div className="z-10 hidden lg:relative lg:block lg:flex-none">
           <div className="absolute inset-y-0 right-0 w-[50vw] bg-slate-50 dark:hidden" />
           <div className="absolute bottom-0 right-0 top-16 hidden h-12 w-px bg-gradient-to-t from-slate-800 dark:block" />
           <div className="absolute bottom-0 right-0 top-28 hidden w-px bg-slate-800 dark:block" />

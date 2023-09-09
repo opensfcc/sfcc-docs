@@ -11,11 +11,11 @@ You might ask, **"Are these the official SFCC docs?"** The answer is **No.** Our
 
 {% quick-link title="Deep linking" icon="installation" description="Share a URL to the exact thing you want without any fuss." /%}
 
-{% quick-link title="Change history" icon="presets" description="View changes in documentation over time." /%}
+{% quick-link title="Change history" icon="theming" description="View changes in documentation over time." /%}
 
-{% quick-link title="Multiple versions" icon="plugins" description="We've embedded the API version directly into the URL." /%}
+{% quick-link title="Multiple versions" icon="plugins" description="We provide historical versions of documentation." /%}
 
-{% quick-link title="Community " icon="theming" description="Different modes to match your system preference." /%}
+{% quick-link title="Example usage" icon="presets" description="Qiuck access to example usage on every document." /%}
 
 {% /quick-links %}
 

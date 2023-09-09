@@ -47,12 +47,7 @@ export function MobileNavigation({ navigation }) {
       <button type="button" onClick={() => setIsOpen(true)} className="relative" aria-label="Open navigation">
         <MenuIcon className="h-6 w-6 stroke-slate-500" />
       </button>
-      <Dialog
-        open={isOpen}
-        onClose={setIsOpen}
-        className="fixed inset-0 z-50 flex items-start overflow-y-auto bg-slate-900/50 pr-10 backdrop-blur lg:hidden"
-        aria-label="Navigation"
-      >
+      <Dialog open={isOpen} onClose={setIsOpen} className="fixed inset-0 z-10 flex items-start overflow-y-auto bg-slate-900/50 pr-10 backdrop-blur lg:hidden" aria-label="Navigation">
         <Dialog.Panel className="min-h-full w-full max-w-xs bg-white px-4 pb-12 pt-5 dark:bg-slate-900 sm:px-6">
           <div className="flex items-center">
             <button type="button" onClick={() => setIsOpen(false)} aria-label="Close navigation">

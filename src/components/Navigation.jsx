@@ -169,7 +169,7 @@ export function Navigation({ navigation, className }) {
               className="dark:highlight-white/5 w-full items-center rounded-md py-1.5 pl-11 pr-3 text-sm leading-6 text-slate-400 shadow-sm ring-1 ring-slate-900/10 hover:ring-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 lg:flex"
               placeholder="Menu filter.."
             />
-            <div className="pointer-events-none absolute inset-y-0 right-0 items-center pr-3 hidden md:flex">
+            <div className="pointer-events-none absolute inset-y-0 right-0 hidden items-center pr-3 md:flex">
               <span className="ml-auto flex-none pl-3 text-xs font-semibold">{modifierKey}G</span>
             </div>
           </div>

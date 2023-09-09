@@ -47,3 +47,4 @@ src/pages/**/*.md
 .b2c-dev-doc
 src/data
 public/json
+*.zip
