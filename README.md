@@ -4,11 +4,23 @@
 
 Unofficial community edition of the Salesforce Commerce Cloud developer documentation.
 
+## Instant Setup
+
+If you've got [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed, are using [VS Code](https://code.visualstudio.com) with [CLI code](https://code.visualstudio.com/docs/editor/command-line) enabled, and have the [Dev Containers Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed, you can click this button to get instantly set up.
+
 [![Open in Remote - Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=git@github.com:sfccdevops/sfcc-docs.git)
 
-## Getting started
+## Manual Installation
+
+> You'll need to be using Node v18+ in order to build this project.
 
 ```bash
+# Clone Repository
+git clone git@github.com:sfccdevops/sfcc-docs.git
+
+# Change into this projects directory
+cd sfcc-docs
+
 # Install Dependencies
 npm install
 
@@ -45,9 +57,9 @@ To learn more about the technologies used in this site template, see the followi
 ## Tailwind UI License
 
 This website is based on the "Syntax" [Tailwind UI](https://tailwindui.com) site template built using [Tailwind CSS](https://tailwindcss.com) and [Next.js](https://nextjs.org).
-This site template is a commercial product and is licensed under the [Tailwind UI license](https://tailwindui.com/license).
+This site template is a commercial product purchased by SFCC DevOps and is distributed under the [Tailwind UI license](https://tailwindui.com/license).
 
-**This project meets the following criteria:**
+**This project meets the following distribution criteria:**
 
 ```text
 Use the Components and Templates to create End Products that are open source and freely available to End Users.
