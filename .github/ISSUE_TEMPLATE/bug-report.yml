@@ -10,7 +10,7 @@ body:
     id: issue-checklist
     attributes:
       label: 'Issue Checklist:'
-      description: "I've verified the following before submitting this new issue:"
+      description: "I've verified the following before submitting this new Bug Report:"
       options:
         - label: No matching [Open Bugs](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Bug+Report"+is%3Aopen)
           required: true
@@ -18,7 +18,7 @@ body:
           required: true
         - label: I've read the [Contributing Guide](https://github.com/sfccdevops/sfcc-docs/blob/develop/.github/CONTRIBUTING.md)
           required: true
-        - label: I'm following our [Code of Conduct](https://github.com/sfccdevops/sfcc-docs/blob/develop/.github/CODE_OF_CONDUCT.md)
+        - label: I'm following the [Code of Conduct](https://github.com/sfccdevops/sfcc-docs/blob/develop/.github/CODE_OF_CONDUCT.md)
   - type: textarea
     id: what-happened
     attributes:
@@ -30,7 +30,7 @@ body:
   - type: dropdown
     id: browsers
     attributes:
-      label: Which Browser were you using?
+      label: Which Browser(s) were you using?
       multiple: true
       options:
         - Chrome
@@ -45,7 +45,7 @@ body:
   - type: dropdown
     id: operating-systems
     attributes:
-      label: Which Operating System were you using?
+      label: Which Operating System(s) were you using?
       multiple: true
       options:
         - macOS

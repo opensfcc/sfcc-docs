@@ -10,7 +10,7 @@ body:
     id: issue-checklist
     attributes:
       label: 'Issue Checklist:'
-      description: "I've verified the following before submitting this new issue:"
+      description: "I've verified the following before submitting this new Requested Change:"
       options:
         - label: There are no matching [Open Requested Changes](https://github.com/sfccdevops/sfcc-docs/issues?q=is%3Aissue+label%3A"Requested+Change"+is%3Aopen)
           required: true
@@ -18,7 +18,7 @@ body:
           required: true
         - label: I've read the [Contributing Guide](https://github.com/sfccdevops/sfcc-docs/blob/develop/.github/CONTRIBUTING.md)
           required: true
-        - label: I'm following our [Code of Conduct](https://github.com/sfccdevops/sfcc-docs/blob/develop/.github/CODE_OF_CONDUCT.md)
+        - label: I'm following the [Code of Conduct](https://github.com/sfccdevops/sfcc-docs/blob/develop/.github/CODE_OF_CONDUCT.md)
           required: true
   - type: textarea
     attributes:
