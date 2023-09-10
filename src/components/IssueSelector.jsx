@@ -2,6 +2,8 @@ import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { QuestionMarkCircleIcon, LightBulbIcon, BugAntIcon, FolderOpenIcon, FolderIcon, ClockIcon } from '@heroicons/react/20/solid'
 
+import { version } from '../../package.json'
+
 const report = [
   { name: 'Ask Question', value: 'ask-questions', icon: QuestionMarkCircleIcon, style: 'h-4 w-4 text-sky-400', href: 'https://github.com/sfccdevops/sfcc-docs/issues/new?assignees=&labels=Question&projects=&template=question.yml' },
   {
@@ -65,7 +67,7 @@ export function IssueSelector(props) {
               <Menu.Item key={issue.value} as={Fragment}>
                 {({ active }) => (
                   <a
-                    className={`group flex items-center rounded-[0.625rem] p-1 ${active ? 'bg-slate-100 text-slate-900 dark:bg-slate-900/40 dark:text-white' : 'text-slate-700 dark:text-slate-400 '}`}
+                    className={`group flex items-center rounded-[0.625rem] p-1 ${active ? 'bg-slate-100 text-slate-900 dark:bg-slate-900/40 dark:text-white' : 'text-slate-700 dark:text-slate-400'}`}
                     href={issue.href}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -98,6 +100,7 @@ export function IssueSelector(props) {
               </Menu.Item>
             ))}
           </div>
+          <div class="px-1 pb-1 pt-3 text-center text-xs text-slate-600 dark:text-slate-400">sfccdocs.com - v{version}</div>
         </Menu.Items>
       </Transition>
     </Menu>
