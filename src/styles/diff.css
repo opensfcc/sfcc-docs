@@ -4,19 +4,19 @@
   --diff-font-family: initial;
   --diff-selection-background-color: #b3d7ff;
   --diff-selection-text-color: var(--diff-text-color);
-  --diff-gutter-insert-background-color: #d6fedb;
+  --diff-gutter-insert-background-color: #d1fae5;
   --diff-gutter-insert-text-color: #222222;
-  --diff-gutter-delete-background-color: #fadde0;
+  --diff-gutter-delete-background-color: #fdeff0;
   --diff-gutter-delete-text-color: #222222;
   --diff-gutter-selected-background-color: #fffce0;
   --diff-gutter-selected-text-color: var(--diff-text-color);
-  --diff-code-insert-background-color: #eaffee;
+  --diff-code-insert-background-color: #d1fae5;
   --diff-code-insert-text-color: #222222;
   --diff-code-delete-background-color: #fdeff0;
   --diff-code-delete-text-color: #222222;
-  --diff-code-insert-edit-background-color: #c0dc91;
+  --diff-code-insert-edit-background-color: #6ee7b7;
   --diff-code-insert-edit-text-color: var(--diff-text-color);
-  --diff-code-delete-edit-background-color: #f39ea2;
+  --diff-code-delete-edit-background-color: #fda4af;
   --diff-code-delete-edit-text-color: #222222;
   --diff-code-selected-background-color: #fffce0;
   --diff-code-selected-text-color: var(--diff-text-color);
@@ -64,13 +64,11 @@
   user-select: none;
 }
 .diff-gutter-insert {
-  background-color: #d6fedb;
   background-color: var(--diff-gutter-insert-background-color);
   color: var(--diff-text-color);
   color: var(--diff-gutter-insert-text-color);
 }
 .diff-gutter-delete {
-  background-color: #fadde0;
   background-color: var(--diff-gutter-delete-background-color);
   color: var(--diff-text-color);
   color: var(--diff-gutter-delete-text-color);
@@ -79,7 +77,6 @@
   cursor: default;
 }
 .diff-gutter-selected {
-  background-color: #fffce0;
   background-color: var(--diff-gutter-selected-background-color);
   color: var(--diff-text-color);
   color: var(--diff-gutter-selected-text-color);

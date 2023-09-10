@@ -79,7 +79,7 @@ export default (cli) => {
   })
 
   // Sort all the things
-  nav.sort((a, b) => (a.title > b.title ? 1 : -1))
+  nav.sort((a, b) => (a.title < b.title ? 1 : -1))
   nav.forEach((page) => page.links.sort((a, b) => (a.title > b.title ? 1 : -1)))
   nav.forEach((page) =>
     page.links.forEach((sub) => {

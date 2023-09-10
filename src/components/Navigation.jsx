@@ -233,7 +233,7 @@ export function Navigation({ navigation, className }) {
                                 leaveFrom="transform translate-x-0 opacity-100"
                                 leaveTo="transform -translate-x-full opacity-0"
                               >
-                                <Disclosure.Panel as="ul" role="list" className="mb-4 mt-4 space-y-3 border-slate-100 dark:border-slate-800 lg:border-slate-200">
+                                <Disclosure.Panel as="ul" role="list" className="mb-4 mt-4 space-y-2 border-slate-100 dark:border-slate-800 lg:border-slate-200">
                                   {link?.children &&
                                     link.children.map((child, index) => (
                                       <li key={child.href} className="relative">
@@ -242,7 +242,7 @@ export function Navigation({ navigation, className }) {
                                           title={child.alt}
                                           id={isCurrentLink(section.title, link.title, router.pathname) ? 'current-nav-link' : `nav-link-${index}`}
                                           className={clsx(
-                                            'block w-full truncate pl-3 text-xs before:pointer-events-none before:absolute before:-left-0 before:top-1/2 before:h-1.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full',
+                                            'block w-full truncate pl-3 text-sm before:pointer-events-none before:absolute before:-left-0 before:top-1/2 before:h-1.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full',
                                             child.href === router.pathname
                                               ? 'font-semibold text-sky-500 before:-left-0.5 before:top-2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:bg-sky-400/80 dark:before:bg-sky-500/80'
                                               : 'text-slate-500 before:hidden before:bg-slate-300 hover:text-slate-600 hover:before:block dark:text-slate-400 dark:before:bg-slate-700 dark:hover:text-slate-300'

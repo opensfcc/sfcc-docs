@@ -121,11 +121,11 @@ export default (cli) => {
         fs.mkdirSync(folder, { recursive: true })
       }
 
-      // Fix Code Blocks
-      markdown = markdown.replace(/```\n([^```]+)```/g, '\n```javascript\n$1```\n')
-      markdown = markdown.replace(/```javascript\n\n/g, '```javascript\n')
-      markdown = markdown.replace(/\n\s+\n/g, '\n\n')
-      markdown = markdown.replace(/\n\n\n/g, '\n\n')
+      // // Fix Code Blocks
+      // markdown = markdown.replace(/```\n([^```]+)```/g, '\n```javascript\n$1```\n')
+      // markdown = markdown.replace(/```javascript\n\n/g, '```javascript\n')
+      // markdown = markdown.replace(/\n\s+\n/g, '\n\n')
+      // markdown = markdown.replace(/\n\n\n/g, '\n\n')
 
       // Add Front Matter for Markdown ( and escape single quotes )
       const mdTitle = `metaTitle: '${meta[metaKey].title.replace(/'/g, '&apos;')}'`

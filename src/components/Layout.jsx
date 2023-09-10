@@ -16,6 +16,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 import { navigation } from '@/data/navigation'
+import { subscribe } from '../events'
 
 function GitHubIcon(props) {
   return (
@@ -28,6 +29,7 @@ function GitHubIcon(props) {
 function Header({ navigation }) {
   let router = useRouter()
   let [isScrolled, setIsScrolled] = useState(false)
+  let [isMenuOpen, setMenuIsOpen] = useState(false)
 
   useEffect(() => {
     function onScroll() {
@@ -40,11 +42,17 @@ function Header({ navigation }) {
     }
   }, [])
 
+  useEffect(() => {
+    setMenuIsOpen(document.documentElement.getAttribute('data-menu') === 'open')
+    subscribe('menuChanged', (evt) => setMenuIsOpen(evt.detail.open))
+  }, [])
+
   return (
     <header
       className={clsx(
-        'sticky top-0 z-10 flex flex-none flex-wrap items-center justify-between bg-white px-4 py-5 shadow-md shadow-slate-900/5 transition duration-500 dark:shadow-none sm:px-6 lg:px-8',
-        isScrolled ? 'dark:bg-slate-900/95 dark:backdrop-blur dark:[@supports(backdrop-filter:blur(0))]:bg-slate-900/75' : 'dark:bg-transparent'
+        'sticky top-0 z-20 flex-none flex-wrap items-center justify-between bg-white px-4 py-5 shadow-md shadow-slate-900/5 transition duration-500 dark:shadow-none sm:px-6 lg:px-8',
+        isScrolled ? 'dark:bg-slate-900/95 dark:backdrop-blur dark:[@supports(backdrop-filter:blur(0))]:bg-slate-900/75' : 'dark:bg-transparent',
+        isMenuOpen ? 'hidden' : 'flex'
       )}
     >
       <div className="mr-6 flex lg:hidden">
@@ -61,7 +69,7 @@ function Header({ navigation }) {
         <Search />
       </div>
       <div className="relative flex basis-0 justify-end gap-6 sm:gap-8 md:flex-grow">
-        <IssueSelector className="group relative z-10 hidden sm:block" />
+        <IssueSelector className="group relative z-10" />
         <ThemeSelector className="group relative z-10" />
         <Link href="https://github.com/sfccdevops/sfcc-docs" target="_blank" className="group hidden sm:block" aria-label="GitHub">
           <GitHubIcon className="h-6 w-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300" />
@@ -172,8 +180,8 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
               {/* Document Title */}
               {!isHomePage && (title || section) && (
                 <header className="mb-3 space-y-1">
-                  {section && <p className="font-display text-sm font-medium text-sky-500">{section.title}</p>}
-                  {title && <h1 className="font-display text-sm font-medium text-sky-500">{title}</h1>}
+                  {section && <p className="font-display text-sm font-medium text-slate-500 dark:text-slate-400">{section.title}</p>}
+                  {title && <h1 className="font-display text-sm font-medium text-slate-500 dark:text-slate-400">{title}</h1>}
                 </header>
               )}
 

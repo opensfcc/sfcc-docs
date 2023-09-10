@@ -9,7 +9,7 @@ export function VersionSelector(props) {
   // Handle switching versions
   // TODO: This will just be a redirect to the selected version
   const versionChange = (version) => {
-    console.log(`Version changed to ${version}`)
+    alert('Version Links Disabled during Testing')
   }
 
   return (

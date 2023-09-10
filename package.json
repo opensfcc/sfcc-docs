@@ -1,6 +1,6 @@
 {
   "name": "@sfccdevops/sfcc-docs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Unofficial community edition of the Salesforce Commerce Cloud developer documentation.",
   "license": "MIT",
   "author": "Peter Schmalfeldt <me@peterschmalfeldt.com>",
@@ -72,6 +72,7 @@
     "eslint-config-next": "13.0.2",
     "glob": "^10.3.3",
     "html-minifier": "^4.0.0",
+    "html-to-text": "^9.0.5",
     "markdownlint": "^0.30.0",
     "node-html-parser": "^6.1.5",
     "prettier": "^2.8.7",

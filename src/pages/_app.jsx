@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { slugifyWithCounter } from '@sindresorhus/slugify'
 
 import { Layout } from '@/components/Layout'
-import { Testers } from '@/components/Testers'
+// import { Testers } from '@/components/Testers'
 
 import 'focus-visible'
 import '@/styles/tailwind.css'
@@ -57,7 +57,7 @@ export default function App({ Component, pageProps }) {
 
   return (
     <>
-      <Testers />
+      {/* <Testers /> */}
       <Head>
         <title>{metaTitle}</title>
         {metaDescription && <meta name="description" content={metaDescription} />}

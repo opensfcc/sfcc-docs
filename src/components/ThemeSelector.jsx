@@ -87,7 +87,7 @@ export function ThemeSelector(props) {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Listbox.Options className="absolute left-1/2 top-full mt-3 w-36 -translate-x-1/2 space-y-1 rounded-xl bg-white p-3 text-sm font-medium shadow-md shadow-black/5 ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/5">
+        <Listbox.Options className="absolute left-full top-full mt-3 w-36 -translate-x-full space-y-1 rounded-xl bg-white p-3 text-sm font-medium shadow-md shadow-black/5 ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/5 md:left-1/2 md:-translate-x-1/2">
           {themes.map((theme) => (
             <Listbox.Option
               key={theme.value}

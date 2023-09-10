@@ -12,6 +12,7 @@ export const DIFF_FOLDER = path.resolve(DOCS_FOLDER, 'diff')
 export const MARKDOWN_FOLDER = path.resolve(DOCS_FOLDER, 'markdown')
 export const PREP_FOLDER = path.resolve(DOCS_FOLDER, 'prep')
 export const VERSIONS_FOLDER = path.resolve(DOCS_FOLDER, 'versions')
+export const TEMP_FOLDER = path.resolve(DOCS_FOLDER, 'temp')
 
 export const SRC_FOLDER = path.resolve(__dirname, '../src')
 export const SRC_DATA_FOLDER = path.resolve(SRC_FOLDER, 'data')

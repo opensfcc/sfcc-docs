@@ -5,11 +5,12 @@ import path from 'path'
 
 import * as cheerio from 'cheerio'
 
+import { convert } from 'html-to-text'
 import { Glob } from 'glob'
 import { parse } from 'node-html-parser'
 import { spawnSync } from 'child_process'
 
-import { DATA_FOLDER, DIFF_FOLDER, MARKDOWN_FOLDER, PREP_FOLDER, SRC_DATA_FOLDER, SUPPORTED_VERSIONS_FILE, SUPPORTED_VERSIONS, VERSIONS_FOLDER } from '../config.mjs'
+import { DATA_FOLDER, DIFF_FOLDER, MARKDOWN_FOLDER, PREP_FOLDER, SRC_DATA_FOLDER, SUPPORTED_VERSIONS_FILE, SUPPORTED_VERSIONS, VERSIONS_FOLDER, TEMP_FOLDER } from '../config.mjs'
 import { downloadExternalFile } from '../utils.mjs'
 
 const debug = Debug('sfcc-docs:init')
@@ -120,6 +121,48 @@ export default (cli) => {
       fs.writeFileSync(file, dom.toString())
     }
   }
+
+  // Remove old temp folder for version if it exists
+  if (fs.existsSync(TEMP_FOLDER)) {
+    spawnSync('rm', ['-fr', TEMP_FOLDER])
+  }
+
+  // Make temp directory since we just deleted it
+  if (!fs.existsSync(TEMP_FOLDER)) {
+    fs.mkdirSync(TEMP_FOLDER, { recursive: true })
+  }
+
+  const htmlToTextOptions = { selectors: [{ selector: 'a', options: { ignoreHref: true } }] }
+
+  // Make a text only version of the HTML files
+  versions.forEach((version) => {
+    debug('CONVERTING', `${VERSIONS_FOLDER}${SEP}${version.value}${SEP}**${SEP}*.html`)
+
+    // Do some initial cleanup on the HTML files
+    const files = new Glob(`${VERSIONS_FOLDER}${SEP}${version.value}${SEP}**${SEP}*.html`, {})
+    for (const file of files) {
+      // Copy the two versions to a temp folder and strip out the HTML files of all class names
+      const html = fs.readFileSync(file)
+      const text = convert(html.toString(), htmlToTextOptions)
+      const newFilePath = file.replace(VERSIONS_FOLDER, TEMP_FOLDER).replace('.html', '.txt')
+
+      if (cli.verbose) {
+        debug(chalk.green('PROCESSING:'))
+        debug('› OLD:', chalk.dim(file))
+        debug('› NEW:', chalk.dim(newFilePath))
+      }
+
+      // Set new folder path
+      let folder = path.dirname(newFilePath)
+
+      // Make Directory if needed
+      if (!fs.existsSync(folder)) {
+        fs.mkdirSync(folder, { recursive: true })
+      }
+
+      fs.writeFileSync(newFilePath, text)
+    }
+  })
 
   debug(chalk.green.bold('✅ ALL DONE (๑˃̵ᴗ˂̵)و '))
 }

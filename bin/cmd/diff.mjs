@@ -7,7 +7,7 @@ import { compareSync } from 'dir-compare'
 import { Glob } from 'glob'
 import { spawnSync } from 'child_process'
 
-import { DATA_FOLDER, DIFF_FOLDER, SUPPORTED_VERSIONS, VERSIONS_FOLDER } from '../config.mjs'
+import { DATA_FOLDER, DIFF_FOLDER, SUPPORTED_VERSIONS, VERSIONS_FOLDER, TEMP_FOLDER } from '../config.mjs'
 
 const debug = Debug('sfcc-docs:diff')
 const SEP = path.sep
@@ -45,8 +45,13 @@ export default (cli) => {
 
     diffVersions.push(version.value)
 
-    const thisVersion = path.resolve(VERSIONS_FOLDER, version.value)
-    const previousVersion = path.resolve(VERSIONS_FOLDER, SUPPORTED_VERSIONS[index + 1].value)
+    // Get versions to compare
+    const thisVersion = path.resolve(TEMP_FOLDER, version.value)
+    const previousVersion = path.resolve(TEMP_FOLDER, SUPPORTED_VERSIONS[index + 1].value)
+
+    // Copy the two versions to a temp folder and strip out the HTML files of all class names
+
+    // Compare the two versions
     const diffs = compareSync(thisVersion, previousVersion, options)
 
     debug(chalk.green.bold(`DIFF: v${version.value} <==> v${SUPPORTED_VERSIONS[index + 1].value}`))
@@ -74,9 +79,11 @@ export default (cli) => {
       }
 
       // Exit if this is not an HTML file
-      if (!fileName.endsWith('.html')) {
+      if (!fileName.endsWith('.txt')) {
         return
       }
+
+      fileName = fileName.replace('.txt', '.html')
 
       if (dif.state !== 'equal') {
         let diffOutput = null
@@ -86,7 +93,18 @@ export default (cli) => {
         // Files exists in both versions
         if (dif.reason === 'different-content') {
           // Lets get the diff ( just the basic here )
-          const gitDiff = spawnSync('git', ['diff', '--shortstat', '--no-index', path.resolve(dif.path1, dif.name1), path.resolve(dif.path2, dif.name2), '--ignore-all-space', '--ignore-blank-lines'])
+          const gitDiff = spawnSync('git', [
+            'diff',
+            '--shortstat',
+            '--no-index',
+            path.resolve(dif.path1, dif.name1),
+            path.resolve(dif.path2, dif.name2),
+            '--word-diff',
+            '--ignore-all-space',
+            '--ignore-blank-lines',
+            '--ignore-space-at-eol',
+            '--ignore-space-change',
+          ])
           diffOutput = gitDiff.stdout ? gitDiff.stdout.toString().trim() : null
 
           // Now let's generate a complete diff file
@@ -105,6 +123,8 @@ export default (cli) => {
               '--minimal',
               '--ignore-all-space',
               '--ignore-blank-lines',
+              '--ignore-space-at-eol',
+              '--ignore-space-change',
             ])
           }
         } else if (dif.type1 === 'missing' && dif.type2 === 'file') {

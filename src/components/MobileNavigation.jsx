@@ -6,6 +6,8 @@ import { Dialog } from '@headlessui/react'
 import { Logomark } from '@/components/Logo'
 import { Navigation } from '@/components/Navigation'
 
+import { publish } from '../events'
+
 function MenuIcon(props) {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" {...props}>
@@ -25,6 +27,11 @@ function CloseIcon(props) {
 export function MobileNavigation({ navigation }) {
   let router = useRouter()
   let [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-menu', isOpen ? 'open' : 'closed')
+    publish('menuChanged', { open: isOpen })
+  }, [isOpen])
 
   useEffect(() => {
     if (!isOpen) return

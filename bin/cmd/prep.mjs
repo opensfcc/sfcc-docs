@@ -431,7 +431,7 @@ export default async (cli) => {
 
     const reParent = new RegExp(`^${parent} `, 'g')
     const reGroup = new RegExp(`^${groupTitle} `, 'g')
-    const reGroupAlt = new RegExp(`^${groupTitle}\.`, 'g')
+    const reGroupAlt = new RegExp(`^${groupTitle}\\.`, 'g')
 
     navTitle = navTitle.replace(/^Class /, '')
     navTitle = navTitle.replace(/^Job Step /, '')

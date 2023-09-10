@@ -11,7 +11,7 @@ RUN sudo apt-get update \
     && sudo apt-get install gnupg2 -y
 
 # Install helpful scripts
-RUN sudo apt-get install exa curl unzip -y
+RUN sudo apt-get install exa curl unzip tidy -y
 
 # Copy / Replace Dot Files
 COPY dotfiles/.* /home/node

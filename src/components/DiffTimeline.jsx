@@ -64,6 +64,12 @@ export function DiffTimeline() {
     }
   }
 
+  const notifyUser = () => (evt) => {
+    alert('Version Links Disabled during Testing')
+    evt.preventDefault()
+    return false
+  }
+
   return (
     <div className="mt-12 flow-root border-t border-slate-200 pt-6 dark:border-slate-800">
       <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100" id="change-history">
@@ -85,7 +91,7 @@ export function DiffTimeline() {
                   <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                     <div>
                       <p className="text-sm text-slate-600 dark:text-slate-400">
-                        <a href={change.href} title={`View version ${change.version} of this document`} className="mr-1.5 inline-block w-12 font-medium text-sky-500 hover:underline">
+                        <a href={change.href} onClick={notifyUser()} title={`View version ${change.version} of this document`} className="mr-1.5 inline-block w-12 font-medium text-sky-500 hover:underline">
                           v{change.version}
                         </a>
                         <span aria-hidden="true" className="mr-2">
