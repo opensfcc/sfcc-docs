@@ -48,3 +48,4 @@ src/pages/**/*.md
 src/data
 public/json
 *.zip
+.env

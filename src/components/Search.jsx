@@ -54,7 +54,7 @@ function useAutocomplete() {
             {
               sourceId: 'documentation',
               getItems() {
-                return search(query, { limit: 10 })
+                return search(query, ['title', 'content'], { limit: 10, suggest: true })
               },
               getItemUrl({ item }) {
                 return item.url
@@ -98,7 +98,7 @@ function LoadingIcon(props) {
 }
 
 function HighlightQuery({ text, query }) {
-  return <Highlighter highlightClassName="group-aria-selected:underline bg-transparent text-sky-600 dark:text-sky-400" searchWords={[query]} autoEscape={true} textToHighlight={text} />
+  return <Highlighter highlightClassName="group-aria-selected:underline bg-transparent text-sky-600 dark:text-sky-400" searchWords={[query]} autoEscape={true} textToHighlight={text || ''} />
 }
 
 function SearchResult({ result, autocomplete, collection, query, recentResult = false }) {

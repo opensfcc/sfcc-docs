@@ -5,7 +5,7 @@ import path from 'path'
 
 import { spawnSync } from 'child_process'
 
-import { CURRENT_VERSION, DOCS_FOLDER, SUPPORTED_VERSIONS } from './config.mjs'
+import { SELECTED_VERSION, DOCS_FOLDER, SUPPORTED_VERSIONS } from './config.mjs'
 
 const debug = Debug('sfcc-docs:utils')
 const SEP = path.sep
@@ -41,7 +41,7 @@ export function downloadExternalFile(externalFile, downloadPath) {
 }
 
 export function getVersion(cli) {
-  let version = CURRENT_VERSION
+  let version = SELECTED_VERSION
 
   // Make sure we have a supported version
   if (cli.version && SUPPORTED_VERSIONS.find((version) => version.value === cli.version)) {

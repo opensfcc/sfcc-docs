@@ -77,16 +77,25 @@ const search = function (nextConfig = {}) {
               import FlexSearch from 'flexsearch'
 
               let sectionIndex = new FlexSearch.Document({
-                tokenize: 'full',
                 document: {
                   id: 'url',
-                  index: 'content',
+                  index: [{
+                    field: 'title',
+                    tokenize: 'full',
+                    optimize: true,
+                    resolution: 9
+                  },{
+                      field:  'content',
+                      tokenize: 'full',
+                      optimize: true,
+                      resolution: 5,
+                      minlength: 3,
+                      context: {
+                        depth: 1,
+                        resolution: 3
+                      }
+                  }],
                   store: ['title', 'pageTitle'],
-                },
-                context: {
-                  resolution: 9,
-                  depth: 2,
-                  bidirectional: true
                 }
               })
 
@@ -111,11 +120,56 @@ const search = function (nextConfig = {}) {
                 if (result.length === 0) {
                   return []
                 }
-                return result[0].result.map((item) => ({
+
+                const getScore = (query, item) => {
+                  const keywords = query.split(' ')
+                  const title = item.doc.title ? item.doc.title.toLowerCase() : null
+                  const pageTitle = item.doc.pageTitle ? item.doc.pageTitle.toLowerCase() : null
+                  const id = item.id ? item.id.toLowerCase() : null
+
+                  let score = 0
+                  let regX, result
+
+                  keywords.forEach((keyword) => {
+                    if (id && id.includes(keyword)) {
+                      score += 1
+
+                      regX = new RegExp(\`\$\{keyword\}\`, 'i')
+                      result = id.match(regX)[0];
+
+                      score += result ? (result.length / id.length) : 0
+                    }
+                    if (title && title.includes(keyword)) {
+                      score += 1
+
+                      regX = new RegExp(\`\$\{keyword\}\`, 'i')
+                      result = title.match(regX)[0];
+
+                      score += result ? (result.length / id.length) : 0
+                    }
+                    if (pageTitle && pageTitle.includes(keyword)) {
+                      score += 1
+
+                      regX = new RegExp(\`\$\{keyword\}\`, 'i')
+                      result = pageTitle.match(regX)[0];
+
+                      score += result ? (result.length / id.length) : 0
+                    }
+                  })
+
+                  return score
+                }
+
+                const results = result[0].result.map((item) => ({
                   url: item.id,
                   title: item.doc.title,
                   pageTitle: item.doc.pageTitle,
+                  score: getScore(query, item)
                 }))
+
+                results.sort((a, b) => b.score - a.score)
+
+                return results
               }
             `
           }),

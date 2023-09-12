@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { QuestionMarkCircleIcon, LightBulbIcon, BugAntIcon, FolderOpenIcon, FolderIcon, ClockIcon } from '@heroicons/react/20/solid'
 
-import { version } from '../../package.json'
+import packageJson from '../../package.json'
 
 const report = [
   { name: 'Ask Question', value: 'ask-questions', icon: QuestionMarkCircleIcon, style: 'h-4 w-4 text-sky-400', href: 'https://github.com/sfccdevops/sfcc-docs/issues/new?assignees=&labels=Question&projects=&template=question.yml' },
@@ -62,7 +62,7 @@ export function IssueSelector(props) {
         leaveTo="transform opacity-0 scale-95"
       >
         <Menu.Items className="absolute left-full top-full mt-3 w-48 -translate-x-full space-y-2 divide-y divide-slate-100 rounded-xl bg-white p-3 text-sm font-medium shadow-md shadow-black/5 ring-1 ring-black/5 dark:divide-slate-700 dark:bg-slate-800 dark:ring-white/5 md:left-1/2 md:-translate-x-1/2">
-          <div class="px-1 py-1">
+          <div className="px-1 py-1">
             {report.map((issue) => (
               <Menu.Item key={issue.value} as={Fragment}>
                 {({ active }) => (
@@ -81,7 +81,7 @@ export function IssueSelector(props) {
               </Menu.Item>
             ))}
           </div>
-          <div class="px-1 pb-1 pt-3">
+          <div className="px-1 pb-1 pt-3">
             {issues.map((issue) => (
               <Menu.Item key={issue.value} as={Fragment}>
                 {({ active }) => (
@@ -100,7 +100,7 @@ export function IssueSelector(props) {
               </Menu.Item>
             ))}
           </div>
-          <div class="px-1 pb-1 pt-3 text-center text-xs text-slate-600 dark:text-slate-400">sfccdocs.com - v{version}</div>
+          <div className="px-1 pb-1 pt-3 text-center text-xs text-slate-600 dark:text-slate-400">sfccdocs.com - v{packageJson.version}</div>
         </Menu.Items>
       </Transition>
     </Menu>
