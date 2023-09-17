@@ -13,3 +13,31 @@
     display: none;
   }
 }
+
+input#menu-filter {
+  appearance: none;
+}
+input#menu-filter::-webkit-search-cancel-button {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  cursor: pointer;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="gray" d="M512 475.3L475.3 512 256 292.7 36.7 512 0 475.3 219.3 256 0 36.7 36.7 0 256 219.3 475.3 0 512 36.7 292.7 256 512 475.3z"/></svg>')
+    no-repeat center;
+}
+.prose :where(blockquote p:first-of-type):not(:where([class~='not-prose'] *))::before,
+.prose :where(blockquote p:last-of-type):not(:where([class~='not-prose'] *))::after,
+.prose :where(code):not(:where([class~='not-prose'] *))::before,
+.prose :where(code):not(:where([class~='not-prose'] *))::after {
+  content: '';
+}
+.prose :where(blockquote):not(:where([class~='not-prose'] *)) {
+  font-weight: 300;
+  font-style: normal;
+  color: inherit;
+}
+code.required {
+  color: #f472b6 !important;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}

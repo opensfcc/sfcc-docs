@@ -18,7 +18,7 @@ const options = {
 }
 
 let diffVersions = []
-let changeHistory = {}
+let versionHistory = {}
 
 export default (cli) => {
   if (cli.verbose) {
@@ -38,8 +38,8 @@ export default (cli) => {
 
   // Loop through supported versions
   SUPPORTED_VERSIONS.forEach((version, index) => {
-    // No need to run
-    if (index === SUPPORTED_VERSIONS.length - 1) {
+    // No need to run for upcoming version, or very last version
+    if (version.release === 'upcoming' || index === SUPPORTED_VERSIONS.length - 1) {
       return
     }
 
@@ -135,18 +135,18 @@ export default (cli) => {
           status = 'added'
         }
 
-        // If we got a change, lets add it to the change history
+        // If we got a change, lets add it to the version history
         if (status) {
-          // Create change history object
-          if (!changeHistory[fileName]) {
-            changeHistory[fileName] = []
+          // Create version history object
+          if (!versionHistory[fileName]) {
+            versionHistory[fileName] = []
           }
 
           // Clean up diff output
           diffOutput = diffOutput ? diffOutput.replace('1 file changed, ', '') : null
 
-          // Add to change history
-          changeHistory[fileName].push({
+          // Add to version history
+          versionHistory[fileName].push({
             version: version.value,
             status,
             label: diffOutput,
@@ -162,7 +162,7 @@ export default (cli) => {
     }
 
     // Write new HTML file back out after cleaning
-    fs.writeFileSync(path.resolve(DATA_FOLDER, 'diffs.json'), JSON.stringify(changeHistory, null, 2))
+    fs.writeFileSync(path.resolve(DATA_FOLDER, 'diffs.json'), JSON.stringify(versionHistory, null, 2))
 
     // Do some initial cleanup on the HTML files
     const files = new Glob(`${DIFF_FOLDER}${SEP}*.diff`, {})

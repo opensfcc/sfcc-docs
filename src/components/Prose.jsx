@@ -1,8 +1,27 @@
 import clsx from 'clsx'
+import { useEffect } from 'react'
 
 export function Prose({ as: Component = 'div', className, ...props }) {
+  useEffect(() => {
+    function updateRequiredStyles() {
+      const codeBlocks = document.querySelectorAll('code')
+      codeBlocks.forEach((block) => {
+        if (block.innerText.trim().toLowerCase() === 'required') {
+          block.classList.add('required')
+        }
+      })
+    }
+
+    updateRequiredStyles()
+
+    window.addEventListener('load', () => updateRequiredStyles())
+    window.addEventListener('pageshow', () => updateRequiredStyles())
+    window.addEventListener('popstate', () => updateRequiredStyles())
+  }, [])
+
   return (
     <Component
+      onLoad={() => updateRequiredStyles()}
       className={clsx(
         className,
         'prose prose-slate max-w-none break-words dark:prose-invert dark:text-slate-400',

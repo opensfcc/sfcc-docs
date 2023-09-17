@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import Highlighter from 'react-highlight-words'
 
-import { navigation } from '@/data/navigation'
+import { getMeta } from '@/data/meta'
 
 function SearchIcon(props) {
   return (
@@ -29,7 +29,7 @@ function useAutocomplete() {
   let [autocomplete] = useState(() =>
     createAutocomplete({
       id,
-      debug: true,
+      debug: false,
       plugins: [recentSearchesPlugin],
       placeholder: 'Search SFCC Docs ...',
       openOnFocus: true,
@@ -54,7 +54,7 @@ function useAutocomplete() {
             {
               sourceId: 'documentation',
               getItems() {
-                return search(query, ['title', 'content'], { limit: 10, suggest: true })
+                return search(query, ['title', 'content'])
               },
               getItemUrl({ item }) {
                 return item.url
@@ -98,15 +98,19 @@ function LoadingIcon(props) {
 }
 
 function HighlightQuery({ text, query }) {
-  return <Highlighter highlightClassName="group-aria-selected:underline bg-transparent text-sky-600 dark:text-sky-400" searchWords={[query]} autoEscape={true} textToHighlight={text || ''} />
+  return <Highlighter highlightClassName="group-aria-selected:underline bg-transparent text-sky-600 dark:text-sky-400" searchWords={query ? query.split(' ') : []} autoEscape={true} textToHighlight={text || ''} />
 }
 
 function SearchResult({ result, autocomplete, collection, query, recentResult = false }) {
-  let id = useId()
   let router = useRouter()
 
-  let sectionTitle = navigation.find((section) => section.links.find((link) => link.href === result.url.split('#')[0]))?.title
-  let hierarchy = [sectionTitle, result.pageTitle].filter(Boolean)
+  const baseUri = result.url.split('#')[0]
+  const deprecated = baseUri.startsWith('/deprecated/')
+  const meta = getMeta(baseUri, deprecated)
+
+  const sectionTitle = meta?.nav && meta.nav.alt ? `${meta.nav.alt}` : null
+  const hierarchy = meta?.nav ? [meta.nav.parent, meta.nav.child, meta.nav.title].filter(Boolean) : [sectionTitle, result.pageTitle].filter(Boolean)
+  const description = meta?.description ? meta.description : null
 
   function onRemove(id) {
     recentSearchesPlugin.data.removeItem(id)
@@ -115,61 +119,101 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
 
   function goToSearchResult(result) {
     const nextId = recentSearchesPlugin.data.getAll().length + 1
+    const goToUrl = result.url.replace(/-[0-9]+$/g, '')
     recentSearchesPlugin.data.addItem({
-      url: result.url,
+      url: goToUrl,
       id: nextId,
       title: result.title,
       pageTitle: result.pageTitle,
       label: query,
     })
-    router.push(result.url)
+    router.push(goToUrl)
   }
 
-  return (
-    <li
-      className="group relative block cursor-pointer rounded-lg px-3 py-2 aria-selected:bg-slate-100 dark:aria-selected:bg-slate-700/30"
-      aria-labelledby={`${id}-hierarchy ${id}-title`}
-      {...autocomplete.getItemProps({
-        item: result,
-        source: collection.source,
-      })}
-      role={result.url ? 'button' : 'listitem'}
-      onClick={result.url ? () => goToSearchResult(result) : undefined}
-    >
-      <div id={`${id}-title`} aria-hidden="true" className="text-sm text-slate-700 group-aria-selected:text-sky-600 dark:text-slate-300 dark:group-aria-selected:text-sky-400">
-        <HighlightQuery text={result.title} query={query} />
-      </div>
-      {hierarchy.length > 0 && (
-        <div id={`${id}-hierarchy`} aria-hidden="true" className="mt-0.5 truncate whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
-          {hierarchy.map((item, itemIndex, items) => (
-            <Fragment key={itemIndex}>
-              <HighlightQuery text={item} query={query} />
-              <span className={itemIndex === items.length - 1 ? 'sr-only' : 'mx-2 text-slate-300 dark:text-slate-700'}>/</span>
-              {recentResult === true && result.url && (
-                <button
-                  className="absolute right-1 top-1 inline-block h-12 w-12 p-3.5 text-slate-400 transition-colors duration-200 hover:text-red-500 focus:text-red-500 focus:outline-none dark:text-slate-500 dark:hover:text-red-500"
-                  title="Remove this search"
-                  onClick={(event) => {
-                    event.preventDefault()
-                    event.stopPropagation()
-                    onRemove(result.id)
-                  }}
-                >
-                  <svg viewBox="0 0 24 24" fill="currentColor" role="presentation" className="pointer-events-none">
-                    <path d="M18 7v13c0 0.276-0.111 0.525-0.293 0.707s-0.431 0.293-0.707 0.293h-10c-0.276 0-0.525-0.111-0.707-0.293s-0.293-0.431-0.293-0.707v-13zM17 5v-1c0-0.828-0.337-1.58-0.879-2.121s-1.293-0.879-2.121-0.879h-4c-0.828 0-1.58 0.337-2.121 0.879s-0.879 1.293-0.879 2.121v1h-4c-0.552 0-1 0.448-1 1s0.448 1 1 1h1v13c0 0.828 0.337 1.58 0.879 2.121s1.293 0.879 2.121 0.879h10c0.828 0 1.58-0.337 2.121-0.879s0.879-1.293 0.879-2.121v-13h1c0.552 0 1-0.448 1-1s-0.448-1-1-1zM9 5v-1c0-0.276 0.111-0.525 0.293-0.707s0.431-0.293 0.707-0.293h4c0.276 0 0.525 0.111 0.707 0.293s0.293 0.431 0.293 0.707v1zM9 11v6c0 0.552 0.448 1 1 1s1-0.448 1-1v-6c0-0.552-0.448-1-1-1s-1 0.448-1 1zM13 11v6c0 0.552 0.448 1 1 1s1-0.448 1-1v-6c0-0.552-0.448-1-1-1s-1 0.448-1 1z" />
-                  </svg>
-                </button>
-              )}
-            </Fragment>
-          ))}
+  if (hierarchy && description) {
+    return (
+      <li
+        className="group relative block cursor-pointer rounded-lg px-3 py-2 aria-selected:bg-slate-100 dark:aria-selected:bg-slate-700/30"
+        aria-label={`Search Result #${result.id}: '${result.title}'`}
+        {...autocomplete.getItemProps({
+          item: result,
+          source: collection.source,
+        })}
+        role={result.url ? 'button' : 'listitem'}
+        onClick={result.url ? () => goToSearchResult(result) : undefined}
+      >
+        <div id={`title-${result.id}`} aria-hidden="true" className="text-sm text-slate-700 group-aria-selected:text-sky-600 dark:text-slate-300 dark:group-aria-selected:text-sky-400">
+          <HighlightQuery text={result.title} query={query} />
         </div>
-      )}
-    </li>
-  )
+        {hierarchy.length > 0 && (
+          <div id={`hierarchy-${result.id}`} aria-hidden="true" className="mt-0.5 truncate whitespace-nowrap text-xs text-slate-700 dark:text-slate-200">
+            {hierarchy.map((item, itemIndex, items) => (
+              <Fragment key={itemIndex}>
+                {item}
+                <span className={itemIndex === items.length - 1 ? 'sr-only' : 'mx-2 text-slate-300 dark:text-slate-700'}>/</span>
+              </Fragment>
+            ))}
+          </div>
+        )}
+        {description && (
+          <div aria-hidden="true" className="mt-0.5 truncate whitespace-nowrap text-xs text-slate-400 dark:text-slate-400">
+            {description}
+          </div>
+        )}
+        {recentResult === true && result.url && (
+          <button
+            className="absolute right-1 top-1 inline-block h-12 w-12 p-3.5 text-slate-400 transition-colors duration-200 hover:text-red-500 focus:text-red-500 focus:outline-none dark:text-slate-500 dark:hover:text-red-500"
+            title="Remove this search"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              onRemove(result.id)
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" role="presentation" className="pointer-events-none">
+              <path d="M18 7v13c0 0.276-0.111 0.525-0.293 0.707s-0.431 0.293-0.707 0.293h-10c-0.276 0-0.525-0.111-0.707-0.293s-0.293-0.431-0.293-0.707v-13zM17 5v-1c0-0.828-0.337-1.58-0.879-2.121s-1.293-0.879-2.121-0.879h-4c-0.828 0-1.58 0.337-2.121 0.879s-0.879 1.293-0.879 2.121v1h-4c-0.552 0-1 0.448-1 1s0.448 1 1 1h1v13c0 0.828 0.337 1.58 0.879 2.121s1.293 0.879 2.121 0.879h10c0.828 0 1.58-0.337 2.121-0.879s0.879-1.293 0.879-2.121v-13h1c0.552 0 1-0.448 1-1s-0.448-1-1-1zM9 5v-1c0-0.276 0.111-0.525 0.293-0.707s0.431-0.293 0.707-0.293h4c0.276 0 0.525 0.111 0.707 0.293s0.293 0.431 0.293 0.707v1zM9 11v6c0 0.552 0.448 1 1 1s1-0.448 1-1v-6c0-0.552-0.448-1-1-1s-1 0.448-1 1zM13 11v6c0 0.552 0.448 1 1 1s1-0.448 1-1v-6c0-0.552-0.448-1-1-1s-1 0.448-1 1z" />
+            </svg>
+          </button>
+        )}
+      </li>
+    )
+  } else {
+    return null
+  }
 }
 
 function SearchResults({ autocomplete, query, collection, recentResult = false }) {
-  if (collection.items.length === 0) {
+  // Remove Duplicate Results
+  const ids = collection.items.map(({ pageTitle }) => pageTitle)
+  const filtered = collection.items.filter(({ pageTitle, url }, index) => !ids.includes(pageTitle, index + 1))
+
+  const urls = filtered.map(({ url }) => url)
+  const unique = filtered.filter(({ url }, index) => {
+    const split = url.split('#')
+    const baseUri = split[0]
+    const hash = split[1] || null
+
+    const hasUrl = urls.includes(baseUri)
+    const hasHash = urls.includes(url)
+
+    if (hasUrl && hasHash && hash) {
+      return true
+    } else if (!hasUrl && hasHash && hash) {
+      return true
+    } else if (hasUrl && !hasHash) {
+      return true
+    }
+
+    return false
+  })
+
+  // Add IDs to Results
+  unique.forEach((result, index) => {
+    result.id = index
+    result.__autocomplete_id = index
+  })
+
+  if (unique.length === 0) {
     return (
       <p className="px-4 py-8 text-center text-sm text-slate-700 dark:text-slate-400">
         No results for &ldquo;
@@ -181,14 +225,14 @@ function SearchResults({ autocomplete, query, collection, recentResult = false }
 
   return (
     <ul role="list" {...autocomplete.getListProps()}>
-      {collection.items.map((result) => (
-        <SearchResult key={result.url} result={result} autocomplete={autocomplete} collection={collection} query={query} recentResult={recentResult} />
+      {unique.map((result) => (
+        <SearchResult key={result.id} result={result} autocomplete={autocomplete} collection={collection} query={query} recentResult={recentResult} />
       ))}
     </ul>
   )
 }
 
-const SearchInput = forwardRef(function SearchInput({ autocomplete, autocompleteState, onClose }, inputRef) {
+const SearchInput = forwardRef(function SearchInput({ autocomplete, autocompleteState, onClose, panelRef }, inputRef) {
   let inputProps = autocomplete.getInputProps({})
 
   return (
@@ -198,7 +242,7 @@ const SearchInput = forwardRef(function SearchInput({ autocomplete, autocomplete
         ref={inputRef}
         className={clsx(
           'flex-auto appearance-none bg-transparent pl-12 text-slate-900 outline-none placeholder:text-slate-400 focus:w-full focus:flex-none dark:text-white sm:text-sm [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden [&::-webkit-search-results-decoration]:hidden',
-          autocompleteState.status === 'stalled' ? 'pr-11' : 'pr-4'
+          autocompleteState.status === 'stalled' || autocompleteState.status === 'loading' ? 'pr-11' : 'pr-4'
         )}
         {...inputProps}
         onKeyDown={(event) => {
@@ -206,14 +250,14 @@ const SearchInput = forwardRef(function SearchInput({ autocomplete, autocomplete
             // In Safari, closing the dialog with the escape key can sometimes cause the scroll position to jump to the
             // bottom of the page. This is a workaround for that until we can figure out a proper fix in Headless UI.
             document.activeElement?.blur()
-
             onClose()
           } else {
             inputProps.onKeyDown(event)
+            panelRef.current.scrollTop = 0
           }
         }}
       />
-      {autocompleteState.status === 'stalled' && (
+      {(autocompleteState.status === 'stalled' || autocompleteState.status === 'loading') && (
         <div className="absolute inset-y-0 right-3 flex items-center">
           <LoadingIcon className="h-6 w-6 animate-spin stroke-slate-200 text-slate-400 dark:stroke-slate-700 dark:text-slate-500" />
         </div>
@@ -222,12 +266,48 @@ const SearchInput = forwardRef(function SearchInput({ autocomplete, autocomplete
   )
 })
 
-function SearchDialog({ open, setOpen, className }) {
+function SearchDialog({ open, setOpen, className, keyword }) {
   let router = useRouter()
   let formRef = useRef()
   let panelRef = useRef()
   let inputRef = useRef()
   let { autocomplete, autocompleteState } = useAutocomplete()
+  let [urlQuery, setUrlQuery] = useState(null)
+
+  useEffect(() => {
+    const isHomePage = router.pathname === '/'
+    if (!isHomePage) {
+      return
+    }
+
+    if (router.query.q && router.query.q !== urlQuery) {
+      setUrlQuery(router.query.q)
+    }
+
+    if (!open && urlQuery) {
+      setOpen(true)
+      autocomplete.setQuery(urlQuery)
+    }
+
+    function goToFirstResult(result) {
+      const nextId = recentSearchesPlugin.data.getAll().length + 1
+      const goToUrl = result.url.replace(/-[0-9]+$/g, '')
+      recentSearchesPlugin.data.addItem({
+        url: goToUrl,
+        id: nextId,
+        title: result.title,
+        pageTitle: result.pageTitle,
+        label: urlQuery,
+      })
+
+      window.location.replace(goToUrl)
+    }
+
+    if (open && urlQuery && autocompleteState && autocompleteState.query === urlQuery && autocompleteState.collections.length > 0) {
+      goToFirstResult(autocompleteState.collections[0].items[0])
+      return
+    }
+  }, [router, urlQuery, setUrlQuery, open, setOpen, autocomplete, autocompleteState])
 
   useEffect(() => {
     if (!open) {
@@ -286,7 +366,7 @@ function SearchDialog({ open, setOpen, className }) {
                 inputElement: inputRef.current,
               })}
             >
-              <SearchInput ref={inputRef} autocomplete={autocomplete} autocompleteState={autocompleteState} onClose={() => setOpen(false)} />
+              <SearchInput ref={inputRef} panelRef={panelRef} autocomplete={autocomplete} autocompleteState={autocompleteState} onClose={() => setOpen(false)} />
               <div ref={panelRef} className="max-h-96 overflow-scroll border-t border-slate-200 bg-white px-2 py-3 empty:hidden dark:border-slate-400/10 dark:bg-slate-800" {...autocomplete.getPanelProps({})}>
                 {autocompleteState.isOpen &&
                   autocompleteState.collections?.map((collection, index) => {

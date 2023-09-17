@@ -61,19 +61,6 @@ const headerScript = `
       } catch {}
     }
   }).observe(document.documentElement, { attributeFilter: ['data-version'], attributeOldValue: true })
-
-  // TODO: Figure out how to handle version switching with popstate
-  window.addEventListener('popstate', (event) => {
-    if (event.isTrusted && event.state?.url) {
-      const popVersion = event.state?.url.split('/')[1] || window.useVersion
-
-      if (popVersion !== window.localStorage.version) {
-        document.documentElement.setAttribute('data-version', popVersion)
-        window.localStorage.setItem('version', popVersion)
-        window.location.reload()
-      }
-    }
-  });
 `
 
 export default function Document() {

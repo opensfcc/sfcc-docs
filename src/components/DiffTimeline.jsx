@@ -51,7 +51,7 @@ export function DiffTimeline() {
 
   const diffRefs = useMemo(() => timeline && timeline.map(() => createRef()), [timeline])
 
-  const handleClick = (index) => () => {
+  const handleClick = (index) => {
     let newShow = [...show]
     newShow[index] = !newShow[index]
     setShow(newShow)
@@ -72,8 +72,8 @@ export function DiffTimeline() {
 
   return (
     <div className="mt-12 flow-root border-t border-slate-200 pt-6 dark:border-slate-800">
-      <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100" id="change-history">
-        Change History
+      <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100" id="version-history">
+        Version History
       </h2>
       <p className="mt-1 text-base font-light text-slate-600 dark:text-slate-400">{timeline ? 'The following changes have been made historically to this document.' : 'No changes in this document were recently detected.'}</p>
       <ul role="list" className="-mb-8 pt-6">
@@ -91,9 +91,7 @@ export function DiffTimeline() {
                   <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                     <div>
                       <p className="text-sm text-slate-600 dark:text-slate-400">
-                        <a href={change.href} onClick={notifyUser()} title={`View version ${change.version} of this document`} className="mr-1.5 inline-block w-12 font-medium text-sky-500 hover:underline">
-                          v{change.version}
-                        </a>
+                        <span className="mr-2 font-bold">v{change.version}</span>
                         <span aria-hidden="true" className="mr-2">
                           ›
                         </span>{' '}
@@ -103,7 +101,7 @@ export function DiffTimeline() {
                     {change.status === 'modified' && (
                       <button
                         type="button"
-                        onClick={handleClick(diffIdx)}
+                        onClick={() => handleClick(diffIdx)}
                         className="h-7 whitespace-nowrap rounded-full bg-sky-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
                       >
                         {show[diffIdx] ? 'Hide DIFF' : 'View DIFF'}

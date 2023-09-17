@@ -2,23 +2,79 @@ import clsx from 'clsx'
 import Highlighter from 'react-highlight-words'
 import Link from 'next/link'
 
-import { ChevronRightIcon, ArrowSmallRightIcon } from '@heroicons/react/20/solid'
+import { ChevronRightIcon, ArrowSmallRightIcon, ChevronDoubleRightIcon } from '@heroicons/react/20/solid'
+import { FunnelIcon } from '@heroicons/react/24/outline'
 import { Disclosure, Transition } from '@headlessui/react'
 import { useRouter } from 'next/router'
 import { useState, useEffect, useRef } from 'react'
+
+import useDebounce from '../debounce'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 function HighlightQuery({ text, query }) {
-  return <Highlighter highlightClassName="group-aria-selected:underline bg-transparent text-inherit underline underline-offset-3" searchWords={[query]} autoEscape={true} textToHighlight={text} />
+  return <Highlighter highlightClassName="group-aria-selected:underline bg-transparent text-inherit underline underline-offset-3" searchWords={query ? query.split(' ') : []} autoEscape={true} textToHighlight={text || ''} />
 }
 
 export function Navigation({ navigation, className }) {
   let router = useRouter()
 
   let [modifierKey, setModifierKey] = useState()
+
+  const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search, 150)
+
+  useEffect(() => {
+    // Filter the navigation by keyword
+    const filterByKeyword = () => {
+      setInitialOpen(true)
+
+      if (!search) {
+        return
+      }
+
+      setFilteredNavigation(() => {
+        // Deep copy the navigation object
+        const copy = JSON.parse(JSON.stringify(navigation))
+
+        // Remove empty items from the array
+        const purgeEmpty = (elm) => {
+          return elm != null && elm !== false && elm !== ''
+        }
+
+        // Filter our copy of the navigation object by keyword
+        copy.forEach((item, index) => {
+          // Remove links that don't match the keyword
+          item.links.forEach((_, linkIndex) => {
+            // Replace children with a filtered version
+            item.links[linkIndex].children = item.links[linkIndex].children.filter((child) => child.alt.toLowerCase().includes(search.toLowerCase()))
+
+            // Delete the link if it has no children
+            if (item.links[linkIndex].children.length === 0) {
+              delete item.links[linkIndex]
+            }
+          })
+
+          // Remove empty items from the array
+          item.links = item.links.filter(purgeEmpty)
+
+          // Delete the section if it has no links
+          if (item.links.length === 0) {
+            delete copy[index]
+          }
+        })
+
+        // Last pass to remove empty results in parent
+        return copy.filter(purgeEmpty)
+      })
+    }
+
+    if (debouncedSearch) {
+      filterByKeyword()
+    }
+  }, [debouncedSearch, navigation, search])
 
   useEffect(() => {
     setModifierKey(/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? '⌘' : 'Ctrl ')
@@ -36,113 +92,93 @@ export function Navigation({ navigation, className }) {
   const [filteredNavigation, setFilteredNavigation] = useState(navigation)
   const [inputRef, setInputFocus] = useFocus()
 
-  let [initialOpen, setInitialOpen] = useState(true)
+  const [initialOpen, setInitialOpen] = useState(true)
+  const [sectionOpen, setSectionOpen] = useState([false, false, false, false])
+
+  const handleSectionClick = (index) => () => {
+    setInitialOpen(false)
+    let newSectionOpen = [...sectionOpen]
+    newSectionOpen[index] = !newSectionOpen[index]
+    setSectionOpen(newSectionOpen)
+  }
 
   // Handle some DOM specific stuff we need to support with the navigation
   useEffect(() => {
-    let timeout = null
-
     // Handle COMMAND + G to focus the search input
     function onKeyDown(event) {
-      setInitialOpen(false)
       if (event.key === 'g' && (event.metaKey || event.ctrlKey)) {
+        setInitialOpen(false)
         event.preventDefault()
         setInputFocus()
       }
     }
 
-    // Automatically scroll to the active link when the page loads
-    function scrollToOpenMenu() {
-      clearTimeout(timeout)
-      timeout = setTimeout(() => {
-        const activeLink = document.getElementById('current-nav-link')
-        if (activeLink) {
-          activeLink.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' })
-        }
-      }, 500)
-      setInitialOpen(true)
-    }
-
     // Add event listeners
     window.addEventListener('keydown', onKeyDown)
-    window.addEventListener('load', scrollToOpenMenu)
-    window.addEventListener('popstate', scrollToOpenMenu)
 
     // Remove event listeners on cleanup
     return () => {
       window.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('load', scrollToOpenMenu)
-      window.removeEventListener('popstate', scrollToOpenMenu)
     }
   }, [setInputFocus])
+
+  // Update on Route Change
+  useEffect(() => {
+    const scrollToLink = () => {
+      let newSectionOpen = [...sectionOpen]
+      const activeLink = document.getElementById('current-nav-link')
+      if (activeLink) {
+        const index = activeLink.dataset.section
+        if (index) {
+          newSectionOpen[index] = true
+          setSectionOpen(newSectionOpen)
+
+          activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+        }
+      }
+    }
+
+    setTimeout(scrollToLink, 1000)
+  }, [router.asPath])
+
+  // Handle the panel open state
+  const shouldSectionOpen = (open, section, pathname, keyword) => {
+    const isSearching = keyword && keyword !== '' ? true : false
+    const shouldOpen = isSearching || isCurrentSection(section, pathname)
+
+    return !initialOpen ? open : shouldOpen
+  }
 
   // Handle the panel open state
   const shouldPanelOpen = (open, section, link, pathname, keyword) => {
     const isSearching = keyword && keyword !== '' ? true : false
-    const shouldOpen = open || isSearching || isCurrentLink(section, link, pathname)
+    const shouldOpen = open || isSearching || isCurrentGroup(section, link, pathname)
 
     return !initialOpen ? open : shouldOpen
   }
 
   // Check if the current link is the active link
-  const isCurrentLink = (section, link, pathname) => {
+  const isCurrentSection = (section, pathname) => {
+    const splitPath = pathname.split('/')
+    const isDeprecated = splitPath[1] === 'deprecated'
+    const sectionName = isDeprecated ? splitPath[2] : splitPath[1]
+
+    const sectionMatch = section && sectionName === section.toLowerCase().replace(/\s/g, '')
+
+    return sectionMatch
+  }
+
+  // Check if the current link is the active link
+  const isCurrentGroup = (section, link, pathname) => {
     const splitPath = pathname.split('/')
     const isDeprecated = splitPath[1] === 'deprecated'
     const sectionName = isDeprecated ? splitPath[2] : splitPath[1]
     const linkName = isDeprecated ? splitPath[3] : splitPath[2]
 
-    const sectionMatch = sectionName === section.toLowerCase().replace(/\s/g, '')
-    const linkMatch = linkName === link.toLowerCase().replace(/\s/g, '-')
+    const sectionMatch = section && sectionName === section.toLowerCase().replace(/\s/g, '')
+    const linkMatch = link && linkName === link.toLowerCase().replace(/\s/g, '-')
 
     return sectionMatch && linkMatch
-  }
-
-  // Filter the navigation by keyword
-  const filterByKeyword = () => {
-    setInitialOpen(true)
-
-    const keyword = inputRef?.current?.value
-
-    if (!keyword) {
-      setInitialOpen(false)
-      setFilteredNavigation(navigation)
-      return
-    }
-
-    setFilteredNavigation(() => {
-      // Deep copy the navigation object
-      const copy = JSON.parse(JSON.stringify(navigation))
-
-      // Remove empty items from the array
-      const purgeEmpty = (elm) => {
-        return elm != null && elm !== false && elm !== ''
-      }
-
-      // Filter our copy of the navigation object by keyword
-      copy.forEach((item, index) => {
-        // Remove links that don't match the keyword
-        item.links.forEach((_, linkIndex) => {
-          // Replace children with a filtered version
-          item.links[linkIndex].children = item.links[linkIndex].children.filter((child) => child.alt.toLowerCase().includes(keyword.toLowerCase()))
-
-          // Delete the link if it has no children
-          if (item.links[linkIndex].children.length === 0) {
-            delete item.links[linkIndex]
-          }
-        })
-
-        // Remove empty items from the array
-        item.links = item.links.filter(purgeEmpty)
-
-        // Delete the section if it has no links
-        if (item.links.length === 0) {
-          delete copy[index]
-        }
-      })
-
-      // Last pass to remove empty results in parent
-      return copy.filter(purgeEmpty)
-    })
   }
 
   return (
@@ -152,56 +188,57 @@ export function Navigation({ navigation, className }) {
         <div className="pointer-events-auto relative bg-slate-50 dark:bg-slate-900">
           <div className="relative rounded-md text-slate-400 shadow-sm">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg width="24" height="24" fill="none" aria-hidden="true" className="mr-3 flex-none">
-                <path d="m19 19-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-                <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></circle>
-              </svg>
+              <FunnelIcon className="h-5 w-5 " aria-hidden="true" />
             </div>
             <input
-              type="text"
+              type="search"
               name="menu-filter"
               id="menu-filter"
-              defaultValue=""
               ref={inputRef}
               maxLength={20}
               spellCheck="false"
-              onInput={filterByKeyword}
-              className="dark:highlight-white/5 w-full items-center rounded-md py-1.5 pl-11 pr-3 text-sm leading-6 text-slate-400 shadow-sm ring-1 ring-slate-900/10 hover:ring-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 lg:flex"
+              value={search}
+              onInput={(e) => {
+                const value = e.target.value
+                if (!value) {
+                  setInitialOpen(false)
+                  setFilteredNavigation(navigation)
+                }
+
+                setSearch(e.target.value)
+              }}
+              className="dark:highlight-white/5 w-full items-center rounded-md py-1.5 pl-11 pr-3 text-base leading-6 text-slate-400 shadow-sm ring-1 ring-slate-900/10 hover:ring-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 lg:flex lg:text-sm"
               placeholder="Menu filter.."
             />
-            <div className="pointer-events-none absolute inset-y-0 right-0 hidden items-center pr-3 md:flex">
-              <span className="ml-auto flex-none pl-3 text-xs font-semibold">{modifierKey}G</span>
-            </div>
+            {!inputRef?.current?.value && (
+              <div className="pointer-events-none absolute inset-y-0 right-0 hidden items-center pr-3 md:flex">
+                <span className="ml-auto flex-none pl-3 text-xs font-semibold">{modifierKey}G</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="h-8 bg-gradient-to-b from-slate-50 dark:from-slate-900"></div>
       </div>
-      <ul role="list" className="z-0 ml-0.5 space-y-9">
+      <ul role="list" className="z-0 ml-0.5 space-y-4">
         {filteredNavigation.length === 0 && <li className="text-slate-500">No results found.</li>}
         {filteredNavigation.length > 0 &&
-          filteredNavigation.map((section) => (
+          filteredNavigation.map((section, index) => (
             <li key={section.title}>
-              <h2 className="font-display font-medium text-slate-900 dark:text-white">
+              <button
+                className={classNames(shouldSectionOpen(sectionOpen[index], section.title, router.pathname, inputRef?.current?.value) ? 'text-sky-500' : 'text-slate-900 dark:text-white', 'flex w-full py-2 font-display font-medium')}
+                onClick={handleSectionClick(index)}
+              >
                 <HighlightQuery text={section.title} query={inputRef?.current?.value || null} />
-              </h2>
-              <ul role="list" className="mt-2 space-y-0 border-l-2 border-slate-100 dark:border-slate-800 lg:mt-4 lg:space-y-0 lg:border-slate-200">
-                {section?.links &&
-                  section.links.map((link) => (
-                    <li key={link.alt} className="relative">
-                      {!link.children ? (
-                        <Link
-                          href={link.href}
-                          title={link.alt}
-                          className={clsx(
-                            'block w-full truncate pl-3.5 before:pointer-events-none before:absolute before:-left-1 before:top-1/2 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full',
-                            link.href === router.pathname
-                              ? 'font-semibold text-sky-500 before:bg-sky-500'
-                              : 'text-slate-500 before:hidden before:bg-slate-300 hover:text-slate-600 hover:before:block dark:text-slate-400 dark:before:bg-slate-700 dark:hover:text-slate-300'
-                          )}
-                        >
-                          <HighlightQuery text={link.title} query={inputRef?.current?.value || null} />
-                        </Link>
-                      ) : (
+                <ChevronDoubleRightIcon
+                  className={classNames(shouldSectionOpen(sectionOpen[index], section.title, router.pathname, inputRef?.current?.value) ? 'rotate-90 transform text-sky-500' : 'text-gray-400', 'relative top-0.5 ml-auto h-5 w-5 shrink-0')}
+                  aria-hidden="true"
+                />
+              </button>
+              {shouldSectionOpen(sectionOpen[index], section.title, router.pathname, inputRef?.current?.value) && (
+                <ul role="list" className="mt-2 space-y-0 border-l-2 border-slate-100 dark:border-slate-800 lg:mt-4 lg:space-y-0 lg:border-slate-200">
+                  {section?.links &&
+                    section.links.map((link) => (
+                      <li key={link.alt} className="relative">
                         <Disclosure as="div">
                           {({ open }) => (
                             <>
@@ -209,10 +246,10 @@ export function Navigation({ navigation, className }) {
                                 title={link.alt}
                                 onClick={() => setInitialOpen(false)}
                                 className={clsx(
-                                  'm-0 flex w-full rounded-r-md py-2 pl-3.5 pr-2 font-medium before:pointer-events-none before:absolute before:-left-0.5 before:top-5 before:h-10 before:w-0.5 before:-translate-y-1/2 hover:before:bg-sky-500/40',
+                                  'm-0 flex w-full rounded-r-md py-2 pl-3.5 font-medium before:pointer-events-none before:absolute before:-left-0.5 before:top-5 before:h-10 before:w-0.5 before:-translate-y-1/2 hover:before:block hover:before:bg-sky-500/40',
                                   shouldPanelOpen(open, section.title, link.title, router.pathname, inputRef?.current?.value)
-                                    ? 'bg-slate-100 font-semibold text-sky-500 before:bg-sky-400 dark:bg-slate-950/30 dark:before:bg-sky-500'
-                                    : 'text-slate-500 before:hidden before:bg-slate-300 hover:text-slate-600 hover:before:block dark:text-slate-400 dark:before:bg-slate-700 dark:hover:text-slate-300'
+                                    ? 'font-bold text-sky-500 before:bg-sky-400 dark:before:bg-sky-500'
+                                    : 'font-semibold text-slate-500 before:hidden before:bg-slate-300 hover:text-slate-600 dark:text-slate-400 dark:before:bg-slate-700 dark:hover:text-slate-300'
                                 )}
                               >
                                 <HighlightQuery text={link.title} query={inputRef?.current?.value || null} />
@@ -235,16 +272,18 @@ export function Navigation({ navigation, className }) {
                               >
                                 <Disclosure.Panel as="ul" role="list" className="mb-4 mt-4 space-y-2 border-slate-100 dark:border-slate-800 lg:border-slate-200">
                                   {link?.children &&
-                                    link.children.map((child, index) => (
+                                    link.children.map((child) => (
                                       <li key={child.href} className="relative">
                                         <Link
                                           href={child.href}
                                           title={child.alt}
-                                          id={isCurrentLink(section.title, link.title, router.pathname) ? 'current-nav-link' : `nav-link-${index}`}
+                                          id={child.href === router.pathname ? 'current-nav-link' : `nav-link-${index}`}
+                                          data-section={index}
+                                          scroll={false}
                                           className={clsx(
-                                            'block w-full truncate pl-3 text-sm before:pointer-events-none before:absolute before:-left-0 before:top-1/2 before:h-1.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full',
+                                            'block w-full truncate pl-3 text-sm before:pointer-events-none before:absolute before:-left-0.5 before:top-3 before:h-8 before:w-0.5 before:-translate-y-1/2 before:rounded-full',
                                             child.href === router.pathname
-                                              ? 'font-semibold text-sky-500 before:-left-0.5 before:top-2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:bg-sky-400/80 dark:before:bg-sky-500/80'
+                                              ? 'font-semibold text-sky-500  before:bg-sky-400/80 dark:before:bg-sky-500/80'
                                               : 'text-slate-500 before:hidden before:bg-slate-300 hover:text-slate-600 hover:before:block dark:text-slate-400 dark:before:bg-slate-700 dark:hover:text-slate-300'
                                           )}
                                         >
@@ -260,10 +299,10 @@ export function Navigation({ navigation, className }) {
                             </>
                           )}
                         </Disclosure>
-                      )}
-                    </li>
-                  ))}
-              </ul>
+                      </li>
+                    ))}
+                </ul>
+              )}
             </li>
           ))}
       </ul>

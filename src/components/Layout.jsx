@@ -12,7 +12,7 @@ import { Search } from '@/components/Search'
 import { ThemeSelector } from '@/components/ThemeSelector'
 import { VersionSelector } from '@/components/VersionSelector'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 import { navigation } from '@/data/navigation'
@@ -41,6 +41,21 @@ function Header({ navigation }) {
       window.removeEventListener('scroll', onScroll)
     }
   }, [])
+
+  // Update on Route Change
+  useEffect(() => {
+    const codeBlocks = document.querySelectorAll('code')
+    codeBlocks.forEach((block) => {
+      if (block.innerText.trim().toLowerCase() === 'required') {
+        block.classList.add('required')
+      }
+    })
+
+    const header = document.querySelector('header h1')
+    if (header && header.innerText.includes('[DEPRECATED]')) {
+      header.innerHTML = header.innerHTML.replace('[DEPRECATED] ', '<span class="text-pink-400">[DEPRECATED]</span> ')
+    }
+  }, [router.asPath])
 
   useEffect(() => {
     setMenuIsOpen(document.documentElement.getAttribute('data-menu') === 'open')
@@ -79,49 +94,6 @@ function Header({ navigation }) {
   )
 }
 
-function useTableOfContents(tableOfContents) {
-  let [currentSection, setCurrentSection] = useState(tableOfContents[0]?.id)
-
-  let getHeadings = useCallback((tableOfContents) => {
-    return tableOfContents
-      .flatMap((node) => [node.id, ...node.children.map((child) => child.id)])
-      .map((id) => {
-        let el = document.getElementById(id)
-        if (!el) return
-
-        let style = window.getComputedStyle(el)
-        let scrollMt = parseFloat(style.scrollMarginTop)
-
-        let top = window.scrollY + el.getBoundingClientRect().top - scrollMt
-        return { id, top }
-      })
-  }, [])
-
-  useEffect(() => {
-    if (tableOfContents.length === 0) return
-    let headings = getHeadings(tableOfContents)
-    function onScroll() {
-      let top = window.scrollY
-      let current = headings[0].id
-      for (let heading of headings) {
-        if (top >= heading.top) {
-          current = heading.id
-        } else {
-          break
-        }
-      }
-      setCurrentSection(current)
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-    }
-  }, [getHeadings, tableOfContents])
-
-  return currentSection
-}
-
 export function Layout({ children, title, tableOfContents, isMarkdoc = false }) {
   let router = useRouter()
   let isHomePage = router.pathname === '/'
@@ -131,17 +103,6 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
   let previousPage = linkIndex > -1 ? allLinks[linkIndex - 1] : null
   let nextPage = linkIndex > -1 ? allLinks[linkIndex + 1] : null
   let section = navigation.find((section) => section?.links && section.links.find((link) => link.href === router.pathname))
-  let currentSection = useTableOfContents(tableOfContents)
-
-  function isActive(section) {
-    if (section.id === currentSection) {
-      return true
-    }
-    if (!section.children) {
-      return false
-    }
-    return section.children.findIndex(isActive) > -1
-  }
 
   const makeQuery = (str) => {
     return str.replace('[DEPRECATED] ', '').replace('Job Step: ', '').replace('Script: Class ', '').replace(':', '').replace(/\./g, ' ')
@@ -170,7 +131,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
           <div className="absolute inset-y-0 right-0 w-[50vw] bg-slate-50 dark:hidden" />
           <div className="absolute bottom-0 right-0 top-16 hidden h-12 w-px bg-gradient-to-t from-slate-800 dark:block" />
           <div className="absolute bottom-0 right-0 top-28 hidden w-px bg-slate-800 dark:block" />
-          <div className="sticky inset-0 left-[max(0px,calc(50%-45rem))] right-auto top-[3.8125rem] z-20 -ml-0.5 hidden h-[calc(100vh-4.75rem)] w-64 overflow-y-auto overflow-x-hidden pb-10 pr-6 lg:block">
+          <div className="sticky inset-0 left-[max(0px,calc(50%-45rem))] right-auto top-[3.8125rem] z-20 -ml-0.5 hidden h-[calc(100vh-4.75rem)] w-64 overflow-y-auto overflow-x-hidden pb-10 pr-6 lg:block" id="main-menu">
             {navigation && <Navigation navigation={navigation} />}
           </div>
         </div>
@@ -200,7 +161,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
                     </h3>
                     <div className="mt-2 sm:flex sm:items-start sm:justify-between">
                       <div className="max-w-xl text-sm text-slate-500">
-                        <p>Cartridges posted on GitHub can be quickly searched for examples to help you learn. It&apos;s not 100% a &quot;sure thing,&quot; but better than nothing ;)</p>
+                        <p>Cartridges posted on GitHub can be quickly searched for examples to help you learn. You&apos;ll need to be logged in to GitHub for this to work.</p>
                       </div>
                       <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
                         <a
@@ -253,21 +214,25 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
             <nav aria-labelledby="on-this-page-title" className="w-56">
               {tableOfContents.length > 0 && (
                 <>
-                  <h2 id="quick-links" className="font-display text-sm font-medium text-slate-900 dark:text-white">
-                    Quick links
-                  </h2>
-                  <ol role="list" className="mt-4 space-y-3 text-sm">
-                    <li>
-                      <Link href={`#get-examples`} scroll={false} className="font-normal text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
-                        Usage Examples
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href={`#change-history`} scroll={false} className="font-normal text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
-                        Change History
-                      </Link>
-                    </li>
-                  </ol>
+                  {!isHomePage && (
+                    <h2 id="quick-links" className="font-display text-sm font-medium text-slate-900 dark:text-white">
+                      Quick links
+                    </h2>
+                  )}
+                  {!isHomePage && (
+                    <ol role="list" className="mt-4 space-y-3 text-sm">
+                      <li>
+                        <Link href={`#get-examples`} scroll={false} className="font-normal text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+                          Usage Examples
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href={`#version-history`} scroll={false} className="font-normal text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+                          Version History
+                        </Link>
+                      </li>
+                    </ol>
+                  )}
 
                   <h2 id="on-this-page-title" className="mt-10 font-display text-sm font-medium text-slate-900 dark:text-white">
                     On this page
@@ -276,7 +241,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
                     {tableOfContents.map((section) => (
                       <li key={section.id}>
                         <h3>
-                          <Link href={`#${section.id}`} scroll={false} className={clsx(isActive(section) ? 'text-sky-500' : 'font-normal text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300')}>
+                          <Link href={`#${section.id}`} scroll={false} className="font-normal text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
                             {section.title}
                           </Link>
                         </h3>
@@ -284,7 +249,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
                           <ol role="list" className="mt-2 space-y-3 pl-5 text-slate-500 dark:text-slate-400">
                             {section.children.map((subSection) => (
                               <li key={subSection.id}>
-                                <Link href={`#${subSection.id}`} scroll={false} className={isActive(subSection) ? 'text-sky-500' : 'hover:text-slate-600 dark:hover:text-slate-300'}>
+                                <Link href={`#${subSection.id}`} scroll={false} className="hover:text-slate-600 dark:hover:text-slate-300">
                                   {subSection.title}
                                 </Link>
                               </li>

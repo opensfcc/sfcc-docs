@@ -3,7 +3,7 @@ import Debug from 'debug'
 import fs from 'fs'
 import path from 'path'
 
-import { parseDiff } from 'react-diff-view';
+import { parseDiff } from 'react-diff-view'
 import { spawnSync } from 'child_process'
 
 import { getVersion } from '../utils.mjs'
@@ -95,14 +95,25 @@ export default (cli) => {
 
   // Grab some generated JSON files so we can export them as JSX
   const nav = fs.readFileSync(path.resolve(DATA_FOLDER, `nav-${version}.json`))
+  const meta = fs.readFileSync(path.resolve(DATA_FOLDER, `meta-${version}.json`))
 
   // Create mew JSX friendly export
   const JSX_DIFFS = `export const diffs = ${JSON.stringify(mappedDiffs, null, 2)}`
   const JSX_NAV = `export const navigation = ${nav}`
   const JSX_VERSIONS = `export const currentVersion = '${version}'\n\nexport const versions = ${JSON.stringify(SUPPORTED_VERSIONS, null, 2)}`
 
+  const JSX_META = `export const meta = ${meta}
+
+export function getMeta(key, deprecated) {
+  let metaKey = deprecated ? key.replace('/deprecated/', '/') : key
+
+  return meta[metaKey]
+}
+`
+
   // Copy supported versions to JSON
   fs.writeFileSync(path.resolve(SRC_DATA_FOLDER, 'diffs.jsx'), JSX_DIFFS)
+  fs.writeFileSync(path.resolve(SRC_DATA_FOLDER, 'meta.jsx'), JSX_META)
   fs.writeFileSync(path.resolve(SRC_DATA_FOLDER, 'navigation.jsx'), JSX_NAV)
   fs.writeFileSync(path.resolve(SRC_DATA_FOLDER, 'versions.jsx'), JSX_VERSIONS)
 

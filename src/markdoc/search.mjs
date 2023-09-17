@@ -51,24 +51,42 @@ const search = function (nextConfig = {}) {
             let pagesDir = path.resolve('./src/pages')
             this.addContextDependency(pagesDir)
 
+            const cleanText = (text) => {
+              let clean = text
+
+              if (clean && clean.startsWith("'")) {
+                clean = clean.slice(1)
+              }
+              if (clean && clean.endsWith("'")) {
+                clean = clean.slice(0, -1)
+              }
+
+              return clean
+            }
+
             let files = glob.sync('**/*.md', { cwd: pagesDir })
             let data = files.map((file) => {
               let url = file === 'index.md' ? '/' : `/${file.replace(/\.md$/, '')}`
               let md = fs.readFileSync(path.join(pagesDir, file), 'utf8')
 
-              let sections
+              let sections, title
 
               if (cache.get(file)?.[0] === md) {
                 sections = cache.get(file)[1]
               } else {
                 let ast = Markdoc.parse(md)
-                let title = ast.attributes?.frontmatter?.match(/^metaTitle:\s*(.*?)\s*$/m)?.[1]
+                title = ast.attributes?.frontmatter?.match(/^metaTitle:\s*(.*?)\s*$/m)?.[1]
                 sections = [[title, null, []]]
                 extractSections(ast, sections)
-                cache.set(file, [md, sections])
+
+                if (title) {
+                  title = cleanText(title)
+                }
+
+                cache.set(file, [md, sections, title])
               }
 
-              return { url, sections }
+              return { url, sections, title }
             })
 
             // When this file is imported within the application
@@ -115,16 +133,30 @@ const search = function (nextConfig = {}) {
               export function search(query, options = {}) {
                 let result = sectionIndex.search(query, {
                   ...options,
+                  suggest: true,
                   enrich: true,
                 })
                 if (result.length === 0) {
                   return []
                 }
 
+                const cleanTitle = (title) => {
+                  let clean = title
+
+                  if (title && title.startsWith("'")) {
+                    clean = clean.slice(1)
+                  }
+                  if (title && title.endsWith("'")) {
+                    clean = clean.slice(0, -1)
+                  }
+
+                  return clean
+                }
+
                 const getScore = (query, item) => {
                   const keywords = query.split(' ')
-                  const title = item.doc.title ? item.doc.title.toLowerCase() : null
-                  const pageTitle = item.doc.pageTitle ? item.doc.pageTitle.toLowerCase() : null
+                  const title = item.doc.title ? cleanTitle(item.doc.title.toLowerCase()) : null
+                  const pageTitle = item.doc.pageTitle ? cleanTitle(item.doc.pageTitle.toLowerCase()) : null
                   const id = item.id ? item.id.toLowerCase() : null
 
                   let score = 0
@@ -162,14 +194,16 @@ const search = function (nextConfig = {}) {
 
                 const results = result[0].result.map((item) => ({
                   url: item.id,
-                  title: item.doc.title,
-                  pageTitle: item.doc.pageTitle,
+                  title: cleanTitle(item.doc.title),
+                  pageTitle: cleanTitle(item.doc.pageTitle),
                   score: getScore(query, item)
                 }))
 
+                const maxResults = options.limit || 10
+
                 results.sort((a, b) => b.score - a.score)
 
-                return results
+                return results.slice(0, maxResults)
               }
             `
           }),

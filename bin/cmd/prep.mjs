@@ -176,7 +176,7 @@ export default async (cli) => {
     }
 
     // Generate H2 Tags
-    const $h2 = newFilePath.includes(`${SEP}quota${SEP}`) ? dom.querySelectorAll('div.section div.header, p b') : dom.querySelectorAll('div.section div.header')
+    const $h2 = dom.querySelectorAll('div.section div.header, div.detailName')
     if ($h2) {
       $h2.forEach((x) => {
         x.tagName = 'h2'
@@ -184,7 +184,7 @@ export default async (cli) => {
     }
 
     // Generate H3 Tags
-    const $h3 = dom.querySelectorAll('div.section div.subHeader, div.detailName')
+    const $h3 = dom.querySelectorAll('div.section div.subHeader, dt')
     if ($h3) {
       $h3.forEach((x) => {
         x.tagName = 'h3'
@@ -360,6 +360,11 @@ export default async (cli) => {
       description = dom.querySelector('.classSummary .classSummaryDetail .description')?.innerText.replace(/\n/g, ' ').trim() || null
     }
 
+    // Check if we still don't have a description, if not try another place
+    if (!description) {
+      description = dom.querySelector('p:first-of-type')?.innerText.replace(/\n/g, ' ').trim() || null
+    }
+
     // Clean up description
     if (description) {
       description = description
@@ -413,6 +418,10 @@ export default async (cli) => {
     } else if (newFilePath.includes(`${SEP}script${SEP}`)) {
       title = title.replace('Class ', groupTitle === 'Top Level' ? `Class ${groupTitle} ` : `Class ${groupTitle}.`)
       parent = 'Script'
+    } else if (newFilePath.includes(`${SEP}isml${SEP}`)) {
+      title = title.replace('ISML ', '').replace(' Element', '')
+      groupTitle = 'Element'
+      parent = 'ISML'
     }
 
     // Last check to see if we have a description

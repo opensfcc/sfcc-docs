@@ -35,7 +35,7 @@ turndownService.use(gfm)
 
 // Add Rule for Tables
 turndownService.addRule('td-description', {
-  filter: (node, options) => {
+  filter: (node) => {
     return node.nodeName === 'TD' && node.classList.contains('description')
   },
   replacement: (content) => {
@@ -43,24 +43,13 @@ turndownService.addRule('td-description', {
   },
 })
 
-// Add Rule for Code
-turndownService.addRule('code', {
-  filter: 'code',
+// Add styling for Required Fields
+turndownService.addRule('required', {
+  filter: (node) => {
+    return node.nodeName === 'STRONG' && node.classList.contains('description')
+  },
   replacement: (content) => {
-    let syntax = 'javascript'
-    let code = content.replace(/\n    /g, '\n')
-    code = code.trim()
-
-    if (code.startsWith('<')) {
-      return '\n```html\n' + code + '\n```\n'
-    } else if (code.startsWith('{')) {
-      return '\n```json\n' + code + '\n```\n'
-    } else if (/^[A-Z0-9\/]/i.test(code) && !code.startsWith('import') && !code.startsWith('var')) {
-      syntax = 'text'
-      return ' `' + code + '`'
-    }
-
-    return '\n```javascript\n' + content + '\n```\n'
+    return content.replace(/\n/g, ' ')
   },
 })
 
@@ -120,12 +109,6 @@ export default (cli) => {
       if (!fs.existsSync(folder)) {
         fs.mkdirSync(folder, { recursive: true })
       }
-
-      // // Fix Code Blocks
-      // markdown = markdown.replace(/```\n([^```]+)```/g, '\n```javascript\n$1```\n')
-      // markdown = markdown.replace(/```javascript\n\n/g, '```javascript\n')
-      // markdown = markdown.replace(/\n\s+\n/g, '\n\n')
-      // markdown = markdown.replace(/\n\n\n/g, '\n\n')
 
       // Add Front Matter for Markdown ( and escape single quotes )
       const mdTitle = `metaTitle: '${meta[metaKey].title.replace(/'/g, '&apos;')}'`
