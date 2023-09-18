@@ -107,7 +107,7 @@ export default function App({ Component, pageProps }) {
         <meta name="apple-mobile-web-app-title" content="SFCC Docs" />
 
         {/* Twitter Schema */}
-        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@mrmidi" />
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content={`${baseURL}/assets/website-card.png`} />
