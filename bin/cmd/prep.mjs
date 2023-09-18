@@ -89,6 +89,18 @@ export default async (cli) => {
       groupTitle = groupTitle.replace(/ \(internal\)/gi, '')
     }
 
+    if (!groupTitle && file.toLowerCase().includes(`${SEP}specification${SEP}isml${SEP}`)) {
+      groupTitle = 'ISML'
+    }
+
+    if (!groupTitle && file.toLowerCase().includes(`${SEP}specification${SEP}quota${SEP}`)) {
+      groupTitle = 'Quota'
+    }
+
+    if (!groupTitle && file.toLowerCase().includes(`${SEP}specification${SEP}schema${SEP}`)) {
+      groupTitle = 'Schema'
+    }
+
     // Set a new file name for prepped HTML file
     const newFile = prepURI(file, version, groupTitle)
 
@@ -157,7 +169,7 @@ export default async (cli) => {
     dom.querySelector('body').removeAttribute('onload')
 
     // Remove elements that are not helpful for search indexer of markdown conversion
-    dom.querySelectorAll('div:empty, a:empty, link, script, meta, div.banner, img, div.packageName').forEach((x) => {
+    dom.querySelectorAll('div:empty, a:empty, link, script, meta, style, div.banner, img, div.packageName').forEach((x) => {
       x.remove()
     })
 
@@ -165,6 +177,14 @@ export default async (cli) => {
     const $hr = dom.querySelector('div.section:last-of-type hr:last-of-type')
     if ($hr) {
       $hr.remove()
+    }
+
+    // Generate H1 Tags
+    const $code = dom.querySelectorAll('p.className')
+    if ($code) {
+      $code.forEach((x) => {
+        x.tagName = 'code'
+      })
     }
 
     // Generate H1 Tags
@@ -208,9 +228,9 @@ export default async (cli) => {
     }
 
     // Covert elements to code
-    const $code = dom.querySelectorAll('div.parameterDetail')
-    if ($code) {
-      $code.forEach((x) => {
+    const $blockquote = dom.querySelectorAll('div.parameterDetail')
+    if ($blockquote) {
+      $blockquote.forEach((x) => {
         x.tagName = 'blockquote'
       })
     }
@@ -346,6 +366,10 @@ export default async (cli) => {
     let title = dom.querySelector('title')?.innerText.replace(/\n/g, ' ').trim() || null
     let description = dom.querySelector('div.topLevelDescription')?.innerText.replace(/\n/g, ' ').trim() || null
 
+    if (!title) {
+      title = dom.querySelector('h1')?.innerText.replace(/\n/g, ' ').trim() || null
+    }
+
     if (!groupTitle) {
       const splitGroup = newFilePath.match(/script\/([^\/]+)/)
       groupTitle = splitGroup ? splitGroup[1] : null
@@ -413,15 +437,15 @@ export default async (cli) => {
     } else if (newFilePath.includes(`${SEP}pipelet${SEP}`)) {
       title = title !== groupTitle ? title.replace('Pipelet ', `${groupTitle} `) : title.replace('Pipelet ', '')
       parent = 'Pipelet'
-    } else if (newFilePath.includes(`${SEP}quota${SEP}`)) {
-      parent = 'Quota'
     } else if (newFilePath.includes(`${SEP}script${SEP}`)) {
       title = title.replace('Class ', groupTitle === 'Top Level' ? `Class ${groupTitle} ` : `Class ${groupTitle}.`)
       parent = 'Script'
-    } else if (newFilePath.includes(`${SEP}isml${SEP}`)) {
+    } else if (newFilePath.includes(`${SEP}specification${SEP}`)) {
+      parent = 'Specification'
+    }
+
+    if (newFilePath.includes(`${SEP}isml${SEP}`)) {
       title = title.replace('ISML ', '').replace(' Element', '')
-      groupTitle = 'Element'
-      parent = 'ISML'
     }
 
     // Last check to see if we have a description

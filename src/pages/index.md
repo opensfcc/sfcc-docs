@@ -19,12 +19,15 @@ You might ask, **"Are these the official SFCC docs?"** The answer is **No.** Our
 
 {% /quick-links %}
 
+{% callout title="Connect the Docs" %}
+Easily search the docs from external tools using the following URL. Just replace `<keyword>` with your URL encoded search term.
+
+> `https://sfccdocs.com/?q=<keyword>`
+
+{% /callout %}
+
 ---
 
 ## Disclaimer
-
-{% callout title="You should know!" %}
-The only modifications made to the original documentation were how the information was organized structurally.
-{% /callout %}
 
 The trademarks and product names of Salesforce®, including the mark Salesforce®, are the property of Salesforce.com. SFCC DevOps is not affiliated with Salesforce.com, nor does Salesforce.com sponsor or endorse the SFCC DevOps products or website. The use of the Salesforce® trademark on this project does not indicate an endorsement, recommendation, or business relationship between Salesforce.com and SFCC DevOps.

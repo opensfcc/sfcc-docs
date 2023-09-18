@@ -17,6 +17,25 @@ export default (cli) => {
 
   debug(chalk.green.bold(`UPDATING SITE: v${version}`))
 
+  // Dynamic folders we should trash
+  const folderDeprecated = path.resolve(SRC_PAGES_FOLDER, 'deprecated')
+  const folderJobStep = path.resolve(SRC_PAGES_FOLDER, 'jobstep')
+  const folderPipelet = path.resolve(SRC_PAGES_FOLDER, 'pipelet')
+  const folderSpecification = path.resolve(SRC_PAGES_FOLDER, 'specification')
+
+  // Remove old version folder if it exists
+  if (fs.existsSync(folderDeprecated)) {
+    spawnSync('rm', ['-fr', folderDeprecated])
+  }
+
+  if (fs.existsSync(folderJobStep)) {
+    spawnSync('rm', ['-fr', folderJobStep])
+  }
+
+  if (fs.existsSync(folderSpecification)) {
+    spawnSync('rm', ['-fr', folderSpecification])
+  }
+
   // Copy new version folder
   spawnSync('cp', ['-R', path.join(MARKDOWN_FOLDER, version, '/*'), SRC_PAGES_FOLDER], { shell: true })
 

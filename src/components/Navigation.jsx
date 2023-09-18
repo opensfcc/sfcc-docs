@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import { useState, useEffect, useRef } from 'react'
 
 import useDebounce from '../debounce'
+import { publish } from '../events'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -25,6 +26,9 @@ export function Navigation({ navigation, className }) {
 
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 150)
+
+  const [scrollNav, setScrollNav] = useState(null)
+  const debouncedScroll = useDebounce(scrollNav, 150)
 
   useEffect(() => {
     // Filter the navigation by keyword
@@ -93,7 +97,9 @@ export function Navigation({ navigation, className }) {
   const [inputRef, setInputFocus] = useFocus()
 
   const [initialOpen, setInitialOpen] = useState(true)
-  const [sectionOpen, setSectionOpen] = useState([false, false, false, false])
+  const [sectionOpen, setSectionOpen] = useState([false, false, false, false, false])
+
+  const [scrollTimer, setScrollTimer] = useState(null)
 
   const handleSectionClick = (index) => () => {
     setInitialOpen(false)
@@ -122,24 +128,36 @@ export function Navigation({ navigation, className }) {
     }
   }, [setInputFocus])
 
-  // Update on Route Change
   useEffect(() => {
     const scrollToLink = () => {
+      clearTimeout(scrollTimer)
       let newSectionOpen = [...sectionOpen]
-      const activeLink = document.getElementById('current-nav-link')
+      const activeLink = document.querySelector('#main-menu a.current-nav-link')
       if (activeLink) {
         const index = activeLink.dataset.section
         if (index) {
           newSectionOpen[index] = true
           setSectionOpen(newSectionOpen)
-
           activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
         }
       }
     }
 
-    setTimeout(scrollToLink, 1000)
-  }, [router.asPath])
+    const handleLoad = (evt) => {
+      clearTimeout(scrollTimer)
+      setScrollTimer(setTimeout(scrollToLink, 500))
+    }
+
+    // Add event listeners
+    window.addEventListener('pageshow', handleLoad)
+    window.addEventListener('popstate', handleLoad)
+
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener('pageshow', handleLoad)
+      window.removeEventListener('popstate', handleLoad)
+    }
+  }, [router.asPath, scrollTimer, sectionOpen])
 
   // Handle the panel open state
   const shouldSectionOpen = (open, section, pathname, keyword) => {
@@ -182,7 +200,7 @@ export function Navigation({ navigation, className }) {
   }
 
   return (
-    <nav className={clsx('relative lg:text-sm lg:leading-6', className)}>
+    <nav className={clsx('relative lg:text-sm lg:leading-6 ', className)}>
       <div className="under pointer-events-none sticky top-0 z-10 ml-0.5">
         <div className="h-10 bg-slate-50 dark:bg-slate-900"></div>
         <div className="pointer-events-auto relative bg-slate-50 dark:bg-slate-900">
@@ -198,6 +216,16 @@ export function Navigation({ navigation, className }) {
               maxLength={20}
               spellCheck="false"
               value={search}
+              onFocus={() => {
+                document.documentElement.setAttribute('data-filtering', true)
+                publish('menuFiltering', { filtering: true })
+              }}
+              onBlur={() => {
+                setTimeout(() => {
+                  document.documentElement.setAttribute('data-filtering', false)
+                  publish('menuFiltering', { filtering: false })
+                }, 100)
+              }}
               onInput={(e) => {
                 const value = e.target.value
                 if (!value) {
@@ -208,7 +236,7 @@ export function Navigation({ navigation, className }) {
                 setSearch(e.target.value)
               }}
               className="dark:highlight-white/5 w-full items-center rounded-md py-1.5 pl-11 pr-3 text-base leading-6 text-slate-400 shadow-sm ring-1 ring-slate-900/10 hover:ring-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 lg:flex lg:text-sm"
-              placeholder="Menu filter.."
+              placeholder="Menu Filter ..."
             />
             {!inputRef?.current?.value && (
               <div className="pointer-events-none absolute inset-y-0 right-0 hidden items-center pr-3 md:flex">
@@ -219,7 +247,7 @@ export function Navigation({ navigation, className }) {
         </div>
         <div className="h-8 bg-gradient-to-b from-slate-50 dark:from-slate-900"></div>
       </div>
-      <ul role="list" className="z-0 ml-0.5 space-y-4">
+      <ul role="list" className="z-0 ml-0.5 scroll-mt-40 space-y-4">
         {filteredNavigation.length === 0 && <li className="text-slate-500">No results found.</li>}
         {filteredNavigation.length > 0 &&
           filteredNavigation.map((section, index) => (
@@ -277,14 +305,13 @@ export function Navigation({ navigation, className }) {
                                         <Link
                                           href={child.href}
                                           title={child.alt}
-                                          id={child.href === router.pathname ? 'current-nav-link' : `nav-link-${index}`}
                                           data-section={index}
                                           scroll={false}
                                           className={clsx(
                                             'block w-full truncate pl-3 text-sm before:pointer-events-none before:absolute before:-left-0.5 before:top-3 before:h-8 before:w-0.5 before:-translate-y-1/2 before:rounded-full',
                                             child.href === router.pathname
-                                              ? 'font-semibold text-sky-500  before:bg-sky-400/80 dark:before:bg-sky-500/80'
-                                              : 'text-slate-500 before:hidden before:bg-slate-300 hover:text-slate-600 hover:before:block dark:text-slate-400 dark:before:bg-slate-700 dark:hover:text-slate-300'
+                                              ? 'current-nav-link font-semibold text-sky-500  before:bg-sky-400/80 dark:before:bg-sky-500/80'
+                                              : `nav-link-${index} text-slate-500 before:hidden before:bg-slate-300 hover:text-slate-600 hover:before:block dark:text-slate-400 dark:before:bg-slate-700 dark:hover:text-slate-300`
                                           )}
                                         >
                                           <span className="flex-nowrap">

@@ -8,6 +8,7 @@ import TurndownService from 'turndown'
 
 import { Glob } from 'glob'
 import { minify } from 'html-minifier'
+import { spawnSync } from 'child_process'
 
 import { getVersion } from '../utils.mjs'
 import { DATA_FOLDER, MARKDOWN_FOLDER, PREP_FOLDER } from '../config.mjs'
@@ -69,7 +70,12 @@ export default (cli) => {
     process.exit()
   }
 
-  // Make markdown folder if needed
+  // Remove old prep folder for version if it exists
+  if (fs.existsSync(markdownFolder)) {
+    spawnSync('rm', ['-fr', markdownFolder])
+  }
+
+  // Recreate Markdown folder
   if (!fs.existsSync(markdownFolder)) {
     fs.mkdirSync(markdownFolder, { recursive: true })
   }

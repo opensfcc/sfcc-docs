@@ -87,7 +87,6 @@ export function isHelpfulFile(string) {
     !uri.endsWith(`${SEP}grouplist.html`) &&
     !uri.endsWith(`${SEP}jobstepapi${SEP}html${SEP}index.html`) &&
     !uri.endsWith(`${SEP}jobsteplist.html`) &&
-    !uri.endsWith(`${SEP}overview.html`) &&
     !uri.endsWith(`${SEP}packagelist.html`) &&
     !uri.endsWith(`${SEP}pipeletapi${SEP}html${SEP}index.html`) &&
     !uri.endsWith(`${SEP}pipeletlist.html`) &&

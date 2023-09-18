@@ -78,10 +78,8 @@ export default (cli) => {
     }
   })
 
-  const rootSort = ['ISML', 'Script', 'Job Step', 'Pipelet']
-
   // Sort all the things
-  nav.sort((a, b) => (rootSort.indexOf(a.title) > rootSort.indexOf(b.title) ? 1 : -1))
+  nav.sort((a, b) => (a.title > b.title ? 1 : -1))
   nav.forEach((page) => page.links.sort((a, b) => (a.title > b.title ? 1 : -1)))
   nav.forEach((page) =>
     page.links.forEach((sub) => {

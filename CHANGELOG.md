@@ -2,6 +2,22 @@
 
 > Here's our record of all notable changes
 
+## v0.4.0
+
+- Added Quota Docs for #17
+- Added Schema Docs for #16
+- Added Progressive Web App support
+- Added note for how to use search on home page for #9
+- Added Sitemap Generator to Build Script
+- Added some cleanup to generator scripts to remove old folders before recreating ( cause of #10 )
+- Fixed #10 where incorrect URLs were showing up in search results
+- Fixed #11 Mobile Menu Filter page tap issue
+- Fixed #12 Mobile Menu Overscroll
+- Fixed #13 Page Scroll resetting
+- Fixed #14 where Mobile Active Link was not scrolled into viewport
+- Fixed #18 where scrolling issue was causing iPad devices to scroll search off screen
+- Started support for #15 that wants Offline Doc support ( getting PWA setup first was key )
+
 ## v0.3.0
 
 - Major updates to Search Engine to make it easier to use

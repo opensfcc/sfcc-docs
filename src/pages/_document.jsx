@@ -65,7 +65,7 @@ const headerScript = `
 
 export default function Document() {
   return (
-    <Html className="h-full scroll-smooth antialiased [font-feature-settings:'ss01']" lang="en">
+    <Html className="h-full scroll-smooth antialiased [font-feature-settings:'ss01']" dir="ltr" lang="en-US">
       <Head>
         <script dangerouslySetInnerHTML={{ __html: headerScript }} />
       </Head>

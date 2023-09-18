@@ -55,6 +55,18 @@ function Header({ navigation }) {
     if (header && header.innerText.includes('[DEPRECATED]')) {
       header.innerHTML = header.innerHTML.replace('[DEPRECATED] ', '<span class="text-pink-400">[DEPRECATED]</span> ')
     }
+
+    // Scroll to Anchor or Top of Page
+    if (router.asPath.includes('#')) {
+      const splitURL = router.asPath.split('#')
+      const element = splitURL && splitURL.length > 1 ? document.getElementById(splitURL[1]) : null
+      const elementTop = element ? element.getBoundingClientRect()?.top : 0
+      if (element && elementTop && elementTop > 100) {
+        window.scrollTo(0, elementTop - 100)
+      }
+    } else {
+      window.scrollTo(0, 0)
+    }
   }, [router.asPath])
 
   useEffect(() => {
@@ -70,7 +82,7 @@ function Header({ navigation }) {
         isMenuOpen ? 'hidden' : 'flex'
       )}
     >
-      <div className="mr-6 flex lg:hidden">
+      <div className="mr-6 flex overscroll-none lg:hidden">
         <MobileNavigation navigation={navigation} />
       </div>
       <div className="relative flex flex-grow basis-0 items-center">

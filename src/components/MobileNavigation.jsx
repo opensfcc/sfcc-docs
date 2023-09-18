@@ -6,7 +6,7 @@ import { Dialog } from '@headlessui/react'
 import { Logomark } from '@/components/Logo'
 import { Navigation } from '@/components/Navigation'
 
-import { publish } from '../events'
+import { publish, subscribe } from '../events'
 
 function MenuIcon(props) {
   return (
@@ -27,11 +27,32 @@ function CloseIcon(props) {
 export function MobileNavigation({ navigation }) {
   let router = useRouter()
   let [isOpen, setIsOpen] = useState(false)
+  let [isFiltering, setIsFiltering] = useState(false)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-menu', isOpen ? 'open' : 'closed')
     publish('menuChanged', { open: isOpen })
+
+    const scrollToLink = () => {
+      const menu = document.querySelector('#mobile-menu')
+      const activeLink = menu ? menu.querySelector('a.current-nav-link') : null
+
+      const elementTop = activeLink ? activeLink.getBoundingClientRect()?.top : 0
+
+      if (menu && activeLink && elementTop > 100) {
+        menu.scrollTo(0, elementTop - 100)
+      }
+    }
+
+    if (isOpen) {
+      setTimeout(scrollToLink, 100)
+    }
   }, [isOpen])
+
+  useEffect(() => {
+    setIsFiltering(document.documentElement.getAttribute('data-filtering') === 'true')
+    subscribe('menuFiltering', (evt) => setIsFiltering(evt.detail.filtering))
+  }, [])
 
   useEffect(() => {
     if (!isOpen) return
@@ -49,12 +70,18 @@ export function MobileNavigation({ navigation }) {
     }
   }, [router, isOpen])
 
+  const handleClose = () => {
+    if (!isFiltering) {
+      setIsOpen(false)
+    }
+  }
+
   return (
     <>
       <button type="button" onClick={() => setIsOpen(true)} className="relative" aria-label="Open navigation">
         <MenuIcon className="h-6 w-6 stroke-slate-500" />
       </button>
-      <Dialog open={isOpen} onClose={setIsOpen} className="fixed inset-0 z-10 flex items-start overflow-y-auto bg-slate-900/50 pr-10 backdrop-blur lg:hidden" aria-label="Navigation">
+      <Dialog open={isOpen} onClose={handleClose} id="mobile-menu" className="fixed inset-0 z-10 flex items-start overflow-y-auto bg-slate-900/50 pr-10 backdrop-blur lg:hidden" aria-label="Navigation">
         <Dialog.Panel className="min-h-full w-full max-w-xs bg-white px-4 pb-12 pt-5 dark:bg-slate-900 sm:px-6">
           <div className="flex items-center">
             <button type="button" onClick={() => setIsOpen(false)} aria-label="Close navigation">
@@ -64,7 +91,9 @@ export function MobileNavigation({ navigation }) {
               <Logomark className="h-9 w-9" />
             </Link>
           </div>
-          <Navigation navigation={navigation} className="mt-5 px-1" />
+          <div>
+            <Navigation navigation={navigation} className="mt-5 px-1" />
+          </div>
         </Dialog.Panel>
       </Dialog>
     </>

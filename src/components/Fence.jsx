@@ -8,6 +8,10 @@ export function Fence({ children, language }) {
     defaultLanguage = 'html'
   }
 
+  if (children && children.startsWith('<?')) {
+    defaultLanguage = 'xml'
+  }
+
   return (
     <Highlight {...defaultProps} code={children.trimEnd()} language={language || defaultLanguage} theme={undefined}>
       {({ className, style, tokens, getTokenProps }) => (
