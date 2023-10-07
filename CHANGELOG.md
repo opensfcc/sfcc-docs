@@ -2,6 +2,12 @@
 
 > Here's our record of all notable changes
 
+## v0.5.0
+
+- Fixes #20 Whitespace Issues
+- Fixes #22 Lingering \*\* Markup
+- Fixes #23 No Search Results
+
 ## v0.4.0
 
 - Added Quota Docs for #17
