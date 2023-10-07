@@ -338,6 +338,10 @@ export default async (cli) => {
     // Give a bit more emphasis to the title of the constant
     newHTML = newHTML.replace(/<span>([^\s]+) : <a/g, '<span><strong>$1</strong> : <a')
 
+    // Fix weird spacing issues
+    newHTML = newHTML.replace(/static&nbsp;/g, 'static ')
+    newHTML = newHTML.replace(/<\/a><\/span>\(/g, '</a></span> (')
+
     // Remove lingering characters that break markdown
     newHTML = newHTML.replace(/&nbsp;/g, '')
     newHTML = newHTML.replace(/<\/strong> : /g, '</strong> ')

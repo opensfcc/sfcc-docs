@@ -1,6 +1,6 @@
 {
   "name": "@sfccdevops/sfcc-docs",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Unofficial community edition of the Salesforce Commerce Cloud developer documentation.",
   "license": "MIT",
   "author": "Peter Schmalfeldt <me@peterschmalfeldt.com>",

@@ -290,17 +290,19 @@ function SearchDialog({ open, setOpen, className, keyword }) {
     }
 
     function goToFirstResult(result) {
-      const nextId = recentSearchesPlugin.data.getAll().length + 1
-      const goToUrl = result.url.replace(/-[0-9]+$/g, '')
-      recentSearchesPlugin.data.addItem({
-        url: goToUrl,
-        id: nextId,
-        title: result.title,
-        pageTitle: result.pageTitle,
-        label: urlQuery,
-      })
+      if (result && result.url) {
+        const nextId = recentSearchesPlugin.data.getAll().length + 1
+        const goToUrl = result.url.replace(/-[0-9]+$/g, '')
+        recentSearchesPlugin.data.addItem({
+          url: goToUrl,
+          id: nextId,
+          title: result.title,
+          pageTitle: result.pageTitle,
+          label: urlQuery,
+        })
 
-      window.location.replace(goToUrl)
+        window.location.replace(goToUrl)
+      }
     }
 
     if (open && urlQuery && autocompleteState && autocompleteState.query === urlQuery && autocompleteState.collections.length > 0) {
