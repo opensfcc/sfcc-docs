@@ -14,7 +14,6 @@ const nextConfig = {
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
   reactStrictMode: true,
-  output: 'export',
   distDir: 'dist',
   images: {
     unoptimized: true,

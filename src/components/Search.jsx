@@ -66,6 +66,7 @@ function useAutocomplete() {
                   id: nextId,
                   title: item.title,
                   pageTitle: item.pageTitle,
+                  snippet: item.snippet,
                   label: query,
                 })
                 router.push(itemUrl)
@@ -111,6 +112,7 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
   const sectionTitle = meta?.nav && meta.nav.alt ? `${meta.nav.alt}` : null
   const hierarchy = meta?.nav ? [meta.nav.parent, meta.nav.child, meta.nav.title].filter(Boolean) : [sectionTitle, result.pageTitle].filter(Boolean)
   const description = meta?.description ? meta.description : null
+  const snippet = result?.snippet ? result.snippet : null
 
   function onRemove(id) {
     recentSearchesPlugin.data.removeItem(id)
@@ -125,6 +127,7 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
       id: nextId,
       title: result.title,
       pageTitle: result.pageTitle,
+      snippet: result.snippet,
       label: query,
     })
     router.push(goToUrl)
@@ -145,6 +148,8 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
         <div id={`title-${result.id}`} aria-hidden="true" className="text-sm text-slate-700 group-aria-selected:text-sky-600 dark:text-slate-300 dark:group-aria-selected:text-sky-400">
           <HighlightQuery text={result.title} query={query} />
         </div>
+
+        {/* Breadcrumb Hierarchy */}
         {hierarchy.length > 0 && (
           <div id={`hierarchy-${result.id}`} aria-hidden="true" className="mt-0.5 truncate whitespace-nowrap text-xs text-slate-700 dark:text-slate-200">
             {hierarchy.map((item, itemIndex, items) => (
@@ -155,11 +160,22 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
             ))}
           </div>
         )}
+
+        {/* Page Description */}
         {description && (
           <div aria-hidden="true" className="mt-0.5 truncate whitespace-nowrap text-xs text-slate-400 dark:text-slate-400">
-            {description}
+            <HighlightQuery text={description} query={query} />
           </div>
         )}
+
+        {/* Search Result Snippet */}
+        {snippet && !snippet.slice(0, 50).startsWith(description.slice(0, 50)) && (
+          <div aria-hidden="true" className="mt-0.5 truncate whitespace-nowrap text-xs text-slate-400 dark:text-slate-400">
+            <HighlightQuery text={snippet} query={query} />
+          </div>
+        )}
+
+        {/* Show Recent Results if we have them */}
         {recentResult === true && result.url && (
           <button
             className="absolute right-1 top-1 inline-block h-12 w-12 p-3.5 text-slate-400 transition-colors duration-200 hover:text-red-500 focus:text-red-500 focus:outline-none dark:text-slate-500 dark:hover:text-red-500"

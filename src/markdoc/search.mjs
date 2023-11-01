@@ -113,7 +113,7 @@ const search = function (nextConfig = {}) {
                         resolution: 3
                       }
                   }],
-                  store: ['title', 'pageTitle'],
+                  store: ['title', 'pageTitle', 'snippet'],
                 }
               })
 
@@ -124,7 +124,8 @@ const search = function (nextConfig = {}) {
                   sectionIndex.add({
                     url: url + (hash ? ('#' + hash) : ''),
                     title,
-                    content: [title, ...content].join('\\n'),
+                    content: [title, ...content].join(' \\n'),
+                    snippet: content.slice(0, 3).join(' \\n'),
                     pageTitle: hash ? sections[0][0] : undefined,
                   })
                 }
@@ -156,6 +157,7 @@ const search = function (nextConfig = {}) {
                 const getScore = (query, item) => {
                   const keywords = query.split(' ')
                   const title = item.doc.title ? cleanTitle(item.doc.title.toLowerCase()) : null
+                  const snippet = item.doc.snippet ? item.doc.snippet : null
                   const pageTitle = item.doc.pageTitle ? cleanTitle(item.doc.pageTitle.toLowerCase()) : null
                   const id = item.id ? item.id.toLowerCase() : null
 
@@ -187,6 +189,14 @@ const search = function (nextConfig = {}) {
 
                       score += result ? (result.length / id.length) : 0
                     }
+                    if (snippet && snippet.includes(keyword)) {
+                      score += 1
+
+                      regX = new RegExp(\`\$\{keyword\}\`, 'i')
+                      result = snippet.match(regX)[0];
+
+                      score += result ? (result.length / id.length) : 0
+                    }
                   })
 
                   return score
@@ -196,6 +206,7 @@ const search = function (nextConfig = {}) {
                   url: item.id,
                   title: cleanTitle(item.doc.title),
                   pageTitle: cleanTitle(item.doc.pageTitle),
+                  snippet: item.doc.snippet,
                   score: getScore(query, item)
                 }))
 

@@ -11,6 +11,14 @@ const headerScript = `
   window.defaultVersion = '${defaultVersion.value}'
   window.useVersion = window.location.pathname.split('/')[1] || window.defaultVersion
 
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString) || null;
+  const embed = urlParams ? urlParams.get('embed') : null;
+
+  if (embed) {
+    window.localStorage.setItem('embed', embed === 'true' ? 'true' : 'false')
+  }
+
   let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)')
   function updateTheme(theme) {
     theme = theme ?? window.localStorage.theme ?? 'system'

@@ -157,7 +157,7 @@ export function Navigation({ navigation, className }) {
       window.removeEventListener('pageshow', handleLoad)
       window.removeEventListener('popstate', handleLoad)
     }
-  }, [router.asPath, scrollTimer, sectionOpen])
+  }, [scrollTimer, sectionOpen])
 
   // Handle the panel open state
   const shouldSectionOpen = (open, section, pathname, keyword) => {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import { slugifyWithCounter } from '@sindresorhus/slugify'
 
 import { Layout } from '@/components/Layout'
+import { useEffect, useState } from 'react'
 
 import 'focus-visible'
 import '@/styles/tailwind.css'
@@ -55,6 +56,26 @@ function collectHeadings(nodes, slugify = slugifyWithCounter()) {
 
 export default function App({ Component, pageProps }) {
   const router = useRouter()
+
+  let [isEmbedded, setIsEmbedded] = useState(null)
+
+  useEffect(() => {
+    if ((router.query.embed && router.query.embed === 'true') || window.localStorage.embed === 'true') {
+      setIsEmbedded(true)
+    } else {
+      setIsEmbedded(false)
+    }
+  }, [router.query.embed])
+
+  useEffect(() => {
+    let handler = () => {
+      setIsEmbedded(window.localStorage.embed === 'true')
+    }
+
+    window.addEventListener('storage', handler)
+
+    return () => window.removeEventListener('storage', handler)
+  }, [])
 
   const baseURL = process.env.SITE_URL || 'https://sfccdocs.com'
 
@@ -133,7 +154,7 @@ export default function App({ Component, pageProps }) {
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.webmanifest" />
       </Head>
-      <Layout title={metaTitle} tableOfContents={tableOfContents} isMarkdoc={Boolean(pageProps.markdoc)}>
+      <Layout title={metaTitle} tableOfContents={tableOfContents} isMarkdoc={Boolean(pageProps.markdoc)} isEmbedded={isEmbedded}>
         <Component {...pageProps} />
       </Layout>
     </>

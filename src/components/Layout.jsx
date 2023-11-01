@@ -106,7 +106,7 @@ function Header({ navigation }) {
   )
 }
 
-export function Layout({ children, title, tableOfContents, isMarkdoc = false }) {
+export function Layout({ children, title, tableOfContents, isMarkdoc = false, isEmbedded = null }) {
   let router = useRouter()
   let isHomePage = router.pathname === '/'
 
@@ -121,7 +121,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
   }
 
   return (
-    <>
+    <main className={isEmbedded === null ? 'hidden' : 'ready'}>
       <a
         id="skip-to-content-link"
         className="duration-350 absolute left-1/2 top-0 z-20 w-36 -translate-x-1/2 -translate-y-full transform rounded-b-md bg-slate-950 px-3 py-1 text-white transition focus:translate-y-0 dark:bg-slate-50 dark:text-black"
@@ -135,19 +135,22 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
         Skip to Content
       </a>
 
-      {navigation && <Header navigation={navigation} />}
+      {navigation && isEmbedded === false && <Header navigation={navigation} />}
 
       {isHomePage && <Hero />}
+
       <div className="relative mx-auto flex w-full max-w-8xl flex-auto scroll-mt-20 justify-center sm:px-2 lg:px-8 xl:px-12" id="main">
-        <div className="z-10 hidden lg:relative lg:block lg:flex-none">
-          <div className="absolute inset-y-0 right-0 w-[50vw] bg-slate-50 dark:hidden" />
-          <div className="absolute bottom-0 right-0 top-16 hidden h-12 w-px bg-gradient-to-t from-slate-800 dark:block" />
-          <div className="absolute bottom-0 right-0 top-28 hidden w-px bg-slate-800 dark:block" />
-          <div className="sticky inset-0 left-[max(0px,calc(50%-45rem))] right-auto top-[3.8125rem] z-20 -ml-0.5 hidden h-[calc(100vh-4.75rem)] w-64 overflow-y-auto overflow-x-hidden pb-10 pr-6 lg:block" id="main-menu">
-            {navigation && <Navigation navigation={navigation} />}
+        {isEmbedded === false && (
+          <div className="z-10 hidden lg:relative lg:block lg:flex-none">
+            <div className="absolute inset-y-0 right-0 w-[50vw] bg-slate-50 dark:hidden" />
+            <div className="absolute bottom-0 right-0 top-16 hidden h-12 w-px bg-gradient-to-t from-slate-800 dark:block" />
+            <div className="absolute bottom-0 right-0 top-28 hidden w-px bg-slate-800 dark:block" />
+            <div className="sticky inset-0 left-[max(0px,calc(50%-45rem))] right-auto top-[3.8125rem] z-20 -ml-0.5 hidden h-[calc(100vh-4.75rem)] w-64 overflow-y-auto overflow-x-hidden pb-10 pr-6 lg:block" id="main-menu">
+              {navigation && <Navigation navigation={navigation} />}
+            </div>
           </div>
-        </div>
-        <div className="min-w-0 max-w-2xl flex-auto px-4 py-16 lg:max-w-none lg:pl-8 lg:pr-0 xl:px-16">
+        )}
+        <div className={clsx('min-w-0 max-w-2xl flex-auto px-4 py-16 lg:max-w-none  lg:pr-0 xl:px-16', isEmbedded === false ? 'lg:pl-8' : 'lg:pl-0')}>
           {isMarkdoc ? (
             <article>
               {/* Document Title */}
@@ -196,7 +199,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
           ) : (
             children
           )}
-          {(previousPage || nextPage) && (
+          {(previousPage || nextPage) && isEmbedded === false && (
             <dl className="mt-12 flex border-t border-slate-200 pt-6 dark:border-slate-800">
               {previousPage && (
                 <div>
@@ -277,6 +280,6 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false }) 
           </div>
         )}
       </div>
-    </>
+    </main>
   )
 }
