@@ -1,6 +1,8 @@
 import 'dotenv/config'
 
 import Head from 'next/head'
+import Script from 'next/script'
+
 import { useRouter } from 'next/router'
 import { slugifyWithCounter } from '@sindresorhus/slugify'
 
@@ -77,7 +79,8 @@ export default function App({ Component, pageProps }) {
     return () => window.removeEventListener('storage', handler)
   }, [])
 
-  const baseURL = process.env.SITE_URL || 'https://sfccdocs.com'
+  const baseURL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sfccdocs.com'
+  const googleAnalytics = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || 'G-G1ER54K5N0'
 
   const metaTitle = pageProps.markdoc?.frontmatter.metaTitle
   const metaDescription = pageProps.markdoc?.frontmatter.metaDescription
@@ -114,13 +117,13 @@ export default function App({ Component, pageProps }) {
 
         {/* Microsoft App Settings */}
         <meta name="msapplication-config" content="none" />
-        <meta name="msapplication-square70x70logo" content="/assets/icons/icon-70x70.png" />
-        <meta name="msapplication-square150x150logo" content="/assets/icons/icon-15x150.png" />
-        <meta name="msapplication-square310x310logo" content="/assets/icons/icon-310x310.png" />
+        <meta name="msapplication-square70x70logo" content={`${baseURL}/assets/icons/icon-70x70.png`} />
+        <meta name="msapplication-square150x150logo" content={`${baseURL}/assets/icons/icon-15x150.png`} />
+        <meta name="msapplication-square310x310logo" content={`${baseURL}/assets/icons/icon-310x310.png`} />
         <meta name="msapplication-tap-highlight" content="no" />
         <meta name="msapplication-TileColor" content="#0f162a" media="(prefers-color-scheme: dark)" />
         <meta name="msapplication-TileColor" content="#ffffff" media="(prefers-color-scheme: light)" />
-        <meta name="msapplication-wide310x150logo" content="/assets/icons/icon-310x50.png" />
+        <meta name="msapplication-wide310x150logo" content={`${baseURL}/assets/icons/icon-310x50.png`} />
 
         {/* Apple Settings */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -156,6 +159,19 @@ export default function App({ Component, pageProps }) {
       </Head>
       <Layout title={metaTitle} tableOfContents={tableOfContents} isMarkdoc={Boolean(pageProps.markdoc)} isEmbedded={isEmbedded}>
         <Component {...pageProps} />
+
+        {/* Google tag (gtag.js) */}
+        <Script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalytics}`}></Script>
+        <Script id="google-analytics">
+          {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){
+            dataLayer.push(arguments)
+          }
+          gtag('js', new Date());
+          gtag('config', '${googleAnalytics}', { 'anonymize_ip': true });
+        `}
+        </Script>
       </Layout>
     </>
   )

@@ -66,7 +66,6 @@ function useAutocomplete() {
                   id: nextId,
                   title: item.title,
                   pageTitle: item.pageTitle,
-                  snippet: item.snippet,
                   label: query,
                 })
                 router.push(itemUrl)
@@ -112,7 +111,7 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
   const sectionTitle = meta?.nav && meta.nav.alt ? `${meta.nav.alt}` : null
   const hierarchy = meta?.nav ? [meta.nav.parent, meta.nav.child, meta.nav.title].filter(Boolean) : [sectionTitle, result.pageTitle].filter(Boolean)
   const description = meta?.description ? meta.description : null
-  const snippet = result?.snippet ? result.snippet : null
+  const content = result?.content ? result.content : null
 
   function onRemove(id) {
     recentSearchesPlugin.data.removeItem(id)
@@ -127,7 +126,7 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
       id: nextId,
       title: result.title,
       pageTitle: result.pageTitle,
-      snippet: result.snippet,
+      content: result.content,
       label: query,
     })
     router.push(goToUrl)
@@ -143,7 +142,19 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
           source: collection.source,
         })}
         role={result.url ? 'button' : 'listitem'}
-        onClick={result.url ? () => goToSearchResult(result) : undefined}
+        onClick={() => {
+          if (result.url) {
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'Search', {
+                event_category: 'Result Click',
+                event_label: result.title || '',
+                value: result.title?.length || 0,
+              })
+            }
+
+            goToSearchResult(result)
+          }
+        }}
       >
         <div id={`title-${result.id}`} aria-hidden="true" className="text-sm text-slate-700 group-aria-selected:text-sky-600 dark:text-slate-300 dark:group-aria-selected:text-sky-400">
           <HighlightQuery text={result.title} query={query} />
@@ -168,10 +179,10 @@ function SearchResult({ result, autocomplete, collection, query, recentResult = 
           </div>
         )}
 
-        {/* Search Result Snippet */}
-        {snippet && !snippet.slice(0, 50).startsWith(description.slice(0, 50)) && (
+        {/* Search Result content */}
+        {content && !content.toLowerCase().replace('\n', ' ').includes(description.toLowerCase().replace('\n', ' ')) && (
           <div aria-hidden="true" className="mt-0.5 truncate whitespace-nowrap text-xs text-slate-400 dark:text-slate-400">
-            <HighlightQuery text={snippet} query={query} />
+            <HighlightQuery text={content} query={query} />
           </div>
         )}
 
@@ -261,6 +272,15 @@ const SearchInput = forwardRef(function SearchInput({ autocomplete, autocomplete
           autocompleteState.status === 'stalled' || autocompleteState.status === 'loading' ? 'pr-11' : 'pr-4'
         )}
         {...inputProps}
+        onInput={(event) => {
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'Search', {
+              event_category: 'Input',
+              event_label: autocompleteState.query || '',
+              value: autocompleteState.query?.length || 0,
+            })
+          }
+        }}
         onKeyDown={(event) => {
           if (event.key === 'Escape' && !autocompleteState.isOpen && autocompleteState.query === '') {
             // In Safari, closing the dialog with the escape key can sometimes cause the scroll position to jump to the

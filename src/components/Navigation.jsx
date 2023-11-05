@@ -101,11 +101,19 @@ export function Navigation({ navigation, className }) {
 
   const [scrollTimer, setScrollTimer] = useState(null)
 
-  const handleSectionClick = (index) => () => {
+  const handleSectionClick = (index, title) => () => {
     setInitialOpen(false)
     let newSectionOpen = [...sectionOpen]
     newSectionOpen[index] = !newSectionOpen[index]
     setSectionOpen(newSectionOpen)
+
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'Nav', {
+        event_category: 'Menu Toggle',
+        event_label: title || '',
+        value: newSectionOpen[index] ? 1 : 0,
+      })
+    }
   }
 
   // Handle some DOM specific stuff we need to support with the navigation
@@ -233,6 +241,14 @@ export function Navigation({ navigation, className }) {
                   setFilteredNavigation(navigation)
                 }
 
+                if (typeof gtag !== 'undefined') {
+                  gtag('event', 'Nav', {
+                    event_category: 'Menu Filter',
+                    event_label: value || '',
+                    value: value?.length || 0,
+                  })
+                }
+
                 setSearch(e.target.value)
               }}
               className="dark:highlight-white/5 w-full items-center rounded-md py-1.5 pl-11 pr-3 text-base leading-6 text-slate-400 shadow-sm ring-1 ring-slate-900/10 hover:ring-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 lg:flex lg:text-sm"
@@ -254,7 +270,7 @@ export function Navigation({ navigation, className }) {
             <li key={section.title}>
               <button
                 className={classNames(shouldSectionOpen(sectionOpen[index], section.title, router.pathname, inputRef?.current?.value) ? 'text-sky-500' : 'text-slate-900 dark:text-white', 'flex w-full py-2 font-display font-medium')}
-                onClick={handleSectionClick(index)}
+                onClick={handleSectionClick(index, section.title)}
               >
                 <HighlightQuery text={section.title} query={inputRef?.current?.value || null} />
                 <ChevronDoubleRightIcon
@@ -272,7 +288,16 @@ export function Navigation({ navigation, className }) {
                             <>
                               <Disclosure.Button
                                 title={link.alt}
-                                onClick={() => setInitialOpen(false)}
+                                onClick={() => {
+                                  if (typeof gtag !== 'undefined') {
+                                    gtag('event', 'Nav', {
+                                      event_category: 'Sub Menu Toggle',
+                                      event_label: link.alt || '',
+                                      value: shouldPanelOpen(open, section.title, link.title, router.pathname, inputRef?.current?.value),
+                                    })
+                                  }
+                                  setInitialOpen(false)
+                                }}
                                 className={clsx(
                                   'm-0 flex w-full rounded-r-md py-2 pl-3.5 font-medium before:pointer-events-none before:absolute before:-left-0.5 before:top-5 before:h-10 before:w-0.5 before:-translate-y-1/2 hover:before:block hover:before:bg-sky-500/40',
                                   shouldPanelOpen(open, section.title, link.title, router.pathname, inputRef?.current?.value)
@@ -307,6 +332,15 @@ export function Navigation({ navigation, className }) {
                                           title={child.alt}
                                           data-section={index}
                                           scroll={false}
+                                          onClick={() => {
+                                            if (typeof gtag !== 'undefined') {
+                                              gtag('event', 'Nav', {
+                                                event_category: 'Menu Click',
+                                                event_label: child.alt || '',
+                                                value: child.alt?.length || 0,
+                                              })
+                                            }
+                                          }}
                                           className={clsx(
                                             'block w-full truncate pl-3 text-sm before:pointer-events-none before:absolute before:-left-0.5 before:top-3 before:h-8 before:w-0.5 before:-translate-y-1/2 before:rounded-full',
                                             child.href === router.pathname

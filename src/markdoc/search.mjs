@@ -98,22 +98,32 @@ const search = function (nextConfig = {}) {
                 document: {
                   id: 'url',
                   index: [{
+                    preset: 'score',
                     field: 'title',
                     tokenize: 'full',
                     optimize: true,
-                    resolution: 9
-                  },{
-                      field:  'content',
-                      tokenize: 'full',
-                      optimize: true,
-                      resolution: 5,
-                      minlength: 3,
-                      context: {
-                        depth: 1,
-                        resolution: 3
-                      }
+                    resolution: 5,
+                    minlength: 3,
+                    cache: true,
+                    context: {
+                      depth: 1,
+                      resolution: 3
+                    }
+                  },
+                  {
+                    preset: 'score',
+                    field:  'content',
+                    tokenize: 'full',
+                    optimize: true,
+                    resolution: 5,
+                    minlength: 3,
+                    cache: true,
+                    context: {
+                      depth: 1,
+                      resolution: 3
+                    }
                   }],
-                  store: ['title', 'pageTitle', 'snippet'],
+                  store: ['title', 'pageTitle', 'content'],
                 }
               })
 
@@ -121,11 +131,13 @@ const search = function (nextConfig = {}) {
 
               for (let { url, sections } of data) {
                 for (let [title, hash, content] of sections) {
+                  const indexURL = url + (hash ? ('#' + hash) : '');
+                  const indexContent = [title, ...content.slice(0, 3)].join('\\n');
+
                   sectionIndex.add({
-                    url: url + (hash ? ('#' + hash) : ''),
+                    url: indexURL,
                     title,
-                    content: [title, ...content].join(' \\n'),
-                    snippet: content.slice(0, 3).join(' \\n'),
+                    content: indexContent,
                     pageTitle: hash ? sections[0][0] : undefined,
                   })
                 }
@@ -157,12 +169,16 @@ const search = function (nextConfig = {}) {
                 const getScore = (query, item) => {
                   const keywords = query.split(' ')
                   const title = item.doc.title ? cleanTitle(item.doc.title.toLowerCase()) : null
-                  const snippet = item.doc.snippet ? item.doc.snippet : null
+                  const content = item.doc.content ? item.doc.content.toLowerCase().replace('\\n', ' ') : null
                   const pageTitle = item.doc.pageTitle ? cleanTitle(item.doc.pageTitle.toLowerCase()) : null
                   const id = item.id ? item.id.toLowerCase() : null
 
                   let score = 0
                   let regX, result
+
+                  if (id.includes('deprecated')) {
+                    score = -100;
+                  }
 
                   keywords.forEach((keyword) => {
                     if (id && id.includes(keyword)) {
@@ -173,6 +189,7 @@ const search = function (nextConfig = {}) {
 
                       score += result ? (result.length / id.length) : 0
                     }
+
                     if (title && title.includes(keyword)) {
                       score += 1
 
@@ -181,6 +198,7 @@ const search = function (nextConfig = {}) {
 
                       score += result ? (result.length / id.length) : 0
                     }
+
                     if (pageTitle && pageTitle.includes(keyword)) {
                       score += 1
 
@@ -189,11 +207,12 @@ const search = function (nextConfig = {}) {
 
                       score += result ? (result.length / id.length) : 0
                     }
-                    if (snippet && snippet.includes(keyword)) {
+
+                    if (content && content.includes(keyword)) {
                       score += 1
 
                       regX = new RegExp(\`\$\{keyword\}\`, 'i')
-                      result = snippet.match(regX)[0];
+                      result = content.match(regX)[0];
 
                       score += result ? (result.length / id.length) : 0
                     }
@@ -206,7 +225,7 @@ const search = function (nextConfig = {}) {
                   url: item.id,
                   title: cleanTitle(item.doc.title),
                   pageTitle: cleanTitle(item.doc.pageTitle),
-                  snippet: item.doc.snippet,
+                  content: item.doc.content,
                   score: getScore(query, item)
                 }))
 

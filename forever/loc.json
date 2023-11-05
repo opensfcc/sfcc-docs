@@ -1,0 +1,10 @@
+{
+  "uid": "local",
+  "append": true,
+  "watch": true,
+  "script": "server.cjs",
+  "sourceDir": "./",
+  "logFile": "web-loc.log",
+  "outFile": "out-loc.log",
+  "errFile": "err-loc.log"
+}

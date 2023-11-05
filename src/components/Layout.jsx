@@ -122,22 +122,24 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false, is
 
   return (
     <main className={isEmbedded === null ? 'hidden' : 'ready'}>
-      <a
-        id="skip-to-content-link"
-        className="duration-350 absolute left-1/2 top-0 z-20 w-36 -translate-x-1/2 -translate-y-full transform rounded-b-md bg-slate-950 px-3 py-1 text-white transition focus:translate-y-0 dark:bg-slate-50 dark:text-black"
-        href="#main"
-        onClick={(evt) => {
-          document.getElementById('main').scrollIntoView()
-          evt.preventDefault()
-          evt.target.blur()
-        }}
-      >
-        Skip to Content
-      </a>
+      {isEmbedded === false && (
+        <a
+          id="skip-to-content-link"
+          className="duration-350 absolute left-1/2 top-0 z-20 w-36 -translate-x-1/2 -translate-y-full transform rounded-b-md bg-slate-950 px-3 py-1 text-white transition focus:translate-y-0 dark:bg-slate-50 dark:text-black"
+          href="#main"
+          onClick={(evt) => {
+            document.getElementById('main').scrollIntoView()
+            evt.preventDefault()
+            evt.target.blur()
+          }}
+        >
+          Skip to Content
+        </a>
+      )}
 
       {navigation && isEmbedded === false && <Header navigation={navigation} />}
 
-      {isHomePage && <Hero />}
+      {isHomePage && isEmbedded === false && <Hero />}
 
       <div className="relative mx-auto flex w-full max-w-8xl flex-auto scroll-mt-20 justify-center sm:px-2 lg:px-8 xl:px-12" id="main">
         {isEmbedded === false && (
@@ -165,10 +167,10 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false, is
               <Prose>{children}</Prose>
 
               {/* Salesforce Copyright Added Back */}
-              {!isHomePage && <div className="mt-8 font-display text-sm font-medium text-slate-500 dark:text-slate-400">&copy; {new Date().getUTCFullYear()} salesforce.com, inc. All rights reserved.</div>}
+              {!isHomePage && isEmbedded === false && <div className="mt-8 font-display text-sm font-medium text-slate-500 dark:text-slate-400">&copy; {new Date().getUTCFullYear()} salesforce.com, inc. All rights reserved.</div>}
 
               {/* GitHub Search Button */}
-              {!isHomePage && (
+              {!isHomePage && isEmbedded === false && (
                 <div className="mt-10 bg-slate-50 shadow dark:bg-slate-950/40 dark:text-white sm:rounded-lg">
                   <div className="px-4 py-5 sm:p-6">
                     <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white" id="get-examples">
@@ -194,7 +196,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false, is
               )}
 
               {/* Document Diff Timeline */}
-              {!isHomePage && <DiffTimeline />}
+              {!isHomePage && isEmbedded === false && <DiffTimeline />}
             </article>
           ) : (
             children
@@ -224,7 +226,7 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false, is
             </dl>
           )}
         </div>
-        {isMarkdoc && (
+        {isMarkdoc && isEmbedded === false && (
           <div className="hidden xl:sticky xl:top-[4.75rem] xl:-mr-6 xl:block xl:h-[calc(100vh-4.75rem)] xl:flex-none xl:overflow-y-auto xl:py-16 xl:pr-6">
             <nav aria-labelledby="on-this-page-title" className="w-56">
               {tableOfContents.length > 0 && (
