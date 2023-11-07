@@ -59,3 +59,5 @@ public/fallback-*.js
 public/sitemap.xml
 public/sitemap-*.xml
 public/robots.txt
+
+*.log
