@@ -41,3 +41,8 @@ code.required {
   text-transform: uppercase;
   font-size: 0.8rem;
 }
+.prose :where(strong):not(:where([class~='not-prose'] *)) {
+  color: inherit;
+  font-weight: 600;
+  font-size: 1.2rem;
+}

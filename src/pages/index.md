@@ -20,9 +20,12 @@ You might ask, **"Are these the official SFCC docs?"** The answer is **No.** Our
 {% /quick-links %}
 
 {% callout title="Connect the Docs" %}
-Easily search the docs from external tools using the following URL. Just replace `<keyword>` with your URL encoded search term.
 
-> `https://sfccdocs.com/?q=<keyword>`
+Sure, you can use this site to search for what you are looking for, but what if you want to use some external tool instead?
+
+We've got a handy article on all the lovely ways you can search the SFCC Docs.
+
+› [SFCC Docs External Search](https://sfccdevops.com/sfcc-docs-external-search)
 
 {% /callout %}
 
