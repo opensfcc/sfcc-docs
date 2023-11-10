@@ -2,7 +2,7 @@
   "uid": "development",
   "append": true,
   "watch": true,
-  "script": "server.cjs",
+  "script": "multicore.cjs",
   "sourceDir": "./",
   "logFile": "web-dev.log",
   "outFile": "out-dev.log",

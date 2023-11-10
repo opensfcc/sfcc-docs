@@ -81,11 +81,13 @@ export default function App({ Component, pageProps }) {
 
   const baseURL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sfccdocs.com'
   const googleAnalytics = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || 'G-G1ER54K5N0'
+  const isProduction = baseURL === 'https://sfccdocs.com'
 
   const metaTitle = pageProps.markdoc?.frontmatter.metaTitle
   const metaDescription = pageProps.markdoc?.frontmatter.metaDescription
   const metaKeywords = pageProps.markdoc?.frontmatter.metaKeywords
   const metaURL = `${baseURL}${router.pathname}`
+  const metaIndex = isProduction ? 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1, noodp, noydir' : 'noindex, nofollow, noodp, noydir'
 
   const tableOfContents = pageProps.markdoc?.content ? collectHeadings(pageProps.markdoc.content) : []
 
@@ -104,10 +106,9 @@ export default function App({ Component, pageProps }) {
         <meta name="keywords" content={metaKeywords} />
 
         {/* Bot Settings */}
-        <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-        <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-        <meta name="robots" content="noodp,noydir" />
-        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="googlebot" content={metaIndex} />
+        <meta name="bingbot" content={metaIndex} />
+        <meta name="robots" content={metaIndex} />
 
         {/* PWA Settings */}
         <meta name="application-name" content="SFCC Docs" />
@@ -132,7 +133,7 @@ export default function App({ Component, pageProps }) {
 
         {/* Twitter Schema */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:creator" content="@mrmidi" />
+        <meta name="twitter:creator" content="@sfccdevops" />
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content={`${baseURL}/assets/website-card.png`} />
         <meta name="twitter:title" content={metaTitle} />
@@ -155,7 +156,7 @@ export default function App({ Component, pageProps }) {
         <link rel="mask-icon" href="/assets/icons/mask-icon.png" color="#0f162a" />
 
         {/* PWA Manifest */}
-        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials" />
       </Head>
       <Layout title={metaTitle} tableOfContents={tableOfContents} isMarkdoc={Boolean(pageProps.markdoc)} isEmbedded={isEmbedded}>
         <Component {...pageProps} />

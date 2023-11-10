@@ -2,7 +2,7 @@
   "uid": "production",
   "append": true,
   "watch": true,
-  "script": "server.cjs",
+  "script": "multicore.cjs",
   "sourceDir": "./",
   "logFile": "web-prd.log",
   "outFile": "out-prd.log",
