@@ -61,3 +61,4 @@ public/sitemap-*.xml
 public/robots.txt
 
 *.log
+.cache/*.json
