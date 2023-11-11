@@ -2,6 +2,23 @@
 
 > Here's our record of all notable changes
 
+## v0.6.0
+
+- Fixes #21 Search Results now contain snippet of closest text to searched keyword
+- Fixes #25 with new `/api/search` endpoint
+- Fixes #26 but supporting adding an `embed=true` param to any URL
+- Fixed environmental variables for public site
+- Add support to store API search results as cached
+- Added CORS support for calling API from other websites
+- Added support for Multicore CPUs
+- Added Robot instructions for dev env to `noindex`
+- Added `build id` for build process
+- Added Google Analytics with Anonymous IP
+- Added event tracking so we can track most searched terms
+- Added support to run server on different ports
+- Updated search result scores to make deprecated items show up last
+- Updated Home Page to provide link to [SFCC Docs External Search](https://sfccdevops.com/sfcc-docs-external-search) document
+
 ## v0.5.0
 
 - Fixes #20 Whitespace Issues
