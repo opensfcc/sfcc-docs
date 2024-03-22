@@ -39,6 +39,6 @@ if (fs.existsSync(SUPPORTED_VERSIONS_FILE)) {
 
 // Export version information
 export const SUPPORTED_VERSIONS = supportedVersions
-export const UPCOMING_VERSION = supportedVersions ? supportedVersions.find((version) => version.release === 'upcoming').value : null
-export const CURRENT_VERSION = supportedVersions ? supportedVersions.find((version) => version.release === 'current').value : null
+export const UPCOMING_VERSION = supportedVersions ? supportedVersions.find((version) => version.release === 'upcoming')?.value : null
+export const CURRENT_VERSION = supportedVersions ? supportedVersions.find((version) => version.release === 'current')?.value : null
 export const SELECTED_VERSION = process.env.SELECTED_VERSION && supportedVersions ? supportedVersions.find((version) => version.value === process.env.SELECTED_VERSION.toString()).value : CURRENT_VERSION
