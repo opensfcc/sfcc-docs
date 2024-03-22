@@ -457,6 +457,12 @@ export default async (cli) => {
       description = meta[url].deprecated ? `[DEPRECATED] ${parent}: ${title}` : `${parent}: ${title}`
     }
 
+    // Trim Text
+    parent = parent.trim()
+    title = title.trim()
+    description = description.trim()
+    groupTitle = groupTitle.trim()
+
     // Update Mapping
     meta[url].parent = parent
     meta[url].group = groupTitle
@@ -476,6 +482,7 @@ export default async (cli) => {
     navTitle = navTitle.replace(reParent, '')
     navTitle = navTitle.replace(reGroup, '')
     navTitle = navTitle.replace(reGroupAlt, '')
+    navTitle = navTitle.trim()
 
     meta[url].nav = {
       parent: parent,

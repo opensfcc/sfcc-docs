@@ -167,7 +167,8 @@ export function Layout({ children, title, tableOfContents, isMarkdoc = false, is
               <Prose>{children}</Prose>
 
               {/* Salesforce Copyright Added Back */}
-              {!isHomePage && isEmbedded === false && <div className="mt-8 font-display text-sm font-medium text-slate-500 dark:text-slate-400">&copy; {new Date().getUTCFullYear()} salesforce.com, inc. All rights reserved.</div>}
+              {!isHomePage && isEmbedded === false && <div className="mt-8 font-display text-sm font-medium text-slate-500 dark:text-slate-400">&copy; Copyright 2000-{new Date().getUTCFullYear()} salesforce.com inc. All rights reserved. Various
+trademarks held by their respective owners.</div>}
 
               {/* GitHub Search Button */}
               {!isHomePage && isEmbedded === false && (

@@ -32,13 +32,13 @@ export default (cli) => {
   // First pass to create parents
   metaKeys.forEach((key) => {
     // Check for existing primary nav
-    const idx = nav.findIndex((parent) => parent.title === meta[key]?.nav.parent)
+    const idx = nav.findIndex((parent) => parent.title.trim() === meta[key]?.nav.parent.trim())
 
     // Make new nav group if necessary
     if (idx < 0) {
       nav.push({
-        title: meta[key].nav.parent,
-        alt: `Choose a ${meta[key].nav.parent}`,
+        title: meta[key].nav.parent.trim(),
+        alt: `Choose a ${meta[key].nav.parent.trim()}`,
         href: '#',
         links: [],
       })
@@ -48,14 +48,14 @@ export default (cli) => {
   // Second Pass to create groups within parents
   metaKeys.forEach((key) => {
     // Check for existing primary nav
-    const idx = nav.findIndex((parent) => parent.title === meta[key]?.nav.parent)
-    const groupIdx = nav[idx].links.findIndex((group) => group.title === meta[key]?.nav.child)
+    const idx = nav.findIndex((parent) => parent.title.trim() === meta[key]?.nav.parent.trim())
+    const groupIdx = nav[idx].links.findIndex((group) => group.title.trim() === meta[key]?.nav.child.trim())
 
     // Make new nav group if necessary
     if (groupIdx < 0) {
       nav[idx].links.push({
-        title: meta[key].nav.child,
-        alt: `${meta[key]?.nav.parent} › ${meta[key].nav.child}`,
+        title: meta[key].nav.child.trim(),
+        alt: `${meta[key]?.nav.parent.trim()} › ${meta[key].nav.child.trim()}`,
         href: '#',
         children: [],
       })
@@ -65,13 +65,13 @@ export default (cli) => {
   // Last pass to create links within groups
   metaKeys.forEach((key) => {
     // Check for existing primary nav
-    const idx = nav.findIndex((parent) => parent.title === meta[key]?.nav.parent)
-    const groupIdx = nav[idx].links.findIndex((group) => group.title === meta[key]?.nav.child)
+    const idx = nav.findIndex((parent) => parent.title.trim() === meta[key]?.nav.parent.trim())
+    const groupIdx = nav[idx].links.findIndex((group) => group.title.trim() === meta[key]?.nav.child.trim())
 
     if (idx > -1 && groupIdx > -1) {
       nav[idx].links[groupIdx].children.push({
-        title: meta[key].nav.title,
-        alt: meta[key].nav.alt,
+        title: meta[key].nav.title.trim(),
+        alt: meta[key].nav.alt.trim(),
         href: meta[key].deprecated ? `/deprecated${key}` : key,
         deprecated: meta[key].deprecated,
       })
@@ -79,12 +79,12 @@ export default (cli) => {
   })
 
   // Sort all the things
-  nav.sort((a, b) => (a.title > b.title ? 1 : -1))
-  nav.forEach((page) => page.links.sort((a, b) => (a.title > b.title ? 1 : -1)))
+  nav.sort((a, b) => (a.title.trim() > b.title.trim() ? 1 : -1))
+  nav.forEach((page) => page.links.sort((a, b) => (a.title.trim() > b.title.trim() ? 1 : -1)))
   nav.forEach((page) =>
     page.links.forEach((sub) => {
       if (sub.children) {
-        sub.children.sort((a, b) => (a.title > b.title ? 1 : -1))
+        sub.children.sort((a, b) => (a.title.trim() > b.title.trim() ? 1 : -1))
       }
     })
   )
