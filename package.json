@@ -1,5 +1,5 @@
 {
-  "name": "@sfccdevops/sfcc-docs",
+  "name": "@opensfcc/sfcc-docs",
   "version": "0.7.0",
   "description": "Unofficial community edition of the Salesforce Commerce Cloud developer documentation.",
   "license": "MIT",
@@ -46,12 +46,12 @@
   "browserslist": "defaults, not ie <= 11",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sfccdevops/sfcc-docs.git"
+    "url": "git+https://github.com/opensfcc/sfcc-docs.git"
   },
   "bugs": {
-    "url": "https://github.com/sfccdevops/sfcc-docs/issues"
+    "url": "https://github.com/opensfcc/sfcc-docs/issues"
   },
-  "homepage": "https://github.com/sfccdevops/sfcc-docs#readme",
+  "homepage": "https://github.com/opensfcc/sfcc-docs#readme",
   "dependencies": {
     "@algolia/autocomplete-core": "^1.9.2",
     "@algolia/autocomplete-plugin-recent-searches": "^1.11.0",
