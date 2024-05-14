@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
 
 LABEL maintainer "Peter Schmalfeldt <me@peterschmalfeldt.com>"
 LABEL description="SFCC Docs Remote Container"
-LABEL vendor="SFCC DevOps"
+LABEL vendor="OpenSFCC"
 LABEL version="1.0.0"
 
 # Support Signed Commit Messages
