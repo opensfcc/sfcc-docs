@@ -16,7 +16,7 @@
   "remoteEnv": {
     "CONTAINER_BASE": "${containerWorkspaceFolder}",
     "CONTAINER_NAME": "${containerWorkspaceFolderBasename}",
-    "COMPANY_NAME": "SFCC DevOps",
+    "COMPANY_NAME": "OpenSFCC",
     "PROJECT_NAME": "SFCC Docs"
   },
 
