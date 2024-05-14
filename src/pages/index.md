@@ -25,7 +25,7 @@ Sure, you can use this site to search for what you are looking for, but what if 
 
 We've got a handy article on all the lovely ways you can search the SFCC Docs.
 
-› [SFCC Docs External Search](https://sfccdevops.com/sfcc-docs-external-search)
+› [SFCC Docs External Search](https://opensfcc.com/sfcc-docs-external-search)
 
 {% /callout %}
 
@@ -33,4 +33,4 @@ We've got a handy article on all the lovely ways you can search the SFCC Docs.
 
 ## Disclaimer
 
-The trademarks and product names of Salesforce®, including the mark Salesforce®, are the property of Salesforce.com. SFCC DevOps is not affiliated with Salesforce.com, nor does Salesforce.com sponsor or endorse the SFCC DevOps products or website. The use of the Salesforce® trademark on this project does not indicate an endorsement, recommendation, or business relationship between Salesforce.com and SFCC DevOps.
+The trademarks and product names of Salesforce®, including the mark Salesforce®, are the property of Salesforce.com. OpenSFCC is not affiliated with Salesforce.com, nor does Salesforce.com sponsor or endorse the OpenSFCC products or website. The use of the Salesforce® trademark on this project does not indicate an endorsement, recommendation, or business relationship between Salesforce.com and OpenSFCC.
