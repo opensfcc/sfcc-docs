@@ -5,13 +5,13 @@ governed by our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Issues & Feature Requests
 
-[![Create Issue](https://img.shields.io/badge/Github-Create_Issue-red.svg?style=for-the-badge&logo=github&logoColor=ffffff&logoWidth=16)](https://github.com/FindByColor/api/issues/new/choose)
+[![Create Issue](https://img.shields.io/badge/Github-Create_Issue-red.svg?style=for-the-badge&logo=github&logoColor=ffffff&logoWidth=16)](https://github.com/opensfcc/sfcc-docs/issues/new/choose)
 
 ### Bug Fix
 
 > We're sorry things are not working as expected, and want to get things fixed ASAP. In order to help us do that, we need a few things from you.
 
-1. Create a [New Issue](https://github.com/FindByColor/api/issues/new/choose)
+1. Create a [New Issue](https://github.com/opensfcc/sfcc-docs/issues/new/choose)
 2. Enter a Short but Descriptive Title for the Issue
 3. Use the Template Provided and fill in as much as you can, if something does not apply, enter `N/A`
 4. Look for the `Labels` section, and select `Bug Report` from the drop down menu
@@ -21,7 +21,7 @@ governed by our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 > Got an idea for a new feature? We'd love to hear it! In order to get this knocked out, we will need a few things from you.
 
-1. Create a [New Issue](https://github.com/FindByColor/api/issues/new/choose)
+1. Create a [New Issue](https://github.com/opensfcc/sfcc-docs/issues/new/choose)
 2. Enter a Short but Descriptive Title for the Feature Request
 3. Use the Template Provided and fill in as much as you can, if something does not apply, enter `N/A` ( you can delete the `Steps to Duplicate:` section as that does not apply )
 4. Look for the `Labels` section, and select `Feature Request` from the drop down menu
@@ -29,7 +29,7 @@ governed by our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Pull Requests
 
-[![Create Pull Request](https://img.shields.io/badge/Github-Create_Pull_Request-blue.svg?style=for-the-badge&logo=github&logoColor=ffffff&logoWidth=16)](https://github.com/FindByColor/api/compare)
+[![Create Pull Request](https://img.shields.io/badge/Github-Create_Pull_Request-blue.svg?style=for-the-badge&logo=github&logoColor=ffffff&logoWidth=16)](https://github.com/opensfcc/sfcc-docs/compare)
 
 ### Bug Fix
 
